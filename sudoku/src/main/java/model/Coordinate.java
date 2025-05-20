@@ -4,6 +4,10 @@ public interface Coordinate {
     int row();
 
     int column();
+    
+    static Coordinate create(final int row, final int column) {
+        return new CoordinateImpl(row, column);
+    }
 
     record CoordinateImpl(int row, int column) implements Coordinate {
         
