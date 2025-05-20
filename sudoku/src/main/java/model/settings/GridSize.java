@@ -1,4 +1,4 @@
-package model;
+package model.settings;
 
 import de.sfuhrm.sudoku.GameSchema;
 import de.sfuhrm.sudoku.GameSchemas;

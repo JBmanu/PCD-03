@@ -1,4 +1,4 @@
-package model;
+package model.settings;
 
 public enum Difficulty {
     EASY(30),
