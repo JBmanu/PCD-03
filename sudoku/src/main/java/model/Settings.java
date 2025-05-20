@@ -5,7 +5,7 @@ import de.sfuhrm.sudoku.GameSchemas;
 
 public interface Settings {
 
-    static Settings createSettings(final Size size, final Difficulty difficulty) {
+    static Settings create(final Size size, final Difficulty difficulty) {
         return new SettingsImpl(size, difficulty);
     }
 
