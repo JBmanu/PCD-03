@@ -5,28 +5,32 @@ import de.sfuhrm.sudoku.GameSchemas;
 
 public interface Settings {
 
-    static Settings create(final Size size, final Difficulty difficulty) {
-        return new SettingsImpl(size, difficulty);
+    static Settings create(final Schema schema, final Difficulty difficulty) {
+        return new SettingsImpl(schema, difficulty);
     }
 
 
-    Size size();
+    Schema schema();
+    
+    int size();
 
     Difficulty difficulty();
 
 
-    enum Size {
-        SCHEMA_4x4(GameSchemas.SCHEMA_4X4, "4 X 4"),
-        SCHEMA_9x9(GameSchemas.SCHEMA_9X9, "9 X 9"),
-        SCHEMA_16X16(GameSchemas.SCHEMA_16X16, "16 X 16"),
-        SCHEMA_25X25(GameSchemas.SCHEMA_25X25, "25 X 25");
+    enum Schema {
+        SCHEMA_4x4(GameSchemas.SCHEMA_4X4, "4 X 4", GameSchemas.SCHEMA_4X4.getWidth()),
+        SCHEMA_9x9(GameSchemas.SCHEMA_9X9, "9 X 9", GameSchemas.SCHEMA_9X9.getWidth()),
+        SCHEMA_16X16(GameSchemas.SCHEMA_16X16, "16 X 16", GameSchemas.SCHEMA_16X16.getWidth()),
+        SCHEMA_25X25(GameSchemas.SCHEMA_25X25, "25 X 25", GameSchemas.SCHEMA_25X25.getWidth());
 
         private final GameSchema schema;
         private final String name;
+        private final int size;
 
-        Size(final GameSchema schema, final String name) {
+        Schema(final GameSchema schema, final String name, final int size) {
             this.schema = schema;
             this.name = name;
+            this.size = size;
         }
 
         public GameSchema schema() {
@@ -43,15 +47,15 @@ public interface Settings {
         EASY(30),
         MEDIUM(40),
         HARD(50);
-        
+
         private final int percent;
 
         Difficulty(final int percent) {
             this.percent = percent;
         }
 
-        public int computeMaxNumbersToClear(final Size size) {
-            return (size.schema().getWidth() * size.schema().getWidth() * this.percent) / 100;
+        public int computeMaxNumbersToClear(final Schema schema) {
+            return (schema.schema().getWidth() * schema.schema().getWidth() * this.percent) / 100;
         }
 
         public int percent() {
@@ -60,11 +64,17 @@ public interface Settings {
     }
 
 
-    record SettingsImpl(Size size, Difficulty difficulty) implements Settings {
+    record SettingsImpl(Schema schema, Difficulty difficulty) implements Settings {
 
         @Override
-        public String toString() {
-            return "Settings: size[" + this.size + "] difficulty[" + this.difficulty + "]";
+        public int size() {
+            return this.schema.size;
         }
+        
+        @Override
+        public String toString() {
+            return "Settings: size[" + this.schema + "] difficulty[" + this.difficulty + "]";
+        }
+
     }
 }

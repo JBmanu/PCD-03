@@ -9,6 +9,8 @@ public interface Grid {
         return new GridImpl(settings);
     }
 
+    
+    int size();
 
     class GridImpl implements Grid {
         private final Settings settings;
@@ -17,13 +19,17 @@ public interface Grid {
         private final GameMatrix currentGrid;
 
         public GridImpl(final Settings settings) {
-            final int maxNumbersToClear = settings.difficulty().computeMaxNumbersToClear(settings.size());
+            final int maxNumbersToClear = settings.difficulty().computeMaxNumbersToClear(settings.schema());
 
             this.settings = settings;
-            this.solution = Creator.createFull(settings.size().schema());
+            this.solution = Creator.createFull(settings.schema().schema());
             this.startGrid = Creator.createRiddle(this.solution, maxNumbersToClear);
             this.currentGrid = this.startGrid;
         }
 
+        @Override
+        public int size() {
+            return this.settings.size();
+        }
     }
 }
