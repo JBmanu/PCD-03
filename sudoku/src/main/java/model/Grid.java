@@ -4,7 +4,6 @@ import de.sfuhrm.sudoku.Creator;
 import de.sfuhrm.sudoku.GameMatrix;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public interface Grid {
@@ -15,8 +14,11 @@ public interface Grid {
 
     
     int size();
+
+    boolean isValidSolution();
     
     Map<Coordinate, Integer> solution();
+    
 
     class GridImpl implements Grid {
         private final Settings settings;
@@ -38,6 +40,11 @@ public interface Grid {
             return this.settings.size();
         }
 
+        @Override
+        public boolean isValidSolution() {
+            return this.solution.isValid();
+        }
+
         private Map<Coordinate, Integer> convertToMap(final GameMatrix matrix) {
             final Map<Coordinate, Integer> cells = new HashMap<>();
             final int length = matrix.getSchema().getWidth();
@@ -55,5 +62,7 @@ public interface Grid {
         public Map<Coordinate, Integer> solution() {
             return this.convertToMap(this.solution);
         }
+
+
     }
 }

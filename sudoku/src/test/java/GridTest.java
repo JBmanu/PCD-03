@@ -36,15 +36,15 @@ public class GridTest {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             grid.solution().values().forEach(value ->
-                    assertTrue(value > ZERO_VALUE && value <= settings.size()));
+                    assertTrue(value > ZERO_VALUE && value <= grid.size()));
         });
     }
 
     @Test
-    public void isValidValue() {
-        this.settingsList.forEach(settings -> {
-            final Grid grid = Grid.create(settings);
-        });
+    public void isValidSolution() {
+        this.settingsList.stream()
+                .map(Grid::create)
+                .forEach(grid -> assertTrue(grid.isValidSolution()));
     }
 
 
