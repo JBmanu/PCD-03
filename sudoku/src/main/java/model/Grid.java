@@ -5,7 +5,6 @@ import de.sfuhrm.sudoku.GameMatrix;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public interface Grid {
     static Grid create(final Settings settings) {
@@ -13,28 +12,28 @@ public interface Grid {
     }
 
     int emptyValue();
-    
+
     int size();
 
     boolean isValidSolution();
-    
+
     Map<Coordinate, Integer> solution();
+
     Map<Coordinate, Integer> startGrid();
 
     boolean isStartGridCreateFromSolution();
 
+    void setValue(Coordinate coordinate, int value);
 
     class GridImpl implements Grid {
         private final Settings settings;
         private final GameMatrix solution;
         private final GameMatrix startGrid;
-        private final GameMatrix currentGrid;
 
         public GridImpl(final Settings settings) {
             this.settings = settings;
             this.solution = Creator.createFull(settings.schema().schema());
             this.startGrid = Creator.createRiddle(this.solution, settings.maxNumbersToClear());
-            this.currentGrid = this.startGrid;
         }
 
         @Override
@@ -78,16 +77,21 @@ public interface Grid {
         @Override
         public boolean isStartGridCreateFromSolution() {
             final Map<Coordinate, Integer> solution = this.solution();
-            
+            final int zeroDifferent = 0;
+
             final long countDifferentValue = this.startGrid().entrySet().stream()
                     .filter(entry ->
-                            !entry.getValue().equals(this.emptyValue()) && 
-                            !entry.getValue().equals(solution.get(entry.getKey())))
+                            !entry.getValue().equals(this.emptyValue()) &&
+                                    !entry.getValue().equals(solution.get(entry.getKey())))
                     .count();
-            
-            return countDifferentValue == 0;
+
+            return countDifferentValue == zeroDifferent;
         }
 
+        @Override
+        public void setValue(final Coordinate coordinate, final int value) {
+            this.startGrid.set(coordinate.row(), coordinate.column(), (byte) value);
+        }
 
     }
 }

@@ -1,8 +1,11 @@
+import model.Coordinate;
 import model.Grid;
 import model.Settings;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,6 +66,18 @@ public class GridTest {
     public void startGridEqualsOfSolution() {
         this.settingsList.stream().map(Grid::create)
                 .forEach(grid -> assertTrue(grid.isStartGridCreateFromSolution()));
+    }
+    
+    @Test
+    public void setValue() {
+        this.settingsList.forEach(settings -> {
+            final Coordinate coordinate = Coordinate.create(0, 0);
+            final int value = 1;
+            
+            final Grid grid = Grid.create(settings);
+            grid.setValue(coordinate, value);
+            assertEquals(value, grid.startGrid().get(coordinate));
+        });
     }
 
 }
