@@ -4,7 +4,9 @@ import de.sfuhrm.sudoku.Creator;
 import de.sfuhrm.sudoku.GameMatrix;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface Grid {
     static Grid create(final Settings settings) {
@@ -13,32 +15,55 @@ public interface Grid {
 
     int emptyValue();
 
+    int countEmptyValue();
+
     int size();
 
     boolean isValidSolution();
 
+    boolean hasWin();
+
+    boolean isGridCreateFromSolution();
+    
+    
     Map<Coordinate, Integer> solution();
 
-    Map<Coordinate, Integer> startGrid();
-
-    boolean isStartGridCreateFromSolution();
+    Map<Coordinate, Integer> grid();
+    
+    List<Map.Entry<Coordinate, Integer>> emptyCells();
 
     void setValue(Coordinate coordinate, int value);
+
+    void suggest();
+
+
 
     class GridImpl implements Grid {
         private final Settings settings;
         private final GameMatrix solution;
-        private final GameMatrix startGrid;
+        private final GameMatrix grid;
 
         public GridImpl(final Settings settings) {
             this.settings = settings;
             this.solution = Creator.createFull(settings.schema().schema());
-            this.startGrid = Creator.createRiddle(this.solution, settings.maxNumbersToClear());
+            this.grid = Creator.createRiddle(this.solution, settings.maxNumbersToClear());
         }
 
         @Override
         public int emptyValue() {
             return 0;
+        }
+
+        @Override
+        public List<Map.Entry<Coordinate, Integer>> emptyCells() {
+            return this.grid().entrySet().stream()
+                    .filter(entry -> entry.getValue().equals(this.emptyValue()))
+                    .toList();
+        }
+        
+        @Override
+        public int countEmptyValue() {
+            return this.emptyCells().size();
         }
 
         @Override
@@ -49,6 +74,11 @@ public interface Grid {
         @Override
         public boolean isValidSolution() {
             return this.solution.isValid();
+        }
+
+        @Override
+        public boolean hasWin() {
+            return this.grid.isValid();
         }
 
         private Map<Coordinate, Integer> convertToMap(final GameMatrix matrix) {
@@ -70,16 +100,16 @@ public interface Grid {
         }
 
         @Override
-        public Map<Coordinate, Integer> startGrid() {
-            return this.convertToMap(this.startGrid);
+        public Map<Coordinate, Integer> grid() {
+            return this.convertToMap(this.grid);
         }
 
         @Override
-        public boolean isStartGridCreateFromSolution() {
+        public boolean isGridCreateFromSolution() {
             final Map<Coordinate, Integer> solution = this.solution();
             final int zeroDifferent = 0;
 
-            final long countDifferentValue = this.startGrid().entrySet().stream()
+            final long countDifferentValue = this.grid().entrySet().stream()
                     .filter(entry ->
                             !entry.getValue().equals(this.emptyValue()) &&
                                     !entry.getValue().equals(solution.get(entry.getKey())))
@@ -90,7 +120,18 @@ public interface Grid {
 
         @Override
         public void setValue(final Coordinate coordinate, final int value) {
-            this.startGrid.set(coordinate.row(), coordinate.column(), (byte) value);
+            this.grid.set(coordinate.row(), coordinate.column(), (byte) value);
+        }
+
+        @Override
+        public void suggest() {
+            final Optional<Map.Entry<Coordinate, Integer>> firstCleanCell = this.emptyCells().stream().findFirst();
+            
+            firstCleanCell.ifPresent(entry -> {
+                final Coordinate position = entry.getKey();
+                final int value = this.solution.get(position.row(), position.column());
+                this.setValue(position, value);
+            });
         }
 
     }

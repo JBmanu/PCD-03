@@ -51,21 +51,17 @@ public class GridTest {
     }
 
     @Test
-    public void checkCleanValuesOfStartGrid() {
+    public void checkCleanValuesOfGrid() {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
-            final long cleanValues = grid.startGrid().values().stream()
-                    .filter(value -> value.equals(grid.emptyValue()))
-                    .count();
-
-            assertEquals(settings.maxNumbersToClear(), cleanValues);
+            assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
         });
     }
 
     @Test
-    public void startGridEqualsOfSolution() {
+    public void gridEqualsOfSolution() {
         this.settingsList.stream().map(Grid::create)
-                .forEach(grid -> assertTrue(grid.isStartGridCreateFromSolution()));
+                .forEach(grid -> assertTrue(grid.isGridCreateFromSolution()));
     }
     
     @Test
@@ -76,7 +72,28 @@ public class GridTest {
             
             final Grid grid = Grid.create(settings);
             grid.setValue(coordinate, value);
-            assertEquals(value, grid.startGrid().get(coordinate));
+            assertEquals(value, grid.grid().get(coordinate));
+        });
+    }
+    
+    @Test
+    public void suggest() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
+            grid.suggest();
+            assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue() + 1);
+            
+        });
+    }
+    
+    @Test
+    public void hasWin() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            grid.emptyCells().forEach(_ -> grid.suggest());
+            
+            assertTrue(grid.hasWin());
         });
     }
 
