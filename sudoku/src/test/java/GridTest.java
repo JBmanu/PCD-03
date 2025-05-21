@@ -64,13 +64,13 @@ public class GridTest {
     }
 
     @Test
-    public void setValue() {
+    public void saveValue() {
         this.settingsList.forEach(settings -> {
             final Coordinate coordinate = Coordinate.create(0, 0);
             final int value = 1;
 
             final Grid grid = Grid.create(settings);
-            grid.setValue(coordinate, value);
+            grid.saveValue(coordinate, value);
             assertEquals(value, grid.grid().get(coordinate));
         });
     }
@@ -95,28 +95,39 @@ public class GridTest {
     }
 
     @Test
-    public void backFromSetValue() {
+    public void undoFromSaveValue() {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             final Map.Entry<Coordinate, Integer> firstEmptyCell = grid.emptyCells().getFirst();
             final Coordinate coordinate = firstEmptyCell.getKey();
             final int newValue = 1;
             
-            grid.setValue(firstEmptyCell.getKey(), newValue);
+            grid.saveValue(firstEmptyCell.getKey(), newValue);
             assertEquals(newValue, grid.valueFrom(coordinate));
-            grid.back();
+            grid.undo();
             assertEquals(grid.emptyValue(), grid.valueFrom(coordinate));
         });
     }
 
     @Test
-    public void backFromSuggest() {
+    public void undoFromSuggest() {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             grid.suggest();
             assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue() + 1);
-            grid.back();
+            grid.undo();
             assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
+        });
+    }
+    
+    @Test
+    public void resetGrid() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            grid.emptyCells().forEach(_ -> grid.suggest());
+            assertTrue(grid.hasWin());
+            grid.reset();
+            assertEquals(settings.maxNumbersToClear(),grid.countEmptyValue());
         });
     }
 }

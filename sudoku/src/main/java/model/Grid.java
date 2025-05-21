@@ -4,6 +4,9 @@ import de.sfuhrm.sudoku.Creator;
 import de.sfuhrm.sudoku.GameMatrix;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public interface Grid {
     static Grid create(final Settings settings) {
@@ -23,6 +26,7 @@ public interface Grid {
 
     boolean isGridCreateFromSolution();
 
+
     Map<Coordinate, Integer> solution();
 
     Map<Coordinate, Integer> grid();
@@ -30,13 +34,15 @@ public interface Grid {
     List<Map.Entry<Coordinate, Integer>> emptyCells();
 
 
-    int valueFrom(Coordinate coordinate);
+    void saveValue(Coordinate coordinate, int value);
 
-    void setValue(Coordinate coordinate, int value);
+    int valueFrom(Coordinate coordinate);
 
     void suggest();
 
-    void back();
+    void undo();
+
+    void reset();
 
 
     class GridImpl implements Grid {
@@ -50,6 +56,10 @@ public interface Grid {
             this.historyAction = new Stack<>();
             this.solution = Creator.createFull(settings.schema().schema());
             this.grid = Creator.createRiddle(this.solution, settings.maxNumbersToClear());
+        }
+
+        private void setValue(final Coordinate coordinate, final int value) {
+            this.grid.set(coordinate.row(), coordinate.column(), (byte) value);
         }
 
         @Override
@@ -85,16 +95,12 @@ public interface Grid {
         }
 
         private Map<Coordinate, Integer> convertToMap(final GameMatrix matrix) {
-            final Map<Coordinate, Integer> cells = new HashMap<>();
-            final int length = matrix.getSchema().getWidth();
-            for (int row = 0; row < length; row++) {
-                for (int column = 0; column < length; column++) {
-                    final Coordinate position = Coordinate.create(row, column);
-                    final int value = matrix.get(row, column);
-                    cells.put(position, value);
-                }
-            }
-            return cells;
+            final List<Integer> rangeSize = IntStream.range(0, this.size()).boxed().toList();
+            final Stream<Coordinate> coordinates = rangeSize.stream().flatMap(row -> rangeSize.stream()
+                    .map(column -> Coordinate.create(row, column)));
+
+            return coordinates.map(coord -> Map.entry(coord, matrix.get(coord.row(), coord.column())))
+                    .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingInt(Map.Entry::getValue)));
         }
 
         @Override
@@ -111,7 +117,7 @@ public interface Grid {
         public boolean isGridCreateFromSolution() {
             final Map<Coordinate, Integer> solution = this.solution();
             final int zeroDifferent = 0;
-
+            
             final long countDifferentValue = this.grid().entrySet().stream()
                     .filter(entry ->
                             !entry.getValue().equals(this.emptyValue()) &&
@@ -122,14 +128,14 @@ public interface Grid {
         }
 
         @Override
-        public int valueFrom(final Coordinate coordinate) {
-            return this.grid.get(coordinate.row(), coordinate.column());
+        public void saveValue(final Coordinate coordinate, final int value) {
+            this.setValue(coordinate, value);
+            this.historyAction.push(Map.entry(coordinate, value));
         }
 
         @Override
-        public void setValue(final Coordinate coordinate, final int value) {
-            this.grid.set(coordinate.row(), coordinate.column(), (byte) value);
-            this.historyAction.push(Map.entry(coordinate, value));
+        public int valueFrom(final Coordinate coordinate) {
+            return this.grid.get(coordinate.row(), coordinate.column());
         }
 
         @Override
@@ -139,15 +145,21 @@ public interface Grid {
             firstCleanCell.ifPresent(entry -> {
                 final Coordinate position = entry.getKey();
                 final int value = this.solution.get(position.row(), position.column());
-                this.setValue(position, value);
+                this.saveValue(position, value);
             });
         }
 
         @Override
-        public void back() {
+        public void undo() {
             if (this.historyAction.empty()) return;
             final Map.Entry<Coordinate, Integer> firstAction = this.historyAction.pop();
-            this.setValue(firstAction.getKey(), this.emptyValue());
+            this.saveValue(firstAction.getKey(), this.emptyValue());
+        }
+
+        @Override
+        public void reset() {
+            this.historyAction.stream().map(Map.Entry::getKey).forEach(entry -> this.setValue(entry, this.emptyValue()));
+            this.historyAction.clear();
         }
 
     }
