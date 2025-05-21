@@ -101,8 +101,7 @@ public class GridTest {
             final Map.Entry<Coordinate, Integer> firstEmptyCell = grid.emptyCells().getFirst();
             final Coordinate coordinate = firstEmptyCell.getKey();
             final int newValue = 1;
-
-
+            
             grid.setValue(firstEmptyCell.getKey(), newValue);
             assertEquals(newValue, grid.valueFrom(coordinate));
             grid.back();
@@ -110,4 +109,14 @@ public class GridTest {
         });
     }
 
+    @Test
+    public void backFromSuggest() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            grid.suggest();
+            assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue() + 1);
+            grid.back();
+            assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
+        });
+    }
 }
