@@ -52,12 +52,17 @@ public class GridTest {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             final long cleanValues = grid.startGrid().values().stream()
-                    .filter(value -> value.equals(ZERO_VALUE))
+                    .filter(value -> value.equals(grid.emptyValue()))
                     .count();
-            
+
             assertEquals(settings.maxNumbersToClear(), cleanValues);
         });
+    }
 
+    @Test
+    public void startGridEqualsOfSolution() {
+        this.settingsList.stream().map(Grid::create)
+                .forEach(grid -> assertTrue(grid.isStartGridCreateFromSolution()));
     }
 
 }

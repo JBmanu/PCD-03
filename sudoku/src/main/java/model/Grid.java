@@ -5,13 +5,14 @@ import de.sfuhrm.sudoku.GameMatrix;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public interface Grid {
     static Grid create(final Settings settings) {
         return new GridImpl(settings);
     }
 
-    int emptyValue = 0;
+    int emptyValue();
     
     int size();
 
@@ -19,7 +20,9 @@ public interface Grid {
     
     Map<Coordinate, Integer> solution();
     Map<Coordinate, Integer> startGrid();
-    
+
+    boolean isStartGridCreateFromSolution();
+
 
     class GridImpl implements Grid {
         private final Settings settings;
@@ -33,7 +36,12 @@ public interface Grid {
             this.startGrid = Creator.createRiddle(this.solution, settings.maxNumbersToClear());
             this.currentGrid = this.startGrid;
         }
-        
+
+        @Override
+        public int emptyValue() {
+            return 0;
+        }
+
         @Override
         public int size() {
             return this.settings.size();
@@ -65,6 +73,19 @@ public interface Grid {
         @Override
         public Map<Coordinate, Integer> startGrid() {
             return this.convertToMap(this.startGrid);
+        }
+
+        @Override
+        public boolean isStartGridCreateFromSolution() {
+            final Map<Coordinate, Integer> solution = this.solution();
+            
+            final long countDifferentValue = this.startGrid().entrySet().stream()
+                    .filter(entry ->
+                            !entry.getValue().equals(this.emptyValue()) && 
+                            !entry.getValue().equals(solution.get(entry.getKey())))
+                    .count();
+            
+            return countDifferentValue == 0;
         }
 
 
