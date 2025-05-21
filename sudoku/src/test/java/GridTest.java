@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,19 +62,19 @@ public class GridTest {
         this.settingsList.stream().map(Grid::create)
                 .forEach(grid -> assertTrue(grid.isGridCreateFromSolution()));
     }
-    
+
     @Test
     public void setValue() {
         this.settingsList.forEach(settings -> {
             final Coordinate coordinate = Coordinate.create(0, 0);
             final int value = 1;
-            
+
             final Grid grid = Grid.create(settings);
             grid.setValue(coordinate, value);
             assertEquals(value, grid.grid().get(coordinate));
         });
     }
-    
+
     @Test
     public void suggest() {
         this.settingsList.forEach(settings -> {
@@ -83,17 +82,31 @@ public class GridTest {
             assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
             grid.suggest();
             assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue() + 1);
-            
         });
     }
-    
+
     @Test
     public void hasWin() {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             grid.emptyCells().forEach(_ -> grid.suggest());
-            
             assertTrue(grid.hasWin());
+        });
+    }
+
+    @Test
+    public void backFromSetValue() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            final Map.Entry<Coordinate, Integer> firstEmptyCell = grid.emptyCells().getFirst();
+            final Coordinate coordinate = firstEmptyCell.getKey();
+            final int newValue = 1;
+
+
+            grid.setValue(firstEmptyCell.getKey(), newValue);
+            assertEquals(newValue, grid.valueFrom(coordinate));
+            grid.back();
+            assertEquals(grid.emptyValue(), grid.valueFrom(coordinate));
         });
     }
 

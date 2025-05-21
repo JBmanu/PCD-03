@@ -3,15 +3,13 @@ package model;
 import de.sfuhrm.sudoku.Creator;
 import de.sfuhrm.sudoku.GameMatrix;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public interface Grid {
     static Grid create(final Settings settings) {
         return new GridImpl(settings);
     }
+
 
     int emptyValue();
 
@@ -24,27 +22,32 @@ public interface Grid {
     boolean hasWin();
 
     boolean isGridCreateFromSolution();
-    
-    
+
     Map<Coordinate, Integer> solution();
 
     Map<Coordinate, Integer> grid();
-    
+
     List<Map.Entry<Coordinate, Integer>> emptyCells();
+
+
+    int valueFrom(Coordinate coordinate);
 
     void setValue(Coordinate coordinate, int value);
 
     void suggest();
 
+    void back();
 
 
     class GridImpl implements Grid {
         private final Settings settings;
         private final GameMatrix solution;
         private final GameMatrix grid;
+        private final Stack<Map.Entry<Coordinate, Integer>> historyAction;
 
         public GridImpl(final Settings settings) {
             this.settings = settings;
+            this.historyAction = new Stack<>();
             this.solution = Creator.createFull(settings.schema().schema());
             this.grid = Creator.createRiddle(this.solution, settings.maxNumbersToClear());
         }
@@ -60,7 +63,7 @@ public interface Grid {
                     .filter(entry -> entry.getValue().equals(this.emptyValue()))
                     .toList();
         }
-        
+
         @Override
         public int countEmptyValue() {
             return this.emptyCells().size();
@@ -119,19 +122,32 @@ public interface Grid {
         }
 
         @Override
+        public int valueFrom(final Coordinate coordinate) {
+            return this.grid.get(coordinate.row(), coordinate.column());
+        }
+
+        @Override
         public void setValue(final Coordinate coordinate, final int value) {
             this.grid.set(coordinate.row(), coordinate.column(), (byte) value);
+            this.historyAction.push(Map.entry(coordinate, value));
         }
 
         @Override
         public void suggest() {
             final Optional<Map.Entry<Coordinate, Integer>> firstCleanCell = this.emptyCells().stream().findFirst();
-            
+
             firstCleanCell.ifPresent(entry -> {
                 final Coordinate position = entry.getKey();
                 final int value = this.solution.get(position.row(), position.column());
                 this.setValue(position, value);
             });
+        }
+
+        @Override
+        public void back() {
+            if (this.historyAction.empty()) return;
+            final Map.Entry<Coordinate, Integer> firstAction = this.historyAction.pop();
+            this.setValue(firstAction.getKey(), this.emptyValue());
         }
 
     }
