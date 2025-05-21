@@ -7,17 +7,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 public interface Grid {
-    
     static Grid create(final Settings settings) {
         return new GridImpl(settings);
     }
 
+    int emptyValue = 0;
     
     int size();
 
     boolean isValidSolution();
     
     Map<Coordinate, Integer> solution();
+    Map<Coordinate, Integer> startGrid();
     
 
     class GridImpl implements Grid {
@@ -27,11 +28,9 @@ public interface Grid {
         private final GameMatrix currentGrid;
 
         public GridImpl(final Settings settings) {
-            final int maxNumbersToClear = settings.difficulty().computeMaxNumbersToClear(settings.schema());
-
             this.settings = settings;
             this.solution = Creator.createFull(settings.schema().schema());
-            this.startGrid = Creator.createRiddle(this.solution, maxNumbersToClear);
+            this.startGrid = Creator.createRiddle(this.solution, settings.maxNumbersToClear());
             this.currentGrid = this.startGrid;
         }
         
@@ -61,6 +60,11 @@ public interface Grid {
         @Override
         public Map<Coordinate, Integer> solution() {
             return this.convertToMap(this.solution);
+        }
+
+        @Override
+        public Map<Coordinate, Integer> startGrid() {
+            return this.convertToMap(this.startGrid);
         }
 
 

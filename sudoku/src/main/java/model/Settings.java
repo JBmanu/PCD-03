@@ -15,6 +15,10 @@ public interface Settings {
     int size();
 
     Difficulty difficulty();
+    
+    default int maxNumbersToClear() {
+        return this.difficulty().computeMaxNumbersToClear(this.schema());
+    }
 
 
     enum Schema {

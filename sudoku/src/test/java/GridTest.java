@@ -47,5 +47,17 @@ public class GridTest {
                 .forEach(grid -> assertTrue(grid.isValidSolution()));
     }
 
+    @Test
+    public void checkCleanValuesOfStartGrid() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            final long cleanValues = grid.startGrid().values().stream()
+                    .filter(value -> value.equals(ZERO_VALUE))
+                    .count();
+            
+            assertEquals(settings.maxNumbersToClear(), cleanValues);
+        });
+
+    }
 
 }
