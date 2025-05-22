@@ -14,15 +14,15 @@ public interface Grid {
     }
 
 
+    int size();
+    
     int emptyValue();
 
     int countEmptyValue();
 
-    int size();
-
-    boolean isValidSolution();
-
     boolean hasWin();
+    
+    boolean isValidSolution();
 
     boolean isGridCreateFromSolution();
 
@@ -63,6 +63,11 @@ public interface Grid {
         }
 
         @Override
+        public int size() {
+            return this.settings.size();
+        }
+
+        @Override
         public int emptyValue() {
             return 0;
         }
@@ -80,8 +85,8 @@ public interface Grid {
         }
 
         @Override
-        public int size() {
-            return this.settings.size();
+        public boolean hasWin() {
+            return this.grid.isValid();
         }
 
         @Override
@@ -90,8 +95,16 @@ public interface Grid {
         }
 
         @Override
-        public boolean hasWin() {
-            return this.grid.isValid();
+        public boolean isGridCreateFromSolution() {
+            final Map<Coordinate, Integer> solution = this.solution();
+            final int zeroDifferent = 0;
+
+            final long countDifferentValue = this.grid().entrySet().stream()
+                    .filter(entry -> !entry.getValue().equals(this.emptyValue())) 
+                    .filter(entry -> !entry.getValue().equals(solution.get(entry.getKey())))
+                    .count();
+
+            return countDifferentValue == zeroDifferent;
         }
 
         private Map<Coordinate, Integer> convertToMap(final GameMatrix matrix) {
@@ -111,20 +124,6 @@ public interface Grid {
         @Override
         public Map<Coordinate, Integer> grid() {
             return this.convertToMap(this.grid);
-        }
-
-        @Override
-        public boolean isGridCreateFromSolution() {
-            final Map<Coordinate, Integer> solution = this.solution();
-            final int zeroDifferent = 0;
-            
-            final long countDifferentValue = this.grid().entrySet().stream()
-                    .filter(entry ->
-                            !entry.getValue().equals(this.emptyValue()) &&
-                                    !entry.getValue().equals(solution.get(entry.getKey())))
-                    .count();
-
-            return countDifferentValue == zeroDifferent;
         }
 
         @Override
