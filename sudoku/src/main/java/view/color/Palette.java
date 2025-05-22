@@ -2,10 +2,10 @@ package view.color;
 
 import java.awt.*;
 
-public interface ColorPalette {
+public interface Palette {
 
-    static ColorPalette light() {
-        return new ColorPaletteImpl(
+    static Palette light() {
+        return new PaletteImpl(
                 Color.decode("#1F90FF"),
                 Color.decode("#D3FBD8"),
                 Color.decode("#2C3650"),
@@ -13,8 +13,8 @@ public interface ColorPalette {
                 Color.decode("#00FF00"));
     }
 
-    static ColorPalette dark() {
-        return new ColorPaletteImpl(
+    static Palette dark() {
+        return new PaletteImpl(
                 Color.decode("#1F90FF"),
                 Color.decode("#D3FBD8"),
                 Color.decode("#2C3650"),
@@ -34,8 +34,8 @@ public interface ColorPalette {
     Color interaction();
 
 
-    record ColorPaletteImpl(Color primary, Color secondary, Color neutral,
-                            Color feedback, Color interaction) implements ColorPalette {
+    record PaletteImpl(Color primary, Color secondary, Color neutral,
+                       Color feedback, Color interaction) implements Palette {
     }
 
 }
