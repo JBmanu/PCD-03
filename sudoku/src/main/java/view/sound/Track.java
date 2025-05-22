@@ -7,7 +7,7 @@ public interface Track {
     String WINNER_PATH = Paths.get(SOUND_PATH, "win").toString();
     String RESET_PATH = Paths.get(SOUND_PATH, "reset").toString();
     String SUGGEST_PATH = Paths.get(SOUND_PATH, "suggest").toString();
-    String BACKGROUND_PATH = Paths.get(SOUND_PATH, "background").toString();
+    String BACKGROUND_PATH = Paths.get(SOUND_PATH, "text").toString();
 
 
     String path();

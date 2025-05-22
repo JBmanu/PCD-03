@@ -1,6 +1,7 @@
 package view.components;
 
 import view.color.ColorComponent;
+import view.color.Colorable;
 import view.color.Palette;
 import view.listener.NumberListener;
 
@@ -11,7 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class JMyButton extends JButton implements ColorComponent {
-    private boolean isHover;
+    
+    private Colorable colorable;
+    
     private Color bgColorDisabled;
     private Color bgColorDefault;
     private Color bgColorOnClick;
@@ -19,12 +22,17 @@ public class JMyButton extends JButton implements ColorComponent {
 
     private Color fgColorDefault;
     private Color fgColorHover;
+    
+    private boolean isHover;
     private int arcSize;
 
     private final List<NumberListener> listeners;
 
     public JMyButton(final String text) {
         super(text);
+        this.setFocusPainted(false);
+        this.setContentAreaFilled(false);
+        
         this.listeners = new ArrayList<>();
         this.bgColorDisabled = Color.GRAY;
         this.bgColorDefault = Color.CYAN;
