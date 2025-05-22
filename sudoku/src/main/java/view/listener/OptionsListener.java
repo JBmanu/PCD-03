@@ -13,4 +13,5 @@ public interface OptionsListener {
     void onLightMode();
     
     void onDarkMode();
+    
 }
