@@ -7,22 +7,15 @@ import view.listener.NumberListener;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class JMyButton extends JButton implements ColorComponent {
-    
-    private Colorable colorable;
-    
-    private Color bgColorDisabled;
-    private Color bgColorDefault;
-    private Color bgColorOnClick;
-    private Color gbColorHover;
 
-    private Color fgColorDefault;
-    private Color fgColorHover;
-    
+    private final Colorable colorable;
+
     private boolean isHover;
     private int arcSize;
 
@@ -32,14 +25,9 @@ public class JMyButton extends JButton implements ColorComponent {
         super(text);
         this.setFocusPainted(false);
         this.setContentAreaFilled(false);
-        
+
         this.listeners = new ArrayList<>();
-        this.bgColorDisabled = Color.GRAY;
-        this.bgColorDefault = Color.CYAN;
-        this.bgColorOnClick = Color.BLUE;
-        this.gbColorHover = Color.BLUE;
-        this.fgColorDefault = Color.BLACK;
-        this.fgColorHover = Color.WHITE;
+        this.colorable = Colorable.test();
         this.arcSize = 10;
 
         this.addActionListener(e -> this.listeners.forEach(listener -> {
@@ -51,16 +39,31 @@ public class JMyButton extends JButton implements ColorComponent {
         }));
 
         this.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(final java.awt.event.MouseEvent evt) {
+            public void mousePressed(final MouseEvent evt) {
                 SwingUtilities.invokeLater(() -> {
-                    JMyButton.this.isHover = true;
+                    JMyButton.this.colorable.setClick();
                     JMyButton.this.repaint();
                 });
             }
 
-            public void mouseExited(final java.awt.event.MouseEvent evt) {
+            @Override
+            public void mouseReleased(final MouseEvent e) {
                 SwingUtilities.invokeLater(() -> {
-                    JMyButton.this.isHover = false;
+                    JMyButton.this.colorable.setHover();
+                    JMyButton.this.repaint();
+                });
+            }
+
+            public void mouseEntered(final MouseEvent evt) {
+                SwingUtilities.invokeLater(() -> {
+                    JMyButton.this.colorable.setHover();
+                    JMyButton.this.repaint();
+                });
+            }
+
+            public void mouseExited(final MouseEvent evt) {
+                SwingUtilities.invokeLater(() -> {
+                    JMyButton.this.colorable.setDefault();
                     JMyButton.this.repaint();
                 });
             }
@@ -79,30 +82,30 @@ public class JMyButton extends JButton implements ColorComponent {
         this.listeners.addAll(listeners);
     }
 
-    public void setBgColorDisabled(final Color color) {
-        this.bgColorDisabled = color;
-    }
+//    public void setBgColorDisabled(final Color color) {
+//        this.bgColorDisabled = color;
+//    }
+//
+//    public void setGbColorHover(final Color color) {
+//        this.gbColorHover = color;
+//    }
+//
+//    public void setBgColorDefault(final Color color) {
+//        this.bgColorDefault = color;
+//    }
+//
+//    public void setBgColorOnClick(final Color color) {
+//        this.bgColorOnClick = color;
+//    }
 
-    public void setGbColorHover(final Color color) {
-        this.gbColorHover = color;
-    }
+//    public void setFgColorDefault(final Color color) {
+//        this.fgColorDefault = color;
+//        this.setForeground(color);
+//    }
 
-    public void setBgColorDefault(final Color color) {
-        this.bgColorDefault = color;
-    }
-
-    public void setBgColorOnClick(final Color color) {
-        this.bgColorOnClick = color;
-    }
-
-    public void setFgColorDefault(final Color color) {
-        this.fgColorDefault = color;
-        this.setForeground(color);
-    }
-
-    public void setFgColorHover(final Color color) {
-        this.fgColorHover = color;
-    }
+//    public void setFgColorHover(final Color color) {
+//        this.fgColorHover = color;
+//    }
 
     public void setArcSize(final int arcSize) {
         this.arcSize = arcSize;
@@ -111,26 +114,17 @@ public class JMyButton extends JButton implements ColorComponent {
     @Override
     protected void paintComponent(final Graphics g) {
         final Graphics2D g2 = (Graphics2D) g;
-        if (!this.isEnabled()) {
-            g2.setColor(this.bgColorDisabled);
-        } else if (this.getModel().isArmed()) {
-            g2.setColor(this.bgColorOnClick);
-        } else if (this.isHover) {
-            g2.setColor(this.gbColorHover);
-            this.setForeground(this.fgColorHover);
-        } else {
-            g2.setColor(this.bgColorDefault);
-            this.setForeground(this.fgColorDefault);
-        }
+        this.colorable.currentBackground().ifPresent(g2::setColor);
+        this.colorable.currentText().ifPresent(this::setForeground);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), this.arcSize, this.arcSize);
         super.paintComponent(g);
     }
 
-    @Override
-    protected void paintBorder(final Graphics g) {
-        this.setBorder(null);
-    }
+//    @Override
+//    protected void paintBorder(final Graphics g) {
+//        this.setBorder(null);
+//    }
 
     @Override
     public void updateUI() {
@@ -141,8 +135,8 @@ public class JMyButton extends JButton implements ColorComponent {
     public void refreshPalette(final Palette palette) {
         this.isHover = false;
 
-        this.gbColorHover = palette.primary();
-        this.bgColorOnClick = palette.secondary();
+//        this.gbColorHover = palette.primary();
+//        this.bgColorOnClick = palette.secondary();
 //        this.bgColorDefault = palette.third();
 //
 //        this.bgColorDisabled = COLOR_SCHEME.disabled();
