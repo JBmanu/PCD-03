@@ -1,10 +1,10 @@
 package view.listener;
 
-import view.components.JCellView;
+import view.components.SNumberCell;
 
 public interface ChangeCellListener {
 
-    void onChangeCell(final JCellView JCellView);
+    void onChangeCell(final SNumberCell SNumberCell);
 
-    void onRemoveCell(final JCellView JCellView);
+    void onRemoveCell(final SNumberCell SNumberCell);
 }

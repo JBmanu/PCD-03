@@ -12,17 +12,20 @@ public class SudokuUI extends JFrame implements ColorComponent {
     public static final Dimension FRAME_SIZE = new Dimension(800, 800);
     
     private final MenuPage menuPage;
+    private final GridPage gridPage;
     
     public SudokuUI() {
         super(TITLE);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(FRAME_SIZE);
         this.setLocationRelativeTo(null);
-        this.setLayout(new FlowLayout());
+        this.setLayout(new BorderLayout());
         this.getContentPane().setBackground(Color.blue);
         
         this.menuPage = new MenuPage();
-        this.add(this.menuPage);
+        this.gridPage = new GridPage();
+        
+        this.add(this.gridPage, BorderLayout.CENTER);
     }
     
     @Override

@@ -1,8 +1,8 @@
 package view.listener;
 
-import view.components.JCellView;
+import view.components.SNumberCell;
 
 public interface FocusCellListener {
-    void onFocusCell(final JCellView JCellView);
-    void onUnFocusCell(final JCellView JCellView);
+    void onFocusCell(final SNumberCell SNumberCell);
+    void onUnFocusCell(final SNumberCell SNumberCell);
 }

@@ -1,9 +1,9 @@
 package view.listener;
 
-import view.components.JCellView;
+import view.components.SNumberCell;
 
 public interface OnHoverCellListener {
-    void onHoverCell(final JCellView JCellView);
+    void onHoverCell(final SNumberCell SNumberCell);
 
-    void onUnHoverCell(final JCellView JCellView);
+    void onUnHoverCell(final SNumberCell SNumberCell);
 }

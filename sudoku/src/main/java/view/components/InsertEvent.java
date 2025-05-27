@@ -10,9 +10,9 @@ import java.util.List;
 
 public class InsertEvent implements DocumentListener {
     private final List<ChangeCellListener> listeners;
-    private final JCellView cell;
+    private final SNumberCell cell;
 
-    public InsertEvent(final JCellView cell) {
+    public InsertEvent(final SNumberCell cell) {
         this.listeners = new ArrayList<>();
         this.cell = cell;
     }

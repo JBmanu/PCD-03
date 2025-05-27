@@ -15,7 +15,7 @@ import static view.utils.StyleUtils.SIZE_CELL;
 import static view.utils.StyleUtils.SIZE_CELL_FONT;
 
 
-public class JCellView extends JTextField implements ColorComponent {
+public class SNumberCell extends JTextField implements ColorComponent {
     private static final String SPACE = "";
     private final Coordinate position;
     private final InsertEvent insertEvent;
@@ -27,7 +27,7 @@ public class JCellView extends JTextField implements ColorComponent {
     private Color fgColorDefault;
     private Color fgColorHover;
 
-    public JCellView(final Coordinate position, final int value) {
+    public SNumberCell(final Coordinate position, final int value) {
         super();
         this.position = position;
         this.insertEvent = new InsertEvent(this);
@@ -37,11 +37,11 @@ public class JCellView extends JTextField implements ColorComponent {
             this.setEnabled(false);
         }
         this.setValue(value);
-        this.setPreferredSize(new Dimension(SIZE_CELL, SIZE_CELL));
+//        this.setPreferredSize(new Dimension(SIZE_CELL, SIZE_CELL));
         this.setHorizontalAlignment(JTextField.CENTER);
         this.setFont(this.getFont().deriveFont(SIZE_CELL_FONT));
         this.getDocument().addDocumentListener(this.insertEvent);
-        
+
         this.setupListener();
     }
 
@@ -49,17 +49,17 @@ public class JCellView extends JTextField implements ColorComponent {
         this.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(final java.awt.event.FocusEvent evt) {
                 SwingUtilities.invokeLater(() -> {
-                    JCellView.this.focusListeners.forEach(listener -> listener.onFocusCell(JCellView.this));
-                    JCellView.this.setForeground(JCellView.this.fgColorHover);
-                    JCellView.this.setCaretColor(JCellView.this.cursorColorHover);
+                    SNumberCell.this.focusListeners.forEach(listener -> listener.onFocusCell(SNumberCell.this));
+                    SNumberCell.this.setForeground(SNumberCell.this.fgColorHover);
+                    SNumberCell.this.setCaretColor(SNumberCell.this.cursorColorHover);
                 });
             }
 
             public void focusLost(final java.awt.event.FocusEvent evt) {
                 SwingUtilities.invokeLater(() -> {
-                    JCellView.this.focusListeners.forEach(listener -> listener.onUnFocusCell(JCellView.this));
-                    JCellView.this.setForeground(JCellView.this.fgColorDefault);
-                    JCellView.this.setCaretColor(JCellView.this.cursorColorDefault);
+                    SNumberCell.this.focusListeners.forEach(listener -> listener.onUnFocusCell(SNumberCell.this));
+                    SNumberCell.this.setForeground(SNumberCell.this.fgColorDefault);
+                    SNumberCell.this.setCaretColor(SNumberCell.this.cursorColorDefault);
                 });
             }
         });
@@ -67,12 +67,12 @@ public class JCellView extends JTextField implements ColorComponent {
         this.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(final java.awt.event.MouseEvent evt) {
                 SwingUtilities.invokeLater(() ->
-                        JCellView.this.hoverListeners.forEach(listener -> listener.onHoverCell(JCellView.this)));
+                        SNumberCell.this.hoverListeners.forEach(listener -> listener.onHoverCell(SNumberCell.this)));
             }
 
             public void mouseExited(final java.awt.event.MouseEvent evt) {
                 SwingUtilities.invokeLater(() ->
-                        JCellView.this.hoverListeners.forEach(listener -> listener.onUnHoverCell(JCellView.this)));
+                        SNumberCell.this.hoverListeners.forEach(listener -> listener.onUnHoverCell(SNumberCell.this)));
             }
         });
 
@@ -116,6 +116,6 @@ public class JCellView extends JTextField implements ColorComponent {
 //        this.fgColorHover = COLOR_SCHEME.third();
 //
 //        this.setBackground(COLOR_SCHEME.background());
-//        this.setForeground(COLOR_SCHEME.second());  
+//        this.setForeground(COLOR_SCHEME.second());
     }
 }
