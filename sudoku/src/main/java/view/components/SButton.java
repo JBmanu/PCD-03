@@ -23,44 +23,7 @@ public class SButton extends JButton implements ColorComponent {
         this.colorable = Colorable.test();
         ColorEvent.create(this.colorable, this);
     }
-
-//    public JMyButton(final int value) {
-//        this(String.valueOf(value));
-//    }
-
-//    public void addHoverListener(final NumberListener listener) {
-//        this.listeners.add(listener);
-//    }
-//
-//    public void addAllHoverListener(final List<NumberListener> listeners) {
-//        this.listeners.addAll(listeners);
-//    }
-
-//    public void setBgColorDisabled(final Color color) {
-//        this.bgColorDisabled = color;
-//    }
-//
-//    public void setGbColorHover(final Color color) {
-//        this.gbColorHover = color;
-//    }
-//
-//    public void setBgColorDefault(final Color color) {
-//        this.bgColorDefault = color;
-//    }
-//
-//    public void setBgColorOnClick(final Color color) {
-//        this.bgColorOnClick = color;
-//    }
-
-//    public void setFgColorDefault(final Color color) {
-//        this.fgColorDefault = color;
-//        this.setForeground(color);
-//    }
-
-//    public void setFgColorHover(final Color color) {
-//        this.fgColorHover = color;
-//    }
-
+    
     public void setArcSize(final int arcSize) {
         this.arcSize = arcSize;
     }

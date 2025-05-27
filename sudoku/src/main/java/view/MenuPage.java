@@ -2,7 +2,7 @@ package view;
 
 import view.color.Palette;
 import view.components.ColorComponent;
-import view.components.JSelector;
+import view.components.SSelector;
 import view.components.SButton;
 import view.components.SImage;
 import view.utils.PanelUtils;
@@ -22,8 +22,8 @@ public class MenuPage extends JPanel implements ColorComponent {
     private static final String DARK_MODE = "Dark Mode";
     private static final String LIGHT_MODE = "Light Mode";
 
-    private final JSelector<String> difficultyComboBox;
-    private final JSelector<String> gridSizeComboBox;
+    private final SSelector<String> difficultyComboBox;
+    private final SSelector<String> gridSizeComboBox;
 
     private final SButton startGameButton;
     private final SButton exitButton;
@@ -37,10 +37,10 @@ public class MenuPage extends JPanel implements ColorComponent {
         this.startGameButton = new SButton(START_GAME);
         this.exitButton = new SButton(EXIT);
         this.darkModeButton = new SButton(DARK_MODE);
-        this.difficultyComboBox = new JSelector<>(List.of("Easy", "Medium", "Hard"));
-        this.gridSizeComboBox = new JSelector<>(List.of("4x4", "6x6", "9x9"));
+        this.difficultyComboBox = new SSelector<>(List.of("Easy", "Medium", "Hard"));
+        this.gridSizeComboBox = new SSelector<>(List.of("4x4", "6x6", "9x9"));
 
-        final List<JSelector<String>> selectors = List.of(this.difficultyComboBox, this.gridSizeComboBox);
+        final List<SSelector<String>> selectors = List.of(this.difficultyComboBox, this.gridSizeComboBox);
         final List<SButton> buttons = List.of(this.startGameButton, this.darkModeButton, this.exitButton);
         final List<JComponent> allComponents = Stream.concat((selectors.stream().map(selector -> (JComponent) selector)),
                 buttons.stream()).toList();

@@ -7,7 +7,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
-public class JSelector<T> extends JPanel implements ColorComponent {
+public class SSelector<T> extends JPanel implements ColorComponent {
     //    private final List<SelectorListener> listeners;
     private final SButton rightButton;
     private final SButton leftButton;
@@ -15,15 +15,15 @@ public class JSelector<T> extends JPanel implements ColorComponent {
     private final List<T> items;
     private int index = 0;
 
-    public JSelector(final List<T> items) {
+    public SSelector(final List<T> items) {
         this.items = items;
         this.label = new JLabel("");
         this.rightButton = new SButton(">");
         this.leftButton = new SButton("<");
-        
+
         final List<SButton> buttons = List.of(this.rightButton, this.leftButton);
         buttons.forEach(button -> button.setBorder(BorderFactory.createEmptyBorder()));
-        
+
 //        this.listeners = new ArrayList<>();
 
         this.updateLabel();
