@@ -3,17 +3,17 @@ package view.components;
 import javax.swing.*;
 import java.awt.*;
 
-public class JImage extends JLabel {
+public class SImage extends JLabel {
     private static final int DEFAULT_SPACE = 50;
     private final Dimension imageDimension;
     private final String path;
     private int space;
 
-    public JImage(final String path) {
+    public SImage(final String path) {
         this(path, new Dimension(100, 100));
     }
 
-    public JImage(final String path, final Dimension dimension) {
+    public SImage(final String path, final Dimension dimension) {
         super();
         this.space = DEFAULT_SPACE;
         this.imageDimension = new Dimension();

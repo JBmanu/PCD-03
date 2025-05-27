@@ -5,6 +5,7 @@ import view.color.Palette;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Objects;
 
 public class JSelector<T> extends JPanel implements ColorComponent {
     //    private final List<SelectorListener> listeners;
@@ -15,11 +16,15 @@ public class JSelector<T> extends JPanel implements ColorComponent {
     private int index = 0;
 
     public JSelector(final List<T> items) {
+        this.items = items;
+        this.label = new JLabel("");
         this.rightButton = new SButton(">");
         this.leftButton = new SButton("<");
+        
+        final List<SButton> buttons = List.of(this.rightButton, this.leftButton);
+        buttons.forEach(button -> button.setBorder(BorderFactory.createEmptyBorder()));
+        
 //        this.listeners = new ArrayList<>();
-        this.label = new JLabel();
-        this.items = items;
 
         this.updateLabel();
         this.rightButton.addActionListener(e -> {
@@ -39,8 +44,6 @@ public class JSelector<T> extends JPanel implements ColorComponent {
         this.add(this.leftButton);
         this.add(this.label);
         this.add(this.rightButton);
-
-//        this.refreshColor();
     }
 
 //    public void addSelectorListener(final SelectorListener listener) {
@@ -65,10 +68,11 @@ public class JSelector<T> extends JPanel implements ColorComponent {
         return this.items.get(this.index);
     }
 
-    public void setFontSelection(final Font font) {
-        this.label.setFont(font);
-        this.leftButton.setFont(font);
-        this.rightButton.setFont(font);
+    @Override
+    public void setFont(final Font font) {
+        if (Objects.nonNull(this.label)) this.label.setFont(font);
+        if (Objects.nonNull(this.leftButton)) this.leftButton.setFont(font);
+        if (Objects.nonNull(this.rightButton)) this.rightButton.setFont(font);
     }
 
     @Override
