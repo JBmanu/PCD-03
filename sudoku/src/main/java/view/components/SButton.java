@@ -1,58 +1,40 @@
 package view.components;
 
-import view.color.ColorComponent;
 import view.color.ColorEvent;
 import view.color.Colorable;
 import view.color.Palette;
-import view.listener.NumberListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
-public class JMyButton extends JButton implements ColorComponent {
-    private final ColorEvent colorEvent;
+public class SButton extends JButton implements ColorComponent {
     private final Colorable colorable;
 
     private int arcSize;
 
-    private final List<NumberListener> listeners;
-
-    public JMyButton(final String text) {
+    public SButton(final String text) {
         super(text);
-        this.setFocusPainted(false);
-        this.setContentAreaFilled(false);
+        super.setOpaque(false);
+        super.setFocusPainted(false);
+        super.setBorderPainted(false);
+        super.setContentAreaFilled(false);
 
-        this.listeners = new ArrayList<>();
-        this.colorable = Colorable.test();
-        this.colorEvent = ColorEvent.create(this.colorable, this);
         this.arcSize = 10;
-        
-        
-        this.addActionListener(e -> this.listeners.forEach(listener -> {
-            try {
-                listener.onSelectNumber(Optional.of(Integer.parseInt(this.getText())));
-            } catch (final NumberFormatException ex) {
-                listener.onSelectNumber(Optional.empty());
-            }
-        }));
-
-
+        this.colorable = Colorable.test();
+        ColorEvent.create(this.colorable, this);
     }
 
-    public JMyButton(final int value) {
-        this(String.valueOf(value));
-    }
+//    public JMyButton(final int value) {
+//        this(String.valueOf(value));
+//    }
 
-    public void addHoverListener(final NumberListener listener) {
-        this.listeners.add(listener);
-    }
-
-    public void addAllHoverListener(final List<NumberListener> listeners) {
-        this.listeners.addAll(listeners);
-    }
+//    public void addHoverListener(final NumberListener listener) {
+//        this.listeners.add(listener);
+//    }
+//
+//    public void addAllHoverListener(final List<NumberListener> listeners) {
+//        this.listeners.addAll(listeners);
+//    }
 
 //    public void setBgColorDisabled(final Color color) {
 //        this.bgColorDisabled = color;
@@ -93,16 +75,6 @@ public class JMyButton extends JButton implements ColorComponent {
         super.paintComponent(g);
     }
 
-//    @Override
-//    protected void paintBorder(final Graphics g) {
-//        this.setBorder(null);
-//    }
-
-    @Override
-    public void updateUI() {
-        this.setUI(new RoundButtonUI());
-    }
-
     @Override
     public void refreshPalette(final Palette palette) {
 //        this.gbColorHover = palette.primary();
@@ -113,7 +85,6 @@ public class JMyButton extends JButton implements ColorComponent {
 //
 //        this.fgColorDefault = COLOR_SCHEME.second();
 //        this.fgColorHover = COLOR_SCHEME.third();
-
         this.repaint();
     }
 }

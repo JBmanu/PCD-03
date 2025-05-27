@@ -1,6 +1,5 @@
 package view.components;
 
-import view.color.ColorComponent;
 import view.color.Palette;
 
 import javax.swing.*;
@@ -9,15 +8,15 @@ import java.util.List;
 
 public class JSelector<T> extends JPanel implements ColorComponent {
     //    private final List<SelectorListener> listeners;
-    private final JMyButton rightButton;
-    private final JMyButton leftButton;
+    private final SButton rightButton;
+    private final SButton leftButton;
     private final JLabel label;
     private final List<T> items;
     private int index = 0;
 
     public JSelector(final List<T> items) {
-        this.rightButton = new JMyButton(">");
-        this.leftButton = new JMyButton("<");
+        this.rightButton = new SButton(">");
+        this.leftButton = new SButton("<");
 //        this.listeners = new ArrayList<>();
         this.label = new JLabel();
         this.items = items;

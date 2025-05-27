@@ -1,13 +1,15 @@
 package view;
 
-import view.components.JMyButton;
+import view.components.JImage;
+import view.components.SButton;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
-
 import java.awt.*;
+import java.util.List;
 
-import static view.utils.StyleUtils.FONT_GAME;
+import static view.utils.PathUtils.ICON_START;
+import static view.utils.StyleUtils.*;
 
 public class MenuPage extends JPanel {
 
@@ -18,34 +20,31 @@ public class MenuPage extends JPanel {
 
     //    private final JSelector<Difficulty> difficultyComboBox;
 //    private final JSelector<GridScheme> gridSizeComboBox;
-    private final JMyButton startGameButton;
-    private final JMyButton exitButton;
-    private final JMyButton darkModeButton;
+
+    private final SButton startGameButton;
+    private final SButton exitButton;
+    private final SButton darkModeButton;
 
     public MenuPage() {
         this.setLayout(new BorderLayout());
         this.setOpaque(false);
 
-        this.startGameButton = new JMyButton(START_GAME);
-        this.exitButton = new JMyButton(EXIT);
-        this.darkModeButton = new JMyButton(DARK_MODE);
+        final JImage icon = new JImage(ICON_START, DIMENSION_ICON_START);
+        this.startGameButton = new SButton(START_GAME);
+        this.exitButton = new SButton(EXIT);
+        this.darkModeButton = new SButton(DARK_MODE);
 
-        this.exitButton.setFont(FONT_GAME);
-        this.startGameButton.setFont(FONT_GAME);
-        this.darkModeButton.setFont(FONT_GAME);
+        final List<SButton> buttons = List.of(this.startGameButton, this.darkModeButton, this.exitButton);
+        buttons.forEach(button -> button.setFont(FONT_GAME));
+        buttons.forEach(button -> button.setPreferredSize(DIMENSION_BUTTON_MENU));
 
-        final JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        final JPanel panel = PanelUtils.createVertical();
+        buttons.forEach(button -> panel.add(PanelUtils.createCenter(button)));
 
-        panel.add(this.startGameButton);
-        panel.add(this.darkModeButton);
-        panel.add(this.exitButton);
-        
+        this.add(icon, BorderLayout.NORTH);
         this.add(Box.createHorizontalGlue(), BorderLayout.EAST);
         this.add(panel, BorderLayout.CENTER);
-        this.add(Box.createGlue(), BorderLayout.WEST);
-
+        this.add(Box.createHorizontalGlue(), BorderLayout.WEST);
     }
-
 
 }

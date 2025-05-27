@@ -85,16 +85,10 @@ public interface ColorEvent {
     }
 
     final class ColorEventImpl implements ColorEvent {
-        private final ColorEnableComponentEvent colorEnableComponentEvent;
-        private final ColorMouseAdapter colorMouseAdapter;
-        private final Component component;
-        private final Colorable colorable;
 
         public ColorEventImpl(final Colorable colorable, final Component component) {
-            this.colorable = colorable;
-            this.component = component;
-            this.colorMouseAdapter = new ColorMouseAdapter(colorable, component);
-            this.colorEnableComponentEvent = new ColorEnableComponentEvent(colorable, component, this.colorMouseAdapter);
+            final ColorMouseAdapter colorMouseAdapter = new ColorMouseAdapter(colorable, component);
+            final ColorEnableComponentEvent colorEnableComponentEvent = new ColorEnableComponentEvent(colorable, component, colorMouseAdapter);
         }
     }
 }

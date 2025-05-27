@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class SudokuUI extends JFrame {
     public static final String TITLE = "Sudoku Game";
-    public static final Dimension FRAME_SIZE = new Dimension(800, 600);
+    public static final Dimension FRAME_SIZE = new Dimension(800, 800);
     
     private final MenuPage menuPage;
     

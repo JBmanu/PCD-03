@@ -20,7 +20,7 @@ public final class StyleUtils {
     // START GAME AREA
     public static final Dimension DIMENSION_ICON_START = new Dimension(300, 300);
     public static final Dimension DIMENSION_CONTAINER_START_BTN = new Dimension(250, 300);
-    public static final Dimension DIMENSION_BUTTON_START = new Dimension(250, 50);
+    public static final Dimension DIMENSION_BUTTON_MENU = new Dimension(250, 50);
     public static final int SPACE_LEFT_RIGHT_START_GAME_AREA = 200;
     public static final int SPACE_TOP_BOTTOM_START_GAME_AREA = 100;
 
