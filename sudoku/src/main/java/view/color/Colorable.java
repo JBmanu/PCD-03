@@ -49,7 +49,7 @@ public interface Colorable {
     record Text(Optional<Color> text, Optional<Color> action, Optional<Color> disabled) {
     }
 
-    class ColorableImpl implements Colorable {
+    final class ColorableImpl implements Colorable {
         private final Background background;
         private final Text text;
 
