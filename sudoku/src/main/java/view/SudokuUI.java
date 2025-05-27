@@ -1,9 +1,13 @@
 package view;
 
+import view.color.Palette;
+import view.components.ColorComponent;
+import view.utils.PanelUtils;
+
 import javax.swing.*;
 import java.awt.*;
 
-public class SudokuUI extends JFrame {
+public class SudokuUI extends JFrame implements ColorComponent {
     public static final String TITLE = "Sudoku Game";
     public static final Dimension FRAME_SIZE = new Dimension(800, 800);
     
@@ -14,13 +18,17 @@ public class SudokuUI extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(FRAME_SIZE);
         this.setLocationRelativeTo(null);
+        this.setLayout(new FlowLayout());
+        this.getContentPane().setBackground(Color.blue);
         
         this.menuPage = new MenuPage();
-        this.setLayout(new FlowLayout());
-        
-        this.add(this.menuPage, BorderLayout.CENTER);
+        this.add(this.menuPage);
     }
-
+    
+    @Override
+    public void refreshPalette(final Palette palette) {
+        
+    }
 
     public static void main(final String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -28,5 +36,4 @@ public class SudokuUI extends JFrame {
             sudokuUI.setVisible(true);
         });
     }
-    
 }

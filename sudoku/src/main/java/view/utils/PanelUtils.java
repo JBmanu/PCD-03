@@ -5,6 +5,11 @@ import java.awt.*;
 
 public final class PanelUtils {
     
+    public static void transparent(final JPanel panel) {
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder());
+    }
+    
     public static JPanel createTransparent(final LayoutManager layout) {
         final JPanel panel = new JPanel(layout);
         panel.setOpaque(false);
@@ -26,6 +31,12 @@ public final class PanelUtils {
 
     public static JPanel createCenter(final Component... components) {
         final JPanel panel = createCenter();
+        for (final Component component : components) panel.add(component);
+        return panel;
+    }
+    
+    public static JPanel createCenterWithGap( final int hGap, final int vGap, final Component... components) {
+        final JPanel panel = createTransparent(new FlowLayout(FlowLayout.CENTER, hGap, vGap));
         for (final Component component : components) panel.add(component);
         return panel;
     }

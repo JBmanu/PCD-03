@@ -1,5 +1,7 @@
 package view;
 
+import view.color.Palette;
+import view.components.ColorComponent;
 import view.components.JSelector;
 import view.components.SButton;
 import view.components.SImage;
@@ -13,7 +15,7 @@ import java.util.stream.Stream;
 import static view.utils.PathUtils.ICON_START;
 import static view.utils.StyleUtils.*;
 
-public class MenuPage extends JPanel {
+public class MenuPage extends JPanel implements ColorComponent {
 
     private static final String EXIT = "Exit";
     private static final String START_GAME = "Start Game";
@@ -29,7 +31,7 @@ public class MenuPage extends JPanel {
 
     public MenuPage() {
         this.setLayout(new BorderLayout());
-        this.setOpaque(false);
+        PanelUtils.transparent(this);
 
         final SImage icon = new SImage(ICON_START, DIMENSION_ICON_START);
         this.startGameButton = new SButton(START_GAME);
@@ -43,13 +45,11 @@ public class MenuPage extends JPanel {
         final List<JComponent> allComponents = Stream.concat((selectors.stream().map(selector -> (JComponent) selector)),
                 buttons.stream()).toList();
 
-        allComponents.forEach(component -> component.setFont(FONT_GAME));
-        allComponents.forEach(component -> component.setPreferredSize(DIMENSION_BUTTON_MENU));
 
         final JPanel panel = PanelUtils.createVertical();
-
-        selectors.forEach(panel::add);
-        buttons.forEach(button -> panel.add(PanelUtils.createCenter(button)));
+        allComponents.forEach(component -> component.setFont(FONT_GAME));
+        allComponents.forEach(component -> component.setPreferredSize(DIMENSION_BUTTON_MENU));
+        allComponents.forEach(component -> panel.add(PanelUtils.createCenterWithGap(0, 5, component)));
 
         this.add(icon, BorderLayout.NORTH);
         this.add(Box.createHorizontalGlue(), BorderLayout.EAST);
@@ -57,4 +57,8 @@ public class MenuPage extends JPanel {
         this.add(Box.createHorizontalGlue(), BorderLayout.WEST);
     }
 
+    @Override
+    public void refreshPalette(final Palette palette) {
+
+    }
 }
