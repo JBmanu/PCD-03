@@ -1,40 +1,48 @@
 package view;
 
 import model.Coordinate;
+import model.Grid;
+import model.Settings;
 import view.components.SNumberCell;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
 public class GridPage extends JPanel {
-    
+
     private final Map<Coordinate, SNumberCell> cells;
-    
+    private final JPanel gridPanel;
+
     public GridPage() {
         super(new BorderLayout());
         PanelUtils.transparent(this);
 
-//        final JPanel gridPanel = PanelUtils.createTransparent(new GridLayout(9, 9));
-        GridLayout layout = new GridLayout(9, 9);
-        final JPanel gridPanel = new JPanel(layout);
-
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                final Coordinate position = Coordinate.create(row, col);
-                final SNumberCell cell = new SNumberCell(position, row);
-                gridPanel.add(cell);
-            }
-        }
+        this.gridPanel = new JPanel();
         this.cells = new HashMap<>();
-        gridPanel.setBackground(Color.green);
-        
-        
-        this.add(gridPanel, BorderLayout.CENTER);
-        
+
+        this.build(Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.EASY)));
+
+        this.add(this.gridPanel, BorderLayout.CENTER);
     }
-    
-    
+
+    public void build(final Grid grid) {
+        this.cells.clear();
+        this.gridPanel.removeAll();
+
+        this.gridPanel.setLayout(new GridLayout(grid.size(), grid.size()));
+        this.gridPanel.setBackground(Color.green);
+
+        
+        grid.orderedCells().forEach(entry -> {
+            final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
+            this.cells.put(entry.getKey(), cell);
+            this.gridPanel.add(cell);
+        });
+    }
+
+
 }

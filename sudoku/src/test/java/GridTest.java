@@ -3,8 +3,11 @@ import model.Grid;
 import model.Settings;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -101,7 +104,7 @@ public class GridTest {
             final Map.Entry<Coordinate, Integer> firstEmptyCell = grid.emptyCells().getFirst();
             final Coordinate coordinate = firstEmptyCell.getKey();
             final int newValue = 1;
-            
+
             grid.saveValue(firstEmptyCell.getKey(), newValue);
             assertEquals(newValue, grid.valueFrom(coordinate));
             grid.undo();
@@ -119,7 +122,7 @@ public class GridTest {
             assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
         });
     }
-    
+
     @Test
     public void resetGrid() {
         this.settingsList.forEach(settings -> {
@@ -127,7 +130,25 @@ public class GridTest {
             grid.emptyCells().forEach(_ -> grid.suggest());
             assertTrue(grid.hasWin());
             grid.reset();
-            assertEquals(settings.maxNumbersToClear(),grid.countEmptyValue());
+            assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
         });
     }
+
+    @Test
+    public void orderedCells() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            final List<Coordinate> correctCoordinates = new ArrayList<>();
+            final List<Coordinate> currentCoordinates = grid.orderedCells().stream().map(Map.Entry::getKey).toList();
+
+            for (int row = 0; row < settings.size(); row++)
+                for (int col = 0; col < settings.size(); col++)
+                    correctCoordinates.add(Coordinate.create(row, col));
+
+            IntStream.range(0, settings.size() * settings.size())
+                    .forEach(index -> 
+                            assertEquals(correctCoordinates.get(index), currentCoordinates.get(index)));
+        });
+    }
+
 }
