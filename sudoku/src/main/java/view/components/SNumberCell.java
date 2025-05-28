@@ -3,9 +3,12 @@ package view.components;
 import model.Coordinate;
 import view.color.Colorable;
 import view.color.Palette;
+import view.components.documentEvent.DocumentEvent;
+import view.components.documentEvent.NumberFilter;
 import view.listener.GridCellListener;
 
 import javax.swing.*;
+import javax.swing.text.AbstractDocument;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
@@ -19,26 +22,32 @@ import static view.utils.StyleUtils.SIZE_CELL_FONT;
 public class SNumberCell extends JTextField implements ColorComponent {
     private static final String SPACE = "";
 
+    private final NumberFilter numberFilter;
+    private final DocumentEvent documentEvent;
+    
+    
     private final Coordinate coordinate;
-    private final InsertEvent insertEvent;
     private final List<GridCellListener> listeners;
 
     private final Colorable colorable;
 
     public SNumberCell(final Coordinate coordinate, final int value) {
         super();
+
+        this.numberFilter = new NumberFilter();
+        this.documentEvent = new DocumentEvent(this);
+        
         this.coordinate = coordinate;
         this.listeners = new ArrayList<>();
-        this.insertEvent = new InsertEvent(this);
         this.colorable = Colorable.test();
 
-        if (value != 0) {
-            this.setEnabled(false);
-        }
+        if (value != 0) this.setEnabled(false);
         this.setValue(value);
+        
         this.setHorizontalAlignment(JTextField.CENTER);
         this.setFont(this.getFont().deriveFont(SIZE_CELL_FONT));
-        this.getDocument().addDocumentListener(this.insertEvent);
+        this.getDocument().addDocumentListener(this.documentEvent);
+        ((AbstractDocument) this.getDocument()).setDocumentFilter(this.numberFilter);
 
         this.setupListener();
     }
@@ -104,7 +113,7 @@ public class SNumberCell extends JTextField implements ColorComponent {
         this.setText(value == 0 ? SPACE : String.valueOf(value));
     }
 
-    public Coordinate position() {
+    public Coordinate coordinate() {
         return this.coordinate;
     }
 

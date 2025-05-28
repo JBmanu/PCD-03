@@ -2,7 +2,7 @@ package view.listener;
 
 import view.components.SNumberCell;
 
-public interface ChangeCellListener {
+public interface GridCellInsertListener {
 
     void onChangeCell(final SNumberCell SNumberCell);
 
