@@ -1,43 +1,41 @@
 package view.components;
 
 import model.Coordinate;
+import view.color.Colorable;
 import view.color.Palette;
-import view.listener.ChangeCellListener;
-import view.listener.FocusCellListener;
-import view.listener.OnHoverCellListener;
+import view.listener.GridCellListener;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import static view.utils.StyleUtils.SIZE_CELL;
 import static view.utils.StyleUtils.SIZE_CELL_FONT;
 
 
 public class SNumberCell extends JTextField implements ColorComponent {
     private static final String SPACE = "";
-    private final Coordinate position;
+
+    private final Coordinate coordinate;
     private final InsertEvent insertEvent;
-    private final List<FocusCellListener> focusListeners;
-    private final List<OnHoverCellListener> hoverListeners;
+    private final List<GridCellListener> listeners;
 
-    private Color cursorColorDefault;
-    private Color cursorColorHover;
-    private Color fgColorDefault;
-    private Color fgColorHover;
+    private final Colorable colorable;
 
-    public SNumberCell(final Coordinate position, final int value) {
+    public SNumberCell(final Coordinate coordinate, final int value) {
         super();
-        this.position = position;
+        this.coordinate = coordinate;
+        this.listeners = new ArrayList<>();
         this.insertEvent = new InsertEvent(this);
-        this.focusListeners = new ArrayList<>();
-        this.hoverListeners = new ArrayList<>();
+        this.colorable = Colorable.test();
+
         if (value != 0) {
             this.setEnabled(false);
         }
         this.setValue(value);
-//        this.setPreferredSize(new Dimension(SIZE_CELL, SIZE_CELL));
         this.setHorizontalAlignment(JTextField.CENTER);
         this.setFont(this.getFont().deriveFont(SIZE_CELL_FONT));
         this.getDocument().addDocumentListener(this.insertEvent);
@@ -46,48 +44,52 @@ public class SNumberCell extends JTextField implements ColorComponent {
     }
 
     private void setupListener() {
-        this.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(final java.awt.event.FocusEvent evt) {
+        this.addFocusListener(new FocusAdapter() {
+            public void focusGained(final FocusEvent evt) {
                 SwingUtilities.invokeLater(() -> {
-                    SNumberCell.this.focusListeners.forEach(listener -> listener.onFocusCell(SNumberCell.this));
-                    SNumberCell.this.setForeground(SNumberCell.this.fgColorHover);
-                    SNumberCell.this.setCaretColor(SNumberCell.this.cursorColorHover);
+                    SNumberCell.this.listeners.forEach(l -> l.onFocusGained(SNumberCell.this));
+//                    SNumberCell.this.setForeground(SNumberCell.this.fgColorHover);
+//                    SNumberCell.this.setCaretColor(SNumberCell.this.cursorColorHover);
                 });
             }
 
-            public void focusLost(final java.awt.event.FocusEvent evt) {
+            public void focusLost(final FocusEvent evt) {
                 SwingUtilities.invokeLater(() -> {
-                    SNumberCell.this.focusListeners.forEach(listener -> listener.onUnFocusCell(SNumberCell.this));
-                    SNumberCell.this.setForeground(SNumberCell.this.fgColorDefault);
-                    SNumberCell.this.setCaretColor(SNumberCell.this.cursorColorDefault);
+                    SNumberCell.this.listeners.forEach(l -> l.onFocusLost(SNumberCell.this));
+//                    SNumberCell.this.setForeground(SNumberCell.this.fgColorDefault);
+//                    SNumberCell.this.setCaretColor(SNumberCell.this.cursorColorDefault);
                 });
             }
         });
 
-        this.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(final java.awt.event.MouseEvent evt) {
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(final MouseEvent evt) {
                 SwingUtilities.invokeLater(() ->
-                        SNumberCell.this.hoverListeners.forEach(listener -> listener.onHoverCell(SNumberCell.this)));
+                        SNumberCell.this.listeners.forEach(l -> l.onSelect(SNumberCell.this)));
             }
 
-            public void mouseExited(final java.awt.event.MouseEvent evt) {
+            @Override
+            public void mouseEntered(final MouseEvent evt) {
                 SwingUtilities.invokeLater(() ->
-                        SNumberCell.this.hoverListeners.forEach(listener -> listener.onUnHoverCell(SNumberCell.this)));
+                        SNumberCell.this.listeners.forEach(l -> l.onHover(SNumberCell.this)));
+            }
+
+            @Override
+            public void mouseExited(final MouseEvent evt) {
+                SwingUtilities.invokeLater(() ->
+                        SNumberCell.this.listeners.forEach(l -> l.onExit(SNumberCell.this)));
             }
         });
 
     }
 
-    public void addListener(final ChangeCellListener listener) {
-        this.insertEvent.addListener(listener);
+    public void addListener(final GridCellListener listener) {
+        this.listeners.add(listener);
     }
-
-    public void addListener(final FocusCellListener listener) {
-        this.focusListeners.add(listener);
-    }
-
-    public void addListener(final OnHoverCellListener listener) {
-        this.hoverListeners.add(listener);
+    
+    public void removeListener(final GridCellListener listener) {
+        this.listeners.remove(listener);
     }
 
     public int getValue() {
@@ -103,7 +105,7 @@ public class SNumberCell extends JTextField implements ColorComponent {
     }
 
     public Coordinate position() {
-        return this.position;
+        return this.coordinate;
     }
 
     @Override

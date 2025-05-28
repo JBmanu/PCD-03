@@ -3,7 +3,6 @@ package view;
 import model.Coordinate;
 import model.Grid;
 import model.Settings;
-import view.components.SButton;
 import view.components.SNumberCell;
 import view.panel.GridActionPanel;
 import view.panel.NumberInfoPanel;
@@ -11,9 +10,7 @@ import view.utils.PanelUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static view.utils.StyleUtils.*;
@@ -23,14 +20,10 @@ public class GridPage extends JPanel {
 
     private final JPanel gridPanel;
     private final Map<Coordinate, SNumberCell> cells;
-
-//    private final JPanel numberInfoPanel;
-//    private final List<SButton> numbers;
-
-    private NumberInfoPanel numberInfoPanel;
-    private GridActionPanel gridActionPanel;
-
-
+    
+    private final NumberInfoPanel numberInfoPanel;
+    private final GridActionPanel gridActionPanel;
+    
     public GridPage() {
         super(new BorderLayout());
         PanelUtils.transparent(this);
