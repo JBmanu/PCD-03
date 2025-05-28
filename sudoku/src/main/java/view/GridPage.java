@@ -4,6 +4,7 @@ import model.Coordinate;
 import model.Grid;
 import model.Settings;
 import view.components.SNumberCell;
+import view.listener.GridActionListener;
 import view.panel.GridActionPanel;
 import view.panel.NumberInfoPanel;
 import view.utils.PanelUtils;
@@ -68,4 +69,7 @@ public class GridPage extends JPanel {
     }
 
 
+    public void addGridActionListener(final GridActionListener listener) {
+        this.gridActionPanel.addListener(listener);
+    }
 }

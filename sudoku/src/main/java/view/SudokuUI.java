@@ -2,7 +2,7 @@ package view;
 
 import view.color.Palette;
 import view.components.ColorComponent;
-import view.utils.PanelUtils;
+import view.listener.GridActionListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,15 +43,13 @@ public class SudokuUI extends JFrame implements ColorComponent {
         this.showPage(this.gridPage);
     }
     
+    public void addGridActionListener(final GridActionListener listener) {
+        this.gridPage.addGridActionListener(listener);
+    }
+    
     @Override
     public void refreshPalette(final Palette palette) {
         
     }
-
-    public static void main(final String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            final SudokuUI sudokuUI = new SudokuUI();
-            sudokuUI.setVisible(true);
-        });
-    }
+    
 }
