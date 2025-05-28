@@ -5,9 +5,9 @@ public interface GridActionListener {
     void onHome();
     
     void onUndo();
+
+    void onSuggest();
     
     void onReset();
-    
-    void onSuggest();
     
 }

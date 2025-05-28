@@ -18,7 +18,6 @@ public class GridActionPanel extends JPanel {
     private final SButton suggest;
     private final SButton reset;
 
-
     public GridActionPanel() {
         super(new FlowLayout(FlowLayout.CENTER, H_GAP, V_GAP));
         PanelUtils.transparent(this);
@@ -32,5 +31,34 @@ public class GridActionPanel extends JPanel {
         final List<SButton> buttons = List.of(this.home, this.undo, this.suggest, this.reset);
         buttons.forEach(button -> button.setFont(FONT_GAME));
         buttons.forEach(this::add);
+
+        this.home.addActionListener(e -> this.onClickHome());
+        this.undo.addActionListener(e -> this.onClickUndo());
+        this.suggest.addActionListener(e -> this.onClickSuggest());
+        this.reset.addActionListener(e -> this.onClickReset());
+    }
+
+    public void addListener(final GridActionListener listener) {
+        this.listeners.add(listener);
+    }
+
+    public void removeListener(final GridActionListener listener) {
+        this.listeners.remove(listener);
+    }
+
+    private void onClickHome() {
+        this.listeners.forEach(GridActionListener::onHome);
+    }
+
+    private void onClickUndo() {
+        this.listeners.forEach(GridActionListener::onUndo);
+    }
+
+    private void onClickSuggest() {
+        this.listeners.forEach(GridActionListener::onSuggest);
+    }
+
+    private void onClickReset() {
+        this.listeners.forEach(GridActionListener::onReset);
     }
 }
