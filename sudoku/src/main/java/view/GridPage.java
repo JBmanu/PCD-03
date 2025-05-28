@@ -3,45 +3,100 @@ package view;
 import model.Coordinate;
 import model.Grid;
 import model.Settings;
+import view.components.SButton;
 import view.components.SNumberCell;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class GridPage extends JPanel {
+import static view.utils.StyleUtils.*;
 
-    private final Map<Coordinate, SNumberCell> cells;
+public class GridPage extends JPanel {
+    private final JLabel title;
+
     private final JPanel gridPanel;
+    private final Map<Coordinate, SNumberCell> cells;
+
+    private final JPanel numberInfoPanel;
+    private final List<SButton> numbers;
+
+    private final JPanel actionPanel;
+//    private final List<SButton> actions;
+
 
     public GridPage() {
         super(new BorderLayout());
         PanelUtils.transparent(this);
 
-        this.gridPanel = new JPanel();
+        this.title = new JLabel(TITLE_GUI);
+        this.title.setFont(FONT_GAME);
+        final JPanel titlePanel = PanelUtils.createCenterWithGap(0, V_GAP, this.title);
+
+        this.gridPanel = PanelUtils.createTransparent();
         this.cells = new HashMap<>();
 
-        this.build(Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.EASY)));
+        this.numberInfoPanel = PanelUtils.createCenter(H_GAP, V_GAP);
+        this.numbers = new ArrayList<>();
 
+        this.actionPanel = PanelUtils.createCenter(H_GAP, V_GAP);
+//        this.actions = new ArrayList<>();
+
+        final JPanel interactionPanel = PanelUtils.createTransparent(new BorderLayout());
+        interactionPanel.add(this.actionPanel, BorderLayout.NORTH);
+        interactionPanel.add(this.numberInfoPanel, BorderLayout.SOUTH);
+
+        this.add(titlePanel, BorderLayout.NORTH);
         this.add(this.gridPanel, BorderLayout.CENTER);
+        this.add(interactionPanel, BorderLayout.SOUTH);
+
+        this.setupAction();
+        this.build(Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.EASY)));
     }
+
+    private void setupAction() {
+        final SButton home = new SButton("Home");
+        final SButton undo = new SButton("Undo");
+        final SButton suggest = new SButton("Suggest");
+        final SButton reset = new SButton("reset");
+        final List<SButton> buttons = List.of(home, undo, suggest, reset);
+
+        buttons.forEach(button -> {
+            button.setFont(FONT_GAME);
+            this.actionPanel.add(button);
+        });
+    }
+
+    private void setupNumberInfo(final Grid grid) {
+        this.numberInfoPanel.removeAll();
+        this.numbers.clear();
+
+        for (int i = 1; i <= grid.size(); i++) {
+            final SButton numberButton = new SButton(i + "");
+            numberButton.setPreferredSize(DIMENSION_BUTTON_INFO);
+            numberButton.setBorder(BorderFactory.createEmptyBorder());
+            numberButton.setFont(INFO_FONT);
+            this.numberInfoPanel.add(numberButton);
+        }
+    }
+
 
     public void build(final Grid grid) {
         this.cells.clear();
         this.gridPanel.removeAll();
-
         this.gridPanel.setLayout(new GridLayout(grid.size(), grid.size()));
-        this.gridPanel.setBackground(Color.green);
 
-        
         grid.orderedCells().forEach(entry -> {
             final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
             this.cells.put(entry.getKey(), cell);
             this.gridPanel.add(cell);
         });
+
+        this.setupNumberInfo(grid);
     }
 
 

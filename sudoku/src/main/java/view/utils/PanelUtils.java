@@ -10,6 +10,13 @@ public final class PanelUtils {
         panel.setBorder(BorderFactory.createEmptyBorder());
     }
     
+    public static JPanel createTransparent() {
+        final JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder());
+        return panel;
+    }
+    
     public static JPanel createTransparent(final LayoutManager layout) {
         final JPanel panel = new JPanel(layout);
         panel.setOpaque(false);
@@ -24,9 +31,21 @@ public final class PanelUtils {
         panel.setBorder(BorderFactory.createEmptyBorder());
         return panel;
     }
+    
+    public static JPanel createHorizontal() {
+        final JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder());
+        return panel;
+    }
 
     public static JPanel createCenter() {
         return createTransparent(new FlowLayout(FlowLayout.CENTER, 0, 0));
+    }
+    
+    public static JPanel createCenter(final int hGap, final int vGap) {
+        return createTransparent(new FlowLayout(FlowLayout.CENTER, hGap, vGap));
     }
 
     public static JPanel createCenter(final Component... components) {

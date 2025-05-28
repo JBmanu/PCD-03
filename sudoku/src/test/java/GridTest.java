@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,14 +21,14 @@ public class GridTest {
 
 
     @Test
-    public void createGrid() {
+    public void createCells() {
         final Settings settings = Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.EASY);
         final Grid grid = Grid.create(settings);
         assertNotNull(grid);
     }
 
     @Test
-    public void gridSize() {
+    public void cellsSize() {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             assertEquals(settings.size(), grid.size());
@@ -53,7 +52,7 @@ public class GridTest {
     }
 
     @Test
-    public void checkCleanValuesOfGrid() {
+    public void checkCleanValuesOfCells() {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
@@ -61,7 +60,7 @@ public class GridTest {
     }
 
     @Test
-    public void gridEqualsOfSolution() {
+    public void cellsEqualsOfSolution() {
         this.settingsList.stream().map(Grid::create)
                 .forEach(grid -> assertTrue(grid.isGridCreateFromSolution()));
     }
@@ -74,7 +73,7 @@ public class GridTest {
 
             final Grid grid = Grid.create(settings);
             grid.saveValue(coordinate, value);
-            assertEquals(value, grid.grid().get(coordinate));
+            assertEquals(value, grid.cells().get(coordinate));
         });
     }
 
@@ -124,7 +123,7 @@ public class GridTest {
     }
 
     @Test
-    public void resetGrid() {
+    public void resetCells() {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             grid.emptyCells().forEach(_ -> grid.suggest());

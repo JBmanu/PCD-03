@@ -7,15 +7,15 @@ import view.utils.PanelUtils;
 import javax.swing.*;
 import java.awt.*;
 
+import static view.utils.StyleUtils.FRAME_SIZE;
+import static view.utils.StyleUtils.TITLE_GUI;
+
 public class SudokuUI extends JFrame implements ColorComponent {
-    public static final String TITLE = "Sudoku Game";
-    public static final Dimension FRAME_SIZE = new Dimension(800, 800);
-    
     private final MenuPage menuPage;
     private final GridPage gridPage;
     
     public SudokuUI() {
-        super(TITLE);
+        super(TITLE_GUI);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(FRAME_SIZE);
         this.setLocationRelativeTo(null);

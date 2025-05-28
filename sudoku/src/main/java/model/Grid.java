@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public interface Grid {
+    
     static Grid create(final Settings settings) {
         return new GridImpl(settings);
     }
@@ -29,7 +30,7 @@ public interface Grid {
 
     Map<Coordinate, Integer> solution();
 
-    Map<Coordinate, Integer> grid();
+    Map<Coordinate, Integer> cells();
 
     List<Map.Entry<Coordinate, Integer>> orderedCells();
 
@@ -76,7 +77,7 @@ public interface Grid {
 
         @Override
         public List<Map.Entry<Coordinate, Integer>> emptyCells() {
-            return this.grid().entrySet().stream()
+            return this.cells().entrySet().stream()
                     .filter(entry -> entry.getValue().equals(this.emptyValue()))
                     .toList();
         }
@@ -101,7 +102,7 @@ public interface Grid {
             final Map<Coordinate, Integer> solution = this.solution();
             final int zeroDifferent = 0;
 
-            final long countDifferentValue = this.grid().entrySet().stream()
+            final long countDifferentValue = this.cells().entrySet().stream()
                     .filter(entry -> !entry.getValue().equals(this.emptyValue()))
                     .filter(entry -> !entry.getValue().equals(solution.get(entry.getKey())))
                     .count();
@@ -113,7 +114,7 @@ public interface Grid {
             final List<Integer> rangeSize = IntStream.range(0, this.size()).boxed().toList();
             final Stream<Coordinate> coordinates = rangeSize.stream().flatMap(row -> rangeSize.stream()
                     .map(column -> Coordinate.create(row, column)));
-            
+
             return coordinates.map(coord -> Map.entry(coord, matrix.get(coord.row(), coord.column())))
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingInt(Map.Entry::getValue)));
         }
@@ -124,13 +125,13 @@ public interface Grid {
         }
 
         @Override
-        public Map<Coordinate, Integer> grid() {
+        public Map<Coordinate, Integer> cells() {
             return this.convertToMap(this.grid);
         }
 
         @Override
         public List<Map.Entry<Coordinate, Integer>> orderedCells() {
-            return this.grid().entrySet().stream()
+            return this.cells().entrySet().stream()
                     .sorted(Comparator.comparing((Map.Entry<Coordinate, Integer> e) -> e.getKey().row())
                             .thenComparing(e -> e.getKey().column()))
                     .collect(Collectors.toList());
