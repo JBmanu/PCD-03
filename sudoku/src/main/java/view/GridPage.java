@@ -5,6 +5,7 @@ import model.Grid;
 import model.Settings;
 import view.components.SButton;
 import view.components.SNumberCell;
+import view.panel.GridActionPanel;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
@@ -25,8 +26,7 @@ public class GridPage extends JPanel {
     private final JPanel numberInfoPanel;
     private final List<SButton> numbers;
 
-    private final JPanel actionPanel;
-//    private final List<SButton> actions;
+    private GridActionPanel gridActionPanel;
 
 
     public GridPage() {
@@ -43,12 +43,11 @@ public class GridPage extends JPanel {
         this.numberInfoPanel = PanelUtils.createCenter(H_GAP, V_GAP);
         this.numbers = new ArrayList<>();
 
-        this.actionPanel = PanelUtils.createCenter(H_GAP, V_GAP);
-//        this.actions = new ArrayList<>();
+        this.gridActionPanel = new GridActionPanel();
 
         final JPanel interactionPanel = PanelUtils.createTransparent(new BorderLayout());
         final JPanel gapInteractionPanel = PanelUtils.createSouthGap(V_GAP, interactionPanel);
-        interactionPanel.add(this.actionPanel, BorderLayout.NORTH);
+        interactionPanel.add(this.gridActionPanel, BorderLayout.NORTH);
         interactionPanel.add(this.numberInfoPanel, BorderLayout.SOUTH);
 
         this.add(titlePanel, BorderLayout.NORTH);
@@ -57,20 +56,9 @@ public class GridPage extends JPanel {
         this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.WEST);
         this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.EAST);
 
-        this.setupAction();
         this.build(Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.EASY)));
     }
 
-    private void setupAction() {
-        final SButton home = new SButton("Home");
-        final SButton undo = new SButton("Undo");
-        final SButton suggest = new SButton("Suggest");
-        final SButton reset = new SButton("reset");
-        final List<SButton> buttons = List.of(home, undo, suggest, reset);
-
-        buttons.forEach(button -> button.setFont(FONT_GAME));
-        buttons.forEach(this.actionPanel::add);
-    }
 
     private void setupNumberInfo(final Grid grid) {
         this.numberInfoPanel.removeAll();
