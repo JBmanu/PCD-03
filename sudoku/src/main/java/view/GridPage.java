@@ -34,8 +34,8 @@ public class GridPage extends JPanel {
         PanelUtils.transparent(this);
 
         this.title = new JLabel(TITLE_GUI);
-        this.title.setFont(FONT_GAME);
-        final JPanel titlePanel = PanelUtils.createCenterWithGap(0, V_GAP, this.title);
+        this.title.setFont(FONT_TITLE);
+        final JPanel titlePanel = PanelUtils.createNorthGap(V_GAP, this.title);
 
         this.gridPanel = PanelUtils.createTransparent();
         this.cells = new HashMap<>();
@@ -47,12 +47,15 @@ public class GridPage extends JPanel {
 //        this.actions = new ArrayList<>();
 
         final JPanel interactionPanel = PanelUtils.createTransparent(new BorderLayout());
+        final JPanel gapInteractionPanel = PanelUtils.createSouthGap(V_GAP, interactionPanel);
         interactionPanel.add(this.actionPanel, BorderLayout.NORTH);
         interactionPanel.add(this.numberInfoPanel, BorderLayout.SOUTH);
 
         this.add(titlePanel, BorderLayout.NORTH);
         this.add(this.gridPanel, BorderLayout.CENTER);
-        this.add(interactionPanel, BorderLayout.SOUTH);
+        this.add(gapInteractionPanel, BorderLayout.SOUTH);
+        this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.WEST);
+        this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.EAST);
 
         this.setupAction();
         this.build(Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.EASY)));
@@ -65,10 +68,8 @@ public class GridPage extends JPanel {
         final SButton reset = new SButton("reset");
         final List<SButton> buttons = List.of(home, undo, suggest, reset);
 
-        buttons.forEach(button -> {
-            button.setFont(FONT_GAME);
-            this.actionPanel.add(button);
-        });
+        buttons.forEach(button -> button.setFont(FONT_GAME));
+        buttons.forEach(this.actionPanel::add);
     }
 
     private void setupNumberInfo(final Grid grid) {

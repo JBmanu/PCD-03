@@ -17,7 +17,12 @@ public final class StyleUtils {
 
     // GENERAL
     public static final Dimension FRAME_SIZE = new Dimension(800, 800);
+    
+    public static final Font FONT_TITLE = new Font("Roboto", Font.BOLD, 40);
     public static final Font FONT_GAME = new Font("Roboto", Font.PLAIN, 20);
+    public static final Font INFO_FONT = new Font("Roboto", Font.BOLD, 20);
+    
+    public static final int ZERO_GAP = 0;
     public static final int V_GAP = 5;
     public static final int H_GAP = 10;
 
@@ -32,6 +37,5 @@ public final class StyleUtils {
 
     // INFO
     public static final Dimension DIMENSION_BUTTON_INFO = new Dimension(40, 40);
-    public static final Font INFO_FONT = new Font("Roboto", Font.BOLD, 20);
 
 }

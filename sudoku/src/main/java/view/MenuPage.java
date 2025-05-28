@@ -2,9 +2,9 @@ package view;
 
 import view.color.Palette;
 import view.components.ColorComponent;
-import view.components.SSelector;
 import view.components.SButton;
 import view.components.SImage;
+import view.components.SSelector;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
@@ -49,7 +49,7 @@ public class MenuPage extends JPanel implements ColorComponent {
         final JPanel panel = PanelUtils.createVertical();
         allComponents.forEach(component -> component.setFont(FONT_GAME));
         allComponents.forEach(component -> component.setPreferredSize(DIMENSION_BUTTON_MENU));
-        allComponents.forEach(component -> panel.add(PanelUtils.createCenterWithGap(0, V_GAP, component)));
+        allComponents.forEach(component -> panel.add(PanelUtils.createCenterWithGap(ZERO_GAP, V_GAP, component)));
 
         this.add(icon, BorderLayout.NORTH);
         this.add(Box.createHorizontalGlue(), BorderLayout.EAST);
