@@ -28,6 +28,21 @@ public class SudokuUI extends JFrame implements ColorComponent {
         this.add(this.gridPage, BorderLayout.CENTER);
     }
     
+    private void showPage(final JPanel page) {
+        this.getContentPane().removeAll();
+        this.getContentPane().add(page, BorderLayout.CENTER);
+        this.revalidate();
+        this.repaint();
+    }
+    
+    public void showMenuPage() {
+        this.showPage(this.menuPage);
+    }
+    
+    public void showGridPage() {
+        this.showPage(this.gridPage);
+    }
+    
     @Override
     public void refreshPalette(final Palette palette) {
         
