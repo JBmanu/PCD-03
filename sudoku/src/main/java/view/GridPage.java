@@ -6,6 +6,7 @@ import model.Settings;
 import view.components.SButton;
 import view.components.SNumberCell;
 import view.panel.GridActionPanel;
+import view.panel.NumberInfoPanel;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
@@ -23,9 +24,10 @@ public class GridPage extends JPanel {
     private final JPanel gridPanel;
     private final Map<Coordinate, SNumberCell> cells;
 
-    private final JPanel numberInfoPanel;
-    private final List<SButton> numbers;
+//    private final JPanel numberInfoPanel;
+//    private final List<SButton> numbers;
 
+    private NumberInfoPanel numberInfoPanel;
     private GridActionPanel gridActionPanel;
 
 
@@ -40,9 +42,7 @@ public class GridPage extends JPanel {
         this.gridPanel = PanelUtils.createTransparent();
         this.cells = new HashMap<>();
 
-        this.numberInfoPanel = PanelUtils.createCenter(H_GAP, V_GAP);
-        this.numbers = new ArrayList<>();
-
+        this.numberInfoPanel = new NumberInfoPanel();
         this.gridActionPanel = new GridActionPanel();
 
         final JPanel interactionPanel = PanelUtils.createTransparent(new BorderLayout());
@@ -60,20 +60,6 @@ public class GridPage extends JPanel {
     }
 
 
-    private void setupNumberInfo(final Grid grid) {
-        this.numberInfoPanel.removeAll();
-        this.numbers.clear();
-
-        for (int i = 1; i <= grid.size(); i++) {
-            final SButton numberButton = new SButton(i + "");
-            numberButton.setPreferredSize(DIMENSION_BUTTON_INFO);
-            numberButton.setBorder(BorderFactory.createEmptyBorder());
-            numberButton.setFont(INFO_FONT);
-            this.numberInfoPanel.add(numberButton);
-        }
-    }
-
-
     public void build(final Grid grid) {
         this.cells.clear();
         this.gridPanel.removeAll();
@@ -85,7 +71,7 @@ public class GridPage extends JPanel {
             this.gridPanel.add(cell);
         });
 
-        this.setupNumberInfo(grid);
+        this.numberInfoPanel.setup(grid.size());
     }
 
 
