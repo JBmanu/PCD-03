@@ -5,6 +5,7 @@ import view.color.Colorable;
 import view.color.Palette;
 import view.components.documentEvent.DocumentEvent;
 import view.components.documentEvent.NumberFilter;
+import view.listener.GridCellInsertListener;
 import view.listener.GridCellListener;
 
 import javax.swing.*;
@@ -93,12 +94,24 @@ public class SNumberCell extends JTextField implements ColorComponent {
 
     }
 
+    public Coordinate coordinate() {
+        return this.coordinate;
+    }
+    
     public void addListener(final GridCellListener listener) {
         this.listeners.add(listener);
     }
     
     public void removeListener(final GridCellListener listener) {
         this.listeners.remove(listener);
+    }
+    
+    public void addInsertListeners(final GridCellInsertListener listener) {
+        this.documentEvent.addListener(listener);
+    }
+    
+    public void removeInsertListeners(final GridCellInsertListener listener) {
+        this.documentEvent.removeListener(listener);
     }
 
     public int getValue() {
@@ -113,9 +126,6 @@ public class SNumberCell extends JTextField implements ColorComponent {
         this.setText(value == 0 ? SPACE : String.valueOf(value));
     }
 
-    public Coordinate coordinate() {
-        return this.coordinate;
-    }
 
     @Override
     public void refreshPalette(final Palette palette) {

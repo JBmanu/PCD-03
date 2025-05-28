@@ -21,7 +21,7 @@ public class DocumentEvent implements DocumentListener {
         this.listeners.add(listener);
     }
 
-    private void removeListener(final GridCellInsertListener listener) {
+    public void removeListener(final GridCellInsertListener listener) {
         this.listeners.remove(listener);
     }
 
@@ -29,18 +29,15 @@ public class DocumentEvent implements DocumentListener {
     public void insertUpdate(final javax.swing.event.DocumentEvent e) {
         SwingUtilities.invokeLater(() -> {
             final String insertedText = this.getInsertedText(e);
-            System.out.println("DDDD: " + insertedText);
-            if (insertedText.isBlank() || insertedText.isEmpty()) return;
+            if (insertedText.isBlank()) return;
             this.listeners.forEach(listener -> listener.onChangeCell(this.cell));
         });
     }
 
     @Override
     public void removeUpdate(final javax.swing.event.DocumentEvent e) {
-        SwingUtilities.invokeLater(() -> {
-            this.listeners.forEach(listener -> listener.onRemoveCell(this.cell));
-            System.out.println("AAAAAA");
-        });
+        SwingUtilities.invokeLater(() ->
+                this.listeners.forEach(listener -> listener.onRemoveCell(this.cell)));
     }
 
     @Override
