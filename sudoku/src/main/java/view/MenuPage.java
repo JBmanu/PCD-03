@@ -45,7 +45,7 @@ public class MenuPage extends JPanel implements ColorComponent {
         PanelUtils.transparent(this);
         this.listeners = new ArrayList<>();
 
-        final SImage icon = new SImage(ICON_START, DIMENSION_ICON_START);
+        final SImage icon = new SImage(ICON_START, DIMENSION_ICON_MENU);
         this.startGameButton = new SButton(START_GAME);
         this.themeModeButton = new SButton(DARK_MODE);
         this.exitButton = new SButton(EXIT);
