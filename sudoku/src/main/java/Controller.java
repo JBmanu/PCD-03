@@ -1,27 +1,19 @@
 import model.Coordinate;
 import model.Grid;
 import model.Settings;
-import view.SudokuUI;
+import view.View;
 import view.UI;
 import view.components.SNumberCell;
 import view.listener.*;
 
-import javax.swing.*;
 import java.util.Map;
 
 public class Controller implements MenuListener, GridActionListener, NumberInfoListener, GridCellListener, GridCellInsertListener {
-
-    public static void main(final String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            final Controller controller = new Controller();
-        });
-    }
-
     private Grid grid;
     private final UI ui;
 
     public Controller() {
-        this.ui = new SudokuUI();
+        this.ui = new View();
 
         this.ui.addMenuListener(this);
         this.ui.addGridActionListener(this);

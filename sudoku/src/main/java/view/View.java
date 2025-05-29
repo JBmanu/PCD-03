@@ -13,11 +13,11 @@ import java.util.Map;
 import static view.utils.StyleUtils.FRAME_SIZE;
 import static view.utils.StyleUtils.TITLE_GUI;
 
-public class SudokuUI extends JFrame implements UI, ColorComponent {
+public class View extends JFrame implements UI, ColorComponent {
     private final MenuPage menuPage;
     private final GridPage gridPage;
 
-    public SudokuUI() {
+    public View() {
         super(TITLE_GUI);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(FRAME_SIZE);
