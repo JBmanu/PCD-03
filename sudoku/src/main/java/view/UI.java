@@ -1,8 +1,7 @@
 package view;
 
 import model.Grid;
-import view.listener.GridActionListener;
-import view.listener.MenuListener;
+import view.listener.*;
 
 public interface UI {
 
@@ -23,4 +22,10 @@ public interface UI {
     
     void addGridActionListener(GridActionListener listener);
 
+    void addNumberInfoListener(NumberInfoListener listener);
+
+    void addGridCellListener(GridCellListener listener);
+    
+    void addGridCellInsertListener(GridCellInsertListener listener);
+    
 }
