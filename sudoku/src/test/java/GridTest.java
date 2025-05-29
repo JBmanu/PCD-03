@@ -98,6 +98,15 @@ public class GridTest {
             assertTrue(grid.hasWin());
         });
     }
+    
+    @Test
+    public void emptyUndo() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            final Optional<Coordinate> undoCoordinate = grid.undo();
+            assertTrue(undoCoordinate.isEmpty());
+        });
+    }
 
     @Test
     public void undoFromSaveValue() {
@@ -109,7 +118,9 @@ public class GridTest {
 
             grid.saveValue(firstEmptyCell.getKey(), newValue);
             assertEquals(newValue, grid.valueFrom(coordinate));
-            grid.undo();
+            final Optional<Coordinate> undoCoordinate = grid.undo();
+            assertTrue(undoCoordinate.isPresent());
+            assertEquals(coordinate, undoCoordinate.get());
             assertEquals(grid.emptyValue(), grid.valueFrom(coordinate));
         });
     }

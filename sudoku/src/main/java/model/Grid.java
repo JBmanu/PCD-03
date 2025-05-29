@@ -43,7 +43,7 @@ public interface Grid {
 
     Optional<Map.Entry<Coordinate, Integer>> suggest();
 
-    void undo();
+    Optional<Coordinate> undo();
 
     void reset();
 
@@ -164,10 +164,11 @@ public interface Grid {
         }
 
         @Override
-        public void undo() {
-            if (this.historyAction.empty()) return;
+        public Optional<Coordinate> undo() {
+            if (this.historyAction.empty()) return Optional.empty();
             final Map.Entry<Coordinate, Integer> firstAction = this.historyAction.pop();
             this.saveValue(firstAction.getKey(), this.emptyValue());
+            return Optional.of(firstAction.getKey());
         }
 
         @Override
