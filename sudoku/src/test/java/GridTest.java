@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,7 +83,9 @@ public class GridTest {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
-            grid.suggest();
+            final Optional<Map.Entry<Coordinate, Integer>> suggest = grid.suggest();
+            assertTrue(suggest.isPresent());
+            assertNotEquals(grid.emptyValue(), suggest.get().getValue());
             assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue() + 1);
         });
     }

@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public interface Grid {
-    
+
     static Grid create(final Settings settings) {
         return new GridImpl(settings);
     }
@@ -41,7 +41,7 @@ public interface Grid {
 
     int valueFrom(Coordinate coordinate);
 
-    void suggest();
+    Optional<Map.Entry<Coordinate, Integer>> suggest();
 
     void undo();
 
@@ -63,6 +63,10 @@ public interface Grid {
 
         private void setValue(final Coordinate coordinate, final int value) {
             this.grid.set(coordinate.row(), coordinate.column(), (byte) value);
+        }
+
+        private int solutionValue(final Coordinate coordinate) {
+            return this.solution.get(coordinate.row(), coordinate.column());
         }
 
         @Override
@@ -149,14 +153,14 @@ public interface Grid {
         }
 
         @Override
-        public void suggest() {
-            final Optional<Map.Entry<Coordinate, Integer>> firstCleanCell = this.emptyCells().stream().findFirst();
+        public Optional<Map.Entry<Coordinate, Integer>> suggest() {
+            final Optional<Map.Entry<Coordinate, Integer>> firstEmptyCell = this.emptyCells().stream().findFirst();
 
-            firstCleanCell.ifPresent(entry -> {
-                final Coordinate position = entry.getKey();
-                final int value = this.solution.get(position.row(), position.column());
-                this.saveValue(position, value);
-            });
+            final Optional<Map.Entry<Coordinate, Integer>> fullEmptyCell = firstEmptyCell.map(entry ->
+                    Map.entry(entry.getKey(), this.solutionValue(entry.getKey())));
+
+            fullEmptyCell.ifPresent(entry -> this.saveValue(entry.getKey(), entry.getValue()));
+            return fullEmptyCell;
         }
 
         @Override
