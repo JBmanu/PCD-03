@@ -87,7 +87,9 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
 
     @Override
     public void onRemoveCell(final SNumberCell cell) {
-
+        cell.getValue().ifPresentOrElse(
+                value -> this.grid.saveValue(cell.coordinate(), value),
+                () -> this.grid.resetValue(cell.coordinate()));
     }
 
     @Override

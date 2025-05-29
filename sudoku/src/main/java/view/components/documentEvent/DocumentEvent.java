@@ -36,8 +36,10 @@ public class DocumentEvent implements DocumentListener {
 
     @Override
     public void removeUpdate(final javax.swing.event.DocumentEvent e) {
-        SwingUtilities.invokeLater(() ->
-                this.listeners.forEach(listener -> listener.onRemoveCell(this.cell)));
+        SwingUtilities.invokeLater(() -> {
+            System.out.println("CCCCC");
+            this.listeners.forEach(listener -> listener.onRemoveCell(this.cell));
+        });
     }
 
     @Override

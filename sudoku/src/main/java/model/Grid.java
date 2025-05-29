@@ -38,6 +38,8 @@ public interface Grid {
 
 
     void saveValue(Coordinate coordinate, int value);
+    
+    void resetValue(Coordinate coordinate);
 
     int valueFrom(Coordinate coordinate);
 
@@ -46,6 +48,7 @@ public interface Grid {
     Optional<Coordinate> undo();
 
     Map<Coordinate, Integer> reset();
+
 
 
     class GridImpl implements Grid {
@@ -145,6 +148,11 @@ public interface Grid {
         public void saveValue(final Coordinate coordinate, final int value) {
             this.setValue(coordinate, value);
             this.historyAction.push(Map.entry(coordinate, value));
+        }
+
+        @Override
+        public void resetValue(final Coordinate coordinate) {
+            this.setValue(coordinate, this.emptyValue());
         }
 
         @Override

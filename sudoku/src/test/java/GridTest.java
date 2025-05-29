@@ -77,6 +77,20 @@ public class GridTest {
             assertEquals(value, grid.cells().get(coordinate));
         });
     }
+    
+    @Test
+    public void resetValue() {
+        this.settingsList.forEach(settings -> {
+            final Coordinate coordinate = Coordinate.create(0, 0);
+            final int value = 1;
+
+            final Grid grid = Grid.create(settings);
+            grid.saveValue(coordinate, value);
+            assertEquals(value, grid.cells().get(coordinate));
+            grid.resetValue(coordinate);
+            assertEquals(grid.emptyValue(), grid.cells().get(coordinate));
+        });
+    }
 
     @Test
     public void suggest() {
