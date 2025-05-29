@@ -2,6 +2,6 @@ package view.listener;
 
 public interface NumberInfoListener {
     
-    void onSelected(int number);
+    void onSelectedNumberInfo(int number);
     
 }

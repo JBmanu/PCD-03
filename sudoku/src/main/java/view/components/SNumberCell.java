@@ -56,7 +56,7 @@ public class SNumberCell extends JTextField implements ColorComponent {
         this.addFocusListener(new FocusAdapter() {
             public void focusGained(final FocusEvent evt) {
                 SwingUtilities.invokeLater(() -> {
-                    SNumberCell.this.listeners.forEach(l -> l.onFocusGained(SNumberCell.this));
+                    SNumberCell.this.listeners.forEach(l -> l.onFocusGainedCell(SNumberCell.this));
 //                    SNumberCell.this.setForeground(SNumberCell.this.fgColorHover);
 //                    SNumberCell.this.setCaretColor(SNumberCell.this.cursorColorHover);
                 });
@@ -64,7 +64,7 @@ public class SNumberCell extends JTextField implements ColorComponent {
 
             public void focusLost(final FocusEvent evt) {
                 SwingUtilities.invokeLater(() -> {
-                    SNumberCell.this.listeners.forEach(l -> l.onFocusLost(SNumberCell.this));
+                    SNumberCell.this.listeners.forEach(l -> l.onFocusLostCell(SNumberCell.this));
 //                    SNumberCell.this.setForeground(SNumberCell.this.fgColorDefault);
 //                    SNumberCell.this.setCaretColor(SNumberCell.this.cursorColorDefault);
                 });
@@ -75,19 +75,19 @@ public class SNumberCell extends JTextField implements ColorComponent {
             @Override
             public void mousePressed(final MouseEvent evt) {
                 SwingUtilities.invokeLater(() ->
-                        SNumberCell.this.listeners.forEach(l -> l.onSelect(SNumberCell.this)));
+                        SNumberCell.this.listeners.forEach(l -> l.onSelectCell(SNumberCell.this)));
             }
 
             @Override
             public void mouseEntered(final MouseEvent evt) {
                 SwingUtilities.invokeLater(() ->
-                        SNumberCell.this.listeners.forEach(l -> l.onHover(SNumberCell.this)));
+                        SNumberCell.this.listeners.forEach(l -> l.onHoverCell(SNumberCell.this)));
             }
 
             @Override
             public void mouseExited(final MouseEvent evt) {
                 SwingUtilities.invokeLater(() ->
-                        SNumberCell.this.listeners.forEach(l -> l.onExit(SNumberCell.this)));
+                        SNumberCell.this.listeners.forEach(l -> l.onExitCell(SNumberCell.this)));
             }
         });
 

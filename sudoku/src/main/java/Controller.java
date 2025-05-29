@@ -76,7 +76,7 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
     }
 
     @Override
-    public void onSelected(final int number) {
+    public void onSelectedNumberInfo(final int number) {
 
     }
 
@@ -93,27 +93,27 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
     }
 
     @Override
-    public void onSelect(final SNumberCell cell) {
+    public void onSelectCell(final SNumberCell cell) {
 
     }
 
     @Override
-    public void onHover(final SNumberCell cell) {
+    public void onHoverCell(final SNumberCell cell) {
 
     }
 
     @Override
-    public void onExit(final SNumberCell cell) {
+    public void onExitCell(final SNumberCell cell) {
 
     }
 
     @Override
-    public void onFocusGained(final SNumberCell cell) {
+    public void onFocusGainedCell(final SNumberCell cell) {
 
     }
 
     @Override
-    public void onFocusLost(final SNumberCell cell) {
+    public void onFocusLostCell(final SNumberCell cell) {
 
     }
 }

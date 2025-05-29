@@ -53,7 +53,7 @@ public class NumberInfoPanel extends JPanel {
     private void onClickNumber(final SButton button) {
         try {
             final int number = Integer.parseInt(button.getText());
-            this.listeners.forEach(l -> l.onSelected(number));
+            this.listeners.forEach(l -> l.onSelectedNumberInfo(number));
         } catch (final NumberFormatException e) {
             System.err.println("Invalid number format: " + button.getText());
         }
