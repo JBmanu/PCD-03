@@ -32,6 +32,8 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
     public void onStart(final Settings.Schema schema, final Settings.Difficulty difficulty) {
         this.grid = Grid.create(Settings.create(schema, difficulty));
         this.ui.buildGrid(this.grid);
+        this.ui.addGridCellListener(this);
+        this.ui.addGridCellInsertListener(this);
         this.ui.showGridPage();
     }
 
@@ -79,12 +81,12 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
     }
 
     @Override
-    public void onChangeCell(final SNumberCell SNumberCell) {
-
+    public void onChangeCell(final SNumberCell cell) {
+        cell.getValue().ifPresent(value -> this.grid.saveValue(cell.coordinate(), value));
     }
 
     @Override
-    public void onRemoveCell(final SNumberCell SNumberCell) {
+    public void onRemoveCell(final SNumberCell cell) {
 
     }
 

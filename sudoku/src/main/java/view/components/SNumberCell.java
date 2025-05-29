@@ -16,6 +16,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static view.utils.StyleUtils.SIZE_CELL_FONT;
 
@@ -112,11 +113,11 @@ public class SNumberCell extends JTextField implements ColorComponent {
         this.documentEvent.removeListener(listener);
     }
 
-    public int getValue() {
+    public Optional<Integer> getValue() {
         try {
-            return Integer.parseInt(this.getText());
+            return Optional.of(Integer.parseInt(this.getText().trim()));
         } catch (final NumberFormatException e) {
-            return 0;
+            return Optional.empty();
         }
     }
 
