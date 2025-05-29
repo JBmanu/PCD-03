@@ -1,3 +1,4 @@
+import model.Coordinate;
 import model.Grid;
 import model.Settings;
 import view.SudokuUI;
@@ -6,6 +7,8 @@ import view.components.SNumberCell;
 import view.listener.*;
 
 import javax.swing.*;
+import java.util.Map;
+import java.util.Optional;
 
 public class Controller implements MenuListener, GridActionListener, NumberInfoListener, GridCellListener, GridCellInsertListener {
 
@@ -61,8 +64,8 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
 
     @Override
     public void onSuggest() {
-        this.grid.suggest();
-
+        final Optional<Map.Entry<Coordinate, Integer>> suggest = this.grid.suggest();
+        suggest.ifPresent(entry -> this.ui.setSuggest(entry.getKey(), entry.getValue()));
     }
 
     @Override

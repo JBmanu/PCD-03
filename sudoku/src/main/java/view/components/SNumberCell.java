@@ -43,9 +43,7 @@ public class SNumberCell extends JTextField implements ColorComponent {
         this.listeners = new ArrayList<>();
         this.colorable = Colorable.test();
 
-        if (value != 0) this.setEnabled(false);
-        this.setValue(value);
-        
+        this.setSuggest(value);
         this.setHorizontalAlignment(JTextField.CENTER);
         this.setFont(this.getFont().deriveFont(SIZE_CELL_FONT));
         this.getDocument().addDocumentListener(this.documentEvent);
@@ -126,7 +124,11 @@ public class SNumberCell extends JTextField implements ColorComponent {
     public void setValue(final int value) {
         this.setText(value == 0 ? SPACE : String.valueOf(value));
     }
-
+    
+    public void setSuggest(final int value) {
+        if (value != 0) this.setEnabled(false);
+        this.setValue(value);
+    }
 
     @Override
     public void refreshPalette(final Palette palette) {

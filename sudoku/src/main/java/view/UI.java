@@ -1,5 +1,6 @@
 package view;
 
+import model.Coordinate;
 import model.Grid;
 import view.listener.*;
 
@@ -17,7 +18,9 @@ public interface UI {
 
     void buildGrid(Grid grid);
     
-    
+    void setSuggest(Coordinate key, Integer value);
+
+
     void addMenuListener(MenuListener listener);
     
     void addGridActionListener(GridActionListener listener);
@@ -27,5 +30,5 @@ public interface UI {
     void addGridCellListener(GridCellListener listener);
     
     void addGridCellInsertListener(GridCellInsertListener listener);
-    
+
 }

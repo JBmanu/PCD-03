@@ -1,5 +1,6 @@
 package view;
 
+import model.Coordinate;
 import model.Grid;
 import view.color.Palette;
 import view.components.ColorComponent;
@@ -59,6 +60,11 @@ public class SudokuUI extends JFrame implements UI, ColorComponent {
     @Override
     public void buildGrid(final Grid grid) {
         this.gridPage.build(grid);
+    }
+
+    @Override
+    public void setSuggest(final Coordinate key, final Integer value) {
+        this.gridPage.setSuggest(key, value);
     }
 
     @Override
