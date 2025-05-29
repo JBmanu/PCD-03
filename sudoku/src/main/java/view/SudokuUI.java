@@ -8,6 +8,7 @@ import view.listener.MenuListener;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 
 import static view.utils.StyleUtils.FRAME_SIZE;
 import static view.utils.StyleUtils.TITLE_GUI;

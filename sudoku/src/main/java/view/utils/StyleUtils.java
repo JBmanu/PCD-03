@@ -8,11 +8,8 @@ public final class StyleUtils {
     public static final String TITLE_GUI = "Sudoku";
 
     // CELL
-    public static final int SIZE_CELL = 60;
     public static final float SIZE_CELL_FONT = 24.0f;
-
-    // CELL BORDER
-    public static final int DIVISOR_BORDER = 4;
+    public static final int DIVISOR_BORDER = 2;
     public static final int CELL_BORDER = 1;
 
     // GENERAL

@@ -2,7 +2,6 @@ package view;
 
 import model.Coordinate;
 import model.Grid;
-import model.Settings;
 import view.components.SNumberCell;
 import view.listener.GridActionListener;
 import view.panel.GridActionPanel;
@@ -10,6 +9,7 @@ import view.panel.NumberInfoPanel;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,10 +21,10 @@ public class GridPage extends JPanel {
 
     private final JPanel gridPanel;
     private final Map<Coordinate, SNumberCell> cells;
-    
+
     private final NumberInfoPanel numberInfoPanel;
     private final GridActionPanel gridActionPanel;
-    
+
     public GridPage() {
         super(new BorderLayout());
         PanelUtils.transparent(this);
@@ -49,8 +49,6 @@ public class GridPage extends JPanel {
         this.add(gapInteractionPanel, BorderLayout.SOUTH);
         this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.WEST);
         this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.EAST);
-
-//        this.build(Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.EASY)));
     }
 
 
@@ -59,15 +57,33 @@ public class GridPage extends JPanel {
         this.gridPanel.removeAll();
         this.gridPanel.setLayout(new GridLayout(grid.size(), grid.size()));
 
+        final int quadrantSize = (int) Math.sqrt(grid.size());
+
         grid.orderedCells().forEach(entry -> {
             final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
             this.cells.put(entry.getKey(), cell);
             this.gridPanel.add(cell);
+
+            cell.setBorder(GridPage.getCellBorder(
+                    entry.getKey().row(), entry.getKey().column(), grid.size(), quadrantSize,
+                    CELL_BORDER, DIVISOR_BORDER));
         });
 
         this.numberInfoPanel.setup(grid.size());
     }
 
+    public static Border getCellBorder(final int row, final int col, final int gridSize, final int quadrantSize, final int thin, final int thick) {
+        int top = (row % quadrantSize == 0 && row != 0) ? thick : thin;
+        int left = (col % quadrantSize == 0 && col != 0) ? thick : thin;
+        int bottom = ((row + 1) % quadrantSize == 0 && row != gridSize - 1) ? thick : thin;
+        int right = ((col + 1) % quadrantSize == 0 && col != gridSize - 1) ? thick : thin;
+        if (row == 0) top = 0;
+        if (col == 0) left = 0;
+        if (row == gridSize - 1) bottom = 0;
+        if (col == gridSize - 1) right = 0;
+
+        return BorderFactory.createMatteBorder(top, left, bottom, right, Color.green);
+    }
 
     public void addGridActionListener(final GridActionListener listener) {
         this.gridActionPanel.addListener(listener);
