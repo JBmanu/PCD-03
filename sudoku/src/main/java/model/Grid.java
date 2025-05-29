@@ -45,7 +45,7 @@ public interface Grid {
 
     Optional<Coordinate> undo();
 
-    void reset();
+    Map<Coordinate, Integer> reset();
 
 
     class GridImpl implements Grid {
@@ -172,9 +172,10 @@ public interface Grid {
         }
 
         @Override
-        public void reset() {
+        public Map<Coordinate, Integer> reset() {
             this.historyAction.stream().map(Map.Entry::getKey).forEach(entry -> this.setValue(entry, this.emptyValue()));
             this.historyAction.clear();
+            return this.cells();
         }
 
     }

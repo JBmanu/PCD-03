@@ -98,7 +98,7 @@ public class GridTest {
             assertTrue(grid.hasWin());
         });
     }
-    
+
     @Test
     public void emptyUndo() {
         this.settingsList.forEach(settings -> {
@@ -142,8 +142,10 @@ public class GridTest {
             final Grid grid = Grid.create(settings);
             grid.emptyCells().forEach(_ -> grid.suggest());
             assertTrue(grid.hasWin());
-            grid.reset();
-            assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
+            final Map<Coordinate, Integer> resetCells = grid.reset();
+            final long totalEmptyCells = resetCells.values().stream().filter(value -> value == grid.emptyValue()).count();
+            assertEquals(settings.maxNumbersToClear(), totalEmptyCells);
+            assertEquals(totalEmptyCells, grid.countEmptyValue());
         });
     }
 
@@ -159,7 +161,7 @@ public class GridTest {
                     correctCoordinates.add(Coordinate.create(row, col));
 
             IntStream.range(0, settings.size() * settings.size())
-                    .forEach(index -> 
+                    .forEach(index ->
                             assertEquals(correctCoordinates.get(index), currentCoordinates.get(index)));
         });
     }

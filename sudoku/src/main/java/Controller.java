@@ -8,7 +8,6 @@ import view.listener.*;
 
 import javax.swing.*;
 import java.util.Map;
-import java.util.Optional;
 
 public class Controller implements MenuListener, GridActionListener, NumberInfoListener, GridCellListener, GridCellInsertListener {
 
@@ -20,7 +19,7 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
 
     private Grid grid;
     private final UI ui;
-    
+
     public Controller() {
         this.ui = new SudokuUI();
 
@@ -59,18 +58,18 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
 
     @Override
     public void onUndo() {
-        final Optional<Coordinate> undoCoordinate = this.grid.undo();
-        undoCoordinate.ifPresent(this.ui::undo);
+        this.grid.undo().ifPresent(this.ui::undo);
     }
 
     @Override
     public void onSuggest() {
-        final Optional<Map.Entry<Coordinate, Integer>> suggest = this.grid.suggest();
-        suggest.ifPresent(entry -> this.ui.setSuggest(entry.getKey(), entry.getValue()));
+        this.grid.suggest().ifPresent(entry -> this.ui.setSuggest(entry.getKey(), entry.getValue()));
     }
 
     @Override
     public void onReset() {
+        final Map<Coordinate, Integer> resetGrid = this.grid.reset();
+        this.ui.reset(resetGrid);
 
     }
 

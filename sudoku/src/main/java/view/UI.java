@@ -4,6 +4,8 @@ import model.Coordinate;
 import model.Grid;
 import view.listener.*;
 
+import java.util.Map;
+
 public interface UI {
 
     void open();
@@ -21,6 +23,8 @@ public interface UI {
     void setSuggest(Coordinate key, Integer value);
 
     void undo(Coordinate coordinate);
+    
+    void reset(Map<Coordinate, Integer> resetGrid);
 
 
     void addMenuListener(MenuListener listener);

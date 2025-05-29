@@ -8,6 +8,7 @@ import view.listener.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 import static view.utils.StyleUtils.FRAME_SIZE;
 import static view.utils.StyleUtils.TITLE_GUI;
@@ -70,6 +71,11 @@ public class SudokuUI extends JFrame implements UI, ColorComponent {
     @Override
     public void undo(final Coordinate coordinate) {
         this.gridPage.undo(coordinate);
+    }
+
+    @Override
+    public void reset(final Map<Coordinate, Integer> resetGrid) {
+        this.gridPage.reset(resetGrid);
     }
 
     @Override
