@@ -1,5 +1,6 @@
 import model.Grid;
 import view.SudokuUI;
+import view.UI;
 import view.listener.GridActionListener;
 import view.listener.MenuListener;
 
@@ -12,25 +13,27 @@ public class Controller implements MenuListener, GridActionListener {
             final Controller controller = new Controller();
         });
     }
-    
+
     private Grid grid;
-    private final SudokuUI ui;
+    private final UI ui;
     
     public Controller() {
         this.ui = new SudokuUI();
+
+        this.ui.addMenuListener(this);
         this.ui.addGridActionListener(this);
-        
-        this.ui.setVisible(true);
+        this.ui.open();
     }
 
     @Override
     public void onStart(final String schema, final String difficulty) {
-        
+        this.ui.showGridPage();
     }
 
     @Override
     public void onExit() {
-
+        this.ui.close();
+        System.exit(0);
     }
 
     @Override
@@ -42,7 +45,7 @@ public class Controller implements MenuListener, GridActionListener {
     public void onDarkMode() {
 
     }
-    
+
     @Override
     public void onHome() {
         this.ui.showMenuPage();
