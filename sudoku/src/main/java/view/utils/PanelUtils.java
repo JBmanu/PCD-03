@@ -78,4 +78,11 @@ public final class PanelUtils {
     public static JPanel createSouthGap(final int vGap, final Component... components) {
         return createVerticalGap(vGap, BorderLayout.SOUTH, components);
     }
+    
+    public static JPanel createGrid(final int rows, final int cols) {
+        final JPanel panel = new JPanel(new GridLayout(rows, cols));
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder());
+        return panel;
+    }
 }

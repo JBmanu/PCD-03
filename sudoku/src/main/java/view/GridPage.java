@@ -50,7 +50,7 @@ public class GridPage extends JPanel {
         this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.WEST);
         this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.EAST);
 
-        this.build(Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.EASY)));
+//        this.build(Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.EASY)));
     }
 
 

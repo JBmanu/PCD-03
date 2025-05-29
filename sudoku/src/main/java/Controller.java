@@ -1,4 +1,5 @@
 import model.Grid;
+import model.Settings;
 import view.SudokuUI;
 import view.UI;
 import view.listener.GridActionListener;
@@ -26,7 +27,9 @@ public class Controller implements MenuListener, GridActionListener {
     }
 
     @Override
-    public void onStart(final String schema, final String difficulty) {
+    public void onStart(final Settings.Schema schema, final Settings.Difficulty difficulty) {
+        this.grid = Grid.create(Settings.create(schema, difficulty));
+        this.ui.buildGrid(this.grid);
         this.ui.showGridPage();
     }
 

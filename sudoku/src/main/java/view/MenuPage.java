@@ -1,5 +1,6 @@
 package view;
 
+import model.Settings;
 import view.color.Palette;
 import view.components.ColorComponent;
 import view.components.SButton;
@@ -11,6 +12,7 @@ import view.utils.PanelUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -24,17 +26,18 @@ public class MenuPage extends JPanel implements ColorComponent {
     private static final String DARK_MODE = "Dark Mode";
     private static final String LIGHT_MODE = "Light Mode";
 
-    private final SSelector<String> difficultyComboBox;
-    private final SSelector<String> gridSizeComboBox;
+    private final SSelector<Settings.Schema> schemaSelector;
+    private final SSelector<Settings.Difficulty> difficultySelector;
 
     private final SButton startGameButton;
     private final SButton themeModeButton;
     private final SButton exitButton;
-    
+
     private final List<MenuListener> listeners;
 
     public MenuPage() {
-        this.setLayout(new BorderLayout());
+        super(new BorderLayout());
+//        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         PanelUtils.transparent(this);
         this.listeners = new ArrayList<>();
 
@@ -42,48 +45,45 @@ public class MenuPage extends JPanel implements ColorComponent {
         this.startGameButton = new SButton(START_GAME);
         this.themeModeButton = new SButton(DARK_MODE);
         this.exitButton = new SButton(EXIT);
-        this.difficultyComboBox = new SSelector<>(List.of("Easy", "Medium", "Hard"));
-        this.gridSizeComboBox = new SSelector<>(List.of("4x4", "6x6", "9x9"));
+        this.schemaSelector = new SSelector<>(Arrays.stream(Settings.Schema.values()).toList());
+        this.difficultySelector = new SSelector<>(Arrays.stream(Settings.Difficulty.values()).toList());
 
-        final List<SSelector<String>> selectors = List.of(this.difficultyComboBox, this.gridSizeComboBox);
+        final List<SSelector<?>> selectors = List.of(this.schemaSelector, this.difficultySelector);
         final List<SButton> buttons = List.of(this.startGameButton, this.themeModeButton, this.exitButton);
         final List<JComponent> allComponents = Stream.concat((selectors.stream().map(selector -> (JComponent) selector)),
                 buttons.stream()).toList();
 
-        
-        
         final JPanel panel = PanelUtils.createVertical();
         allComponents.forEach(component -> component.setFont(FONT_GAME));
         allComponents.forEach(component -> component.setPreferredSize(DIMENSION_BUTTON_MENU));
         allComponents.forEach(component -> panel.add(PanelUtils.createCenterWithGap(ZERO_GAP, V_GAP, component)));
 
         this.add(icon, BorderLayout.NORTH);
-        this.add(Box.createHorizontalGlue(), BorderLayout.EAST);
-        this.add(panel, BorderLayout.CENTER);
-        this.add(Box.createHorizontalGlue(), BorderLayout.WEST);
-        
+        this.add(PanelUtils.createCenter(panel), BorderLayout.CENTER);
+
         this.startGameButton.addActionListener(_ -> this.onStartGame());
         this.themeModeButton.addActionListener(_ -> this.onThemeMode());
         this.exitButton.addActionListener(_ -> this.onExit());
-        
     }
-    
+
     private void onStartGame() {
-        
+        this.listeners.forEach(l -> l.onStart(
+                this.schemaSelector.getSelectedItem(),
+                this.difficultySelector.getSelectedItem()));
     }
-    
+
     private void onThemeMode() {
         this.listeners.forEach(MenuListener::onDarkMode);
     }
-    
+
     private void onExit() {
         this.listeners.forEach(MenuListener::onExit);
     }
-    
+
     public void addListener(final MenuListener listener) {
         this.listeners.add(listener);
     }
-    
+
     public void removeListener(final MenuListener listener) {
         this.listeners.remove(listener);
     }

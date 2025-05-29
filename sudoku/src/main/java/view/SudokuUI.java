@@ -1,5 +1,6 @@
 package view;
 
+import model.Grid;
 import view.color.Palette;
 import view.components.ColorComponent;
 import view.listener.GridActionListener;
@@ -54,6 +55,11 @@ public class SudokuUI extends JFrame implements UI, ColorComponent {
     @Override
     public void showGridPage() {
         this.showPage(this.gridPage);
+    }
+
+    @Override
+    public void buildGrid(final Grid grid) {
+        this.gridPage.build(grid);
     }
 
     @Override
