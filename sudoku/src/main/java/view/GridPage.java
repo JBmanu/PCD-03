@@ -79,6 +79,10 @@ public class GridPage extends JPanel {
         this.cells.get(key).setSuggest(value);
     }
 
+    public void undo(final Coordinate coordinate) {
+        this.cells.get(coordinate).undo();
+    }
+
     public static Border getCellBorder(final int row, final int col, final int gridSize, final int quadrantSize, final int thin, final int thick) {
         int top = (row % quadrantSize == 0 && row != 0) ? thick : thin;
         int left = (col % quadrantSize == 0 && col != 0) ? thick : thin;
@@ -107,5 +111,6 @@ public class GridPage extends JPanel {
     public void addGridCellInsertListener(final GridCellInsertListener listener) {
         this.cells.values().forEach(cell -> cell.addInsertListeners(listener));
     }
-    
+
+  
 }

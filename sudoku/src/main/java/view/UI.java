@@ -20,6 +20,8 @@ public interface UI {
     
     void setSuggest(Coordinate key, Integer value);
 
+    void undo(Coordinate coordinate);
+
 
     void addMenuListener(MenuListener listener);
     

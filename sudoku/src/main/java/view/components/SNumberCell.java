@@ -10,7 +10,6 @@ import view.listener.GridCellListener;
 
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
-import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
@@ -130,6 +129,11 @@ public class SNumberCell extends JTextField implements ColorComponent {
         this.setValue(value);
     }
 
+    public void undo() {
+        this.setValue(0);
+        this.setEnabled(true);
+    }
+
     @Override
     public void refreshPalette(final Palette palette) {
 //        if (!this.isEnabled()) this.setForeground(COLOR_SCHEME.disabled());
@@ -142,4 +146,6 @@ public class SNumberCell extends JTextField implements ColorComponent {
 //        this.setBackground(COLOR_SCHEME.background());
 //        this.setForeground(COLOR_SCHEME.second());
     }
+
+
 }

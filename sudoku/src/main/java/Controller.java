@@ -59,7 +59,8 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
 
     @Override
     public void onUndo() {
-
+        final Optional<Coordinate> undoCoordinate = this.grid.undo();
+        undoCoordinate.ifPresent(this.ui::undo);
     }
 
     @Override

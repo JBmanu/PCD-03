@@ -68,6 +68,11 @@ public class SudokuUI extends JFrame implements UI, ColorComponent {
     }
 
     @Override
+    public void undo(final Coordinate coordinate) {
+        this.gridPage.undo(coordinate);
+    }
+
+    @Override
     public void addMenuListener(final MenuListener listener) {
         this.menuPage.addListener(listener);
     }
