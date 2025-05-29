@@ -2,11 +2,12 @@ package view;
 
 import model.Coordinate;
 import model.Grid;
+import view.components.ColorComponent;
 import view.listener.*;
 
 import java.util.Map;
 
-public interface UI {
+public interface UI extends ColorComponent {
 
     void open();
     

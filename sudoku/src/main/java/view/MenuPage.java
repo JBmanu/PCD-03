@@ -1,6 +1,7 @@
 package view;
 
 import model.Settings;
+import utils.ConditionUtils;
 import view.color.Palette;
 import view.components.ColorComponent;
 import view.components.SButton;
@@ -14,6 +15,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static view.utils.PathUtils.ICON_START;
@@ -35,9 +37,11 @@ public class MenuPage extends JPanel implements ColorComponent {
 
     private final List<MenuListener> listeners;
 
+    private boolean isDarkMode;
+    private final Map<Boolean, Runnable> themeActions;
+
     public MenuPage() {
         super(new BorderLayout());
-//        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         PanelUtils.transparent(this);
         this.listeners = new ArrayList<>();
 
@@ -47,6 +51,11 @@ public class MenuPage extends JPanel implements ColorComponent {
         this.exitButton = new SButton(EXIT);
         this.schemaSelector = new SSelector<>(Arrays.stream(Settings.Schema.values()).toList());
         this.difficultySelector = new SSelector<>(Arrays.stream(Settings.Difficulty.values()).toList());
+
+        this.isDarkMode = true;
+        this.themeActions = ConditionUtils.createBoolean(
+                () -> this.listeners.forEach(MenuListener::onLightMode),
+                () -> this.listeners.forEach(MenuListener::onDarkMode));
 
         final List<SSelector<?>> selectors = List.of(this.schemaSelector, this.difficultySelector);
         final List<SButton> buttons = List.of(this.startGameButton, this.themeModeButton, this.exitButton);
@@ -73,7 +82,7 @@ public class MenuPage extends JPanel implements ColorComponent {
     }
 
     private void onThemeMode() {
-        this.listeners.forEach(MenuListener::onDarkMode);
+        this.themeActions.get(this.isDarkMode = !this.isDarkMode).run();
     }
 
     private void onExit() {
@@ -90,6 +99,11 @@ public class MenuPage extends JPanel implements ColorComponent {
 
     @Override
     public void refreshPalette(final Palette palette) {
-
+        this.schemaSelector.refreshPalette(palette);
+        this.difficultySelector.refreshPalette(palette);
+        
+        this.startGameButton.refreshPalette(palette);
+        this.themeModeButton.refreshPalette(palette);
+        this.exitButton.refreshPalette(palette);
     }
 }

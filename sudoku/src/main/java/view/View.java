@@ -3,7 +3,6 @@ package view;
 import model.Coordinate;
 import model.Grid;
 import view.color.Palette;
-import view.components.ColorComponent;
 import view.listener.*;
 
 import javax.swing.*;
@@ -13,7 +12,7 @@ import java.util.Map;
 import static view.utils.StyleUtils.FRAME_SIZE;
 import static view.utils.StyleUtils.TITLE_GUI;
 
-public class View extends JFrame implements UI, ColorComponent {
+public class View extends JFrame implements UI {
     private final MenuPage menuPage;
     private final GridPage gridPage;
 
@@ -105,7 +104,8 @@ public class View extends JFrame implements UI, ColorComponent {
 
     @Override
     public void refreshPalette(final Palette palette) {
-
+        this.getContentPane().setBackground(palette.primary());
+        this.menuPage.refreshPalette(palette);
     }
 
 }

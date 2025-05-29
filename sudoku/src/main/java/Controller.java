@@ -1,8 +1,9 @@
 import model.Coordinate;
 import model.Grid;
 import model.Settings;
-import view.View;
 import view.UI;
+import view.View;
+import view.color.Palette;
 import view.components.SNumberCell;
 import view.listener.*;
 
@@ -17,6 +18,8 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
 
         this.ui.addMenuListener(this);
         this.ui.addGridActionListener(this);
+        
+        this.ui.refreshPalette(Palette.light());
         this.ui.open();
     }
 
@@ -37,12 +40,14 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
 
     @Override
     public void onLightMode() {
-
+        this.ui.refreshPalette(Palette.light());
+        System.out.println("Light mode activated");
     }
 
     @Override
     public void onDarkMode() {
-
+        this.ui.refreshPalette(Palette.dark());
+        System.out.println("Dark mode activated");
     }
 
     @Override
