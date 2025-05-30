@@ -41,13 +41,11 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
     @Override
     public void onLightMode() {
         this.ui.refreshPalette(Palette.light());
-        System.out.println("Light mode activated");
     }
 
     @Override
     public void onDarkMode() {
         this.ui.refreshPalette(Palette.dark());
-        System.out.println("Dark mode activated");
     }
 
     @Override

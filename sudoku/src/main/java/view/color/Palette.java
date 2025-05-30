@@ -19,11 +19,11 @@ public interface Palette {
 
     static Palette dark() {
         return new PaletteImpl(
-                Color.decode("#1F90FF"),
-                Color.decode("#D3FBD8"),
-                Color.decode("#2C3650"),
-                Color.decode("#FF0000"),
-                Color.decode("#00FF00"));
+                Color.decode("#2489FF"),
+                Color.decode("#FCFDFE"),
+                Color.decode("#14181B"),
+                Color.decode("#8AAFFF"),
+                Color.decode("#2859BE"));
     }
 
 

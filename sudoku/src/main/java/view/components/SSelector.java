@@ -1,5 +1,6 @@
 package view.components;
 
+import view.color.Colorable;
 import view.color.Palette;
 
 import javax.swing.*;
@@ -7,8 +8,9 @@ import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
+import static view.utils.StyleUtils.ZERO_GAP;
+
 public class SSelector<T> extends JPanel implements ColorComponent {
-    //    private final List<SelectorListener> listeners;
     private final SButton rightButton;
     private final SButton leftButton;
     private final JLabel label;
@@ -24,31 +26,19 @@ public class SSelector<T> extends JPanel implements ColorComponent {
         final List<SButton> buttons = List.of(this.rightButton, this.leftButton);
         buttons.forEach(button -> button.setBorder(BorderFactory.createEmptyBorder()));
 
-//        this.listeners = new ArrayList<>();
-
         this.updateLabel();
-        this.rightButton.addActionListener(e -> {
-            this.onRightButtonClick();
-//            this.listeners.forEach(SelectorListener::onRightButtonClick);
-        });
-        this.leftButton.addActionListener(e -> {
-            this.onLeftButtonClick();
-//            this.listeners.forEach(SelectorListener::onLeftButtonClick);
-        });
+        this.rightButton.addActionListener(e -> this.onRightButtonClick());
+        this.leftButton.addActionListener(e -> this.onLeftButtonClick());
 
         this.label.setHorizontalAlignment(SwingConstants.CENTER);
 
-        this.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        this.setLayout(new FlowLayout(FlowLayout.CENTER, ZERO_GAP, ZERO_GAP));
         this.setOpaque(false);
 
         this.add(this.leftButton);
         this.add(this.label);
         this.add(this.rightButton);
     }
-
-//    public void addSelectorListener(final SelectorListener listener) {
-//        this.listeners.add(listener);
-//    }
 
     private void updateLabel() {
         this.label.setText(this.items.get(this.index).toString());
@@ -85,7 +75,9 @@ public class SSelector<T> extends JPanel implements ColorComponent {
 
     @Override
     public void refreshPalette(final Palette palette) {
-        this.label.setForeground(palette.secondary());
+        final int alpha = 230;
+        this.label.setForeground(palette.secondaryWithAlpha(alpha));
+        this.label.setBackground(palette.neutral());
         this.leftButton.refreshPalette(palette);
         this.rightButton.refreshPalette(palette);
         this.repaint();
