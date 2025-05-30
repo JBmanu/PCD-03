@@ -13,8 +13,8 @@ public interface Palette {
                 Color.decode("#1D5DDE"),
                 Color.decode("#27282D"),
                 Color.decode("#FCFDFE"),
-                Color.decode("#2859BE"),
-                Color.decode("#8AAFFF"));
+                Color.decode("#8AAFFF"),
+                Color.decode("#2859BE"));
     }
 
     static Palette dark() {
@@ -22,8 +22,8 @@ public interface Palette {
                 Color.decode("#2489FF"),
                 Color.decode("#FCFDFE"),
                 Color.decode("#14181B"),
-                Color.decode("#8AAFFF"),
-                Color.decode("#2859BE"));
+                Color.decode("#2859BE"),
+                Color.decode("#8AAFFF"));
     }
 
 

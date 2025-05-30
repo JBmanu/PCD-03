@@ -16,18 +16,19 @@ import view.utils.PanelUtils;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 import static view.utils.StyleUtils.*;
 
-public class GridPage extends JPanel implements ColorComponent {
+public class GridPage extends JPanel implements ColorComponent, GridCellListener {
     private final JPanel gridPanel;
     private final Map<Coordinate, SNumberCell> cells;
 
     private final NumberInfoPanel numberInfoPanel;
     private final GridActionPanel gridActionPanel;
 
+    private Optional<Palette> optionPalette;
     private Color gridColor;
 
     public GridPage() {
@@ -39,6 +40,7 @@ public class GridPage extends JPanel implements ColorComponent {
 
         this.numberInfoPanel = new NumberInfoPanel();
         this.gridActionPanel = new GridActionPanel();
+        this.optionPalette = Optional.empty();
         this.gridColor = Color.BLACK;
 
         final JPanel interactionPanel = PanelUtils.createTransparent(new BorderLayout());
@@ -65,6 +67,8 @@ public class GridPage extends JPanel implements ColorComponent {
         grid.orderedCells().forEach(entry -> {
             final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
             this.cells.put(entry.getKey(), cell);
+            cell.setColorable(this.optionPalette);
+            cell.addListener(this);
             this.gridPanel.add(cell);
 
             cell.setBorder(this.getCellBorder(entry.getKey().row(), entry.getKey().column(), grid.size(), quadrantSize,
@@ -99,6 +103,23 @@ public class GridPage extends JPanel implements ColorComponent {
         return BorderFactory.createMatteBorder(top, left, bottom, right, this.gridColor);
     }
 
+    // Metodo per ottenere tutte le coordinate del quadrante dato riga e colonna
+    private List<Coordinate> computeQuadrant(final int row, final int col, final int size) {
+        final List<Coordinate> coordinate = new ArrayList<>();
+
+        // Trova la riga e colonna iniziale del quadrante
+        final int sizeQuadrante = (int) Math.sqrt(size);
+        final int rigaInizio = (row / sizeQuadrante) * sizeQuadrante;
+        final int colonnaInizio = (col / sizeQuadrante) * sizeQuadrante;
+
+        // Scorri tutte le celle 3x3 del quadrante
+        for (int i = 0; i < sizeQuadrante; i++)
+            for (int j = 0; j < sizeQuadrante; j++)
+                coordinate.add(Coordinate.create(rigaInizio + i, colonnaInizio + j));
+
+        return coordinate;
+    }
+
     public void addGridActionListener(final GridActionListener listener) {
         this.gridActionPanel.addListener(listener);
     }
@@ -116,10 +137,40 @@ public class GridPage extends JPanel implements ColorComponent {
     }
 
     @Override
+    public void onFocusGainedCell(final SNumberCell cell) {
+        final Coordinate coordinate = cell.coordinate();
+        final int size = (int) Math.sqrt(this.cells.size());
+        final int row = coordinate.row();
+        final int col = coordinate.column();
+
+        for (int i = 0; i < size; i++) {
+            this.cells.get(Coordinate.create(row, i)).colorOnHelper();
+            this.cells.get(Coordinate.create(i, col)).colorOnHelper();
+        }
+
+        cell.getValue().ifPresent(_ ->
+                this.computeQuadrant(row, col, size).stream().map(this.cells::get)
+                        .forEach(SNumberCell::colorOnHelper));
+
+        this.cells.values().stream()
+                .filter(cellGrid -> cellGrid.getValue().equals(cell.getValue()))
+                .forEach(SNumberCell::colorOnHint);
+
+        cell.colorOnSelected();
+    }
+
+    @Override
+    public void onFocusLostCell(final SNumberCell cell) {
+        this.cells.values().forEach(SNumberCell::colorOnUnselected);
+    }
+
+    @Override
     public void refreshPalette(final Palette palette) {
         this.gridActionPanel.refreshPalette(palette);
         this.numberInfoPanel.refreshPalette(palette);
-        this.gridColor = palette.secondaryWithAlpha(230);
-//        this.cells.values().forEach(cell -> cell.refreshPalette(palette));
+
+        final int alpha = 230;
+        this.gridColor = palette.secondaryWithAlpha(alpha);
+        this.optionPalette = Optional.of(palette);
     }
 }

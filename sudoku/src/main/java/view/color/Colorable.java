@@ -55,9 +55,7 @@ public interface Colorable {
                 palette.primary());
         return new ColorableImpl(background, text);
     }
-
-
-
+    
 
     Optional<Color> currentText();
 

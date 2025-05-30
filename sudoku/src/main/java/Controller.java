@@ -9,7 +9,7 @@ import view.listener.*;
 
 import java.util.Map;
 
-public class Controller implements MenuListener, GridActionListener, NumberInfoListener, GridCellListener, GridCellInsertListener {
+public class Controller implements MenuListener, GridActionListener, NumberInfoListener, GridCellInsertListener {
     private Grid grid;
     private final UI ui;
 
@@ -27,7 +27,6 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
     public void onStart(final Settings.Schema schema, final Settings.Difficulty difficulty) {
         this.grid = Grid.create(Settings.create(schema, difficulty));
         this.ui.buildGrid(this.grid);
-        this.ui.addGridCellListener(this);
         this.ui.addGridCellInsertListener(this);
         this.ui.showGridPage();
     }
@@ -85,30 +84,5 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
         cell.getValue().ifPresentOrElse(
                 value -> this.grid.saveValue(cell.coordinate(), value),
                 () -> this.grid.resetValue(cell.coordinate()));
-    }
-
-    @Override
-    public void onSelectCell(final SNumberCell cell) {
-
-    }
-
-    @Override
-    public void onHoverCell(final SNumberCell cell) {
-
-    }
-
-    @Override
-    public void onExitCell(final SNumberCell cell) {
-
-    }
-
-    @Override
-    public void onFocusGainedCell(final SNumberCell cell) {
-
-    }
-
-    @Override
-    public void onFocusLostCell(final SNumberCell cell) {
-
     }
 }

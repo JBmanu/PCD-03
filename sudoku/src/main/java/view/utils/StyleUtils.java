@@ -22,7 +22,7 @@ public final class StyleUtils {
     // GRID
     public static final Dimension DIMENSION_BUTTON_INFO = new Dimension(40, 40);
     public static final float SIZE_CELL_FONT = 24.0f;
-    public static final int DIVISOR_BORDER = 2;
+    public static final int DIVISOR_BORDER = 3;
     public static final int CELL_BORDER = 1;
 
 }
