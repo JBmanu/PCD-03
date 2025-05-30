@@ -40,14 +40,19 @@ public class SButton extends JButton implements ColorComponent {
 
     @Override
     public void refreshPalette(final Palette palette) {
-//        this.gbColorHover = palette.primary();
-//        this.bgColorOnClick = palette.secondary();
-//        this.bgColorDefault = palette.third();
-//
-//        this.bgColorDisabled = COLOR_SCHEME.disabled();
-//
-//        this.fgColorDefault = COLOR_SCHEME.second();
-//        this.fgColorHover = COLOR_SCHEME.third();
+        final Colorable.Background background = Colorable.createBackground(
+                palette.primary(),
+                palette.primaryWithAlpha(150),
+                palette.interaction(),
+                palette.secondaryWithAlpha(50));
+        
+        final Colorable.Text text = Colorable.createText(
+                palette.neutral(),
+                palette.neutral(),
+                palette.neutral());
+                
+        this.colorable.setBackground(background);
+        this.colorable.setText(text);
         this.repaint();
     }
 }

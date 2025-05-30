@@ -104,7 +104,7 @@ public class View extends JFrame implements UI {
 
     @Override
     public void refreshPalette(final Palette palette) {
-        this.getContentPane().setBackground(palette.primary());
+        this.getContentPane().setBackground(palette.neutral());
         this.menuPage.refreshPalette(palette);
     }
 
