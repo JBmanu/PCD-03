@@ -11,13 +11,16 @@ import view.listener.GridCellListener;
 import view.listener.NumberInfoListener;
 import view.panel.GridActionPanel;
 import view.panel.NumberInfoPanel;
+import view.utils.GridUtils;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static view.utils.StyleUtils.*;
 
@@ -62,8 +65,6 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
         this.gridPanel.removeAll();
         this.gridPanel.setLayout(new GridLayout(grid.size(), grid.size()));
 
-        final int quadrantSize = (int) Math.sqrt(grid.size());
-
         grid.orderedCells().forEach(entry -> {
             final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
             this.cells.put(entry.getKey(), cell);
@@ -71,8 +72,8 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
             cell.addListener(this);
             this.gridPanel.add(cell);
 
-            cell.setBorder(this.getCellBorder(entry.getKey().row(), entry.getKey().column(), grid.size(), quadrantSize,
-                    CELL_BORDER, DIVISOR_BORDER));
+            cell.setBorder(GridUtils.getCellBorder(entry.getKey().row(), entry.getKey().column(), grid.size(),
+                    CELL_BORDER, DIVISOR_BORDER, this.gridColor));
         });
 
         this.numberInfoPanel.setup(grid.size());
@@ -88,36 +89,6 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
 
     public void reset(final Map<Coordinate, Integer> resetGrid) {
         resetGrid.forEach((coordinate, value) -> this.cells.get(coordinate).setSuggest(value));
-    }
-
-    private Border getCellBorder(final int row, final int col, final int gridSize, final int quadrantSize, final int thin, final int thick) {
-        int top = (row % quadrantSize == 0 && row != 0) ? thick : thin;
-        int left = (col % quadrantSize == 0 && col != 0) ? thick : thin;
-        int bottom = ((row + 1) % quadrantSize == 0 && row != gridSize - 1) ? thick : thin;
-        int right = ((col + 1) % quadrantSize == 0 && col != gridSize - 1) ? thick : thin;
-        if (row == 0) top = 0;
-        if (col == 0) left = 0;
-        if (row == gridSize - 1) bottom = 0;
-        if (col == gridSize - 1) right = 0;
-
-        return BorderFactory.createMatteBorder(top, left, bottom, right, this.gridColor);
-    }
-
-    // Metodo per ottenere tutte le coordinate del quadrante dato riga e colonna
-    private List<Coordinate> computeQuadrant(final int row, final int col, final int size) {
-        final List<Coordinate> coordinate = new ArrayList<>();
-
-        // Trova la riga e colonna iniziale del quadrante
-        final int sizeQuadrante = (int) Math.sqrt(size);
-        final int rigaInizio = (row / sizeQuadrante) * sizeQuadrante;
-        final int colonnaInizio = (col / sizeQuadrante) * sizeQuadrante;
-
-        // Scorri tutte le celle 3x3 del quadrante
-        for (int i = 0; i < sizeQuadrante; i++)
-            for (int j = 0; j < sizeQuadrante; j++)
-                coordinate.add(Coordinate.create(rigaInizio + i, colonnaInizio + j));
-
-        return coordinate;
     }
 
     public void addGridActionListener(final GridActionListener listener) {
@@ -143,17 +114,16 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
         final int row = coordinate.row();
         final int col = coordinate.column();
 
-        for (int i = 0; i < size; i++) {
-            this.cells.get(Coordinate.create(row, i)).colorOnHelper();
-            this.cells.get(Coordinate.create(i, col)).colorOnHelper();
-        }
+        final List<Coordinate> coordinates = new java.util.ArrayList<>(IntStream.range(0, size)
+                .mapToObj(i -> List.of(Coordinate.create(row, i), Coordinate.create(i, col)))
+                .flatMap(List::stream)
+                .toList());
+        coordinates.addAll(GridUtils.computeQuadrant(row, col, size));
 
-        cell.getValue().ifPresent(_ ->
-                this.computeQuadrant(row, col, size).stream().map(this.cells::get)
-                        .forEach(SNumberCell::colorOnHelper));
+        coordinates.stream().map(this.cells::get).forEach(SNumberCell::colorOnHelper);
 
         this.cells.values().stream()
-                .filter(cellGrid -> cellGrid.getValue().equals(cell.getValue()))
+                .filter(cellGrid -> cellGrid.value().equals(cell.value()))
                 .forEach(SNumberCell::colorOnHint);
 
         cell.colorOnSelected();

@@ -66,7 +66,6 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
     public void onReset() {
         final Map<Coordinate, Integer> resetGrid = this.grid.reset();
         this.ui.reset(resetGrid);
-
     }
 
     @Override
@@ -76,12 +75,12 @@ public class Controller implements MenuListener, GridActionListener, NumberInfoL
 
     @Override
     public void onChangeCell(final SNumberCell cell) {
-        cell.getValue().ifPresent(value -> this.grid.saveValue(cell.coordinate(), value));
+        cell.value().ifPresent(value -> this.grid.saveValue(cell.coordinate(), value));
     }
 
     @Override
     public void onRemoveCell(final SNumberCell cell) {
-        cell.getValue().ifPresentOrElse(
+        cell.value().ifPresentOrElse(
                 value -> this.grid.saveValue(cell.coordinate(), value),
                 () -> this.grid.resetValue(cell.coordinate()));
     }

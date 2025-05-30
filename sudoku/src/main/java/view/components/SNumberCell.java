@@ -71,6 +71,7 @@ public class SNumberCell extends JTextField {
     public void setColorable(final Optional<Palette> palette) {
         this.optionalPalette = palette;
         this.optionalPalette.ifPresent(color -> this.setBackground(color.neutral()));
+        this.optionalPalette.ifPresent(color -> this.setForeground(color.secondary()));
     }
 
     public void colorOnSelected() {
@@ -117,7 +118,7 @@ public class SNumberCell extends JTextField {
         this.documentEvent.removeListener(listener);
     }
 
-    public Optional<Integer> getValue() {
+    public Optional<Integer> value() {
         try {
             return Optional.of(Integer.parseInt(this.getText().trim()));
         } catch (final NumberFormatException e) {
