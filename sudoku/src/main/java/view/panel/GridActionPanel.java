@@ -22,7 +22,7 @@ public class GridActionPanel extends JPanel implements ColorComponent {
     private final SButton reset;
     
     public GridActionPanel() {
-        super(new FlowLayout(FlowLayout.CENTER, H_GAP, V_GAP));
+        super(new FlowLayout(FlowLayout.CENTER, H_GAP, ZERO_GAP));
         PanelUtils.transparent(this);
 
         this.listeners = new ArrayList<>();

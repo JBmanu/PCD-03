@@ -41,6 +41,7 @@ public class SNumberCell extends JTextField implements ColorComponent {
         
         this.coordinate = coordinate;
         this.listeners = new ArrayList<>();
+        this.setOpaque(false);
         this.colorable = Colorable.test();
 
         this.setSuggest(value);

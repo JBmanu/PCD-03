@@ -4,7 +4,8 @@ import java.awt.*;
 import java.util.Optional;
 
 public interface Colorable {
-
+    
+    // FACTORY
     static Colorable create(final Color text, final Color hoverText, final Color disableText, final Color background,
                             final Color hover, final Color click, final Color disabled) {
         final Background bg = createBackground(background, hover, click, disabled);
@@ -15,6 +16,16 @@ public interface Colorable {
     static Colorable test() {
         return create(Color.black, Color.white, Color.black, Color.cyan,
                 Color.blue, Color.magenta, Color.gray);
+    }
+
+    private static Background createBackground(final Color base, final Color hover, final Color click,
+                                               final Color disabled) {
+        return new Background(Optional.ofNullable(base), Optional.ofNullable(hover),
+                Optional.ofNullable(click), Optional.ofNullable(disabled));
+    }
+
+    private static Text createText(final Color base, final Color hover, final Color disable) {
+        return new Text(Optional.ofNullable(base), Optional.ofNullable(hover), Optional.ofNullable(disable));
     }
     
     static Colorable createMainButton(final Palette palette) {
@@ -30,16 +41,22 @@ public interface Colorable {
                 palette.neutral());
         return new ColorableImpl(background, text);
     }
+    
+    static Colorable createSecondaryButton(final Palette palette) {
+        final Colorable.Background background = Colorable.createBackground(
+                palette.primaryWithAlpha(50),
+                palette.primaryWithAlpha(150),
+                palette.interaction(),
+                palette.secondaryWithAlpha(50));
 
-    private static Background createBackground(final Color base, final Color hover, final Color click,
-                                       final Color disabled) {
-        return new Background(Optional.ofNullable(base), Optional.ofNullable(hover),
-                Optional.ofNullable(click), Optional.ofNullable(disabled));
+        final Colorable.Text text = Colorable.createText(
+                palette.primaryWithAlpha(180),
+                palette.primary(),
+                palette.primary());
+        return new ColorableImpl(background, text);
     }
 
-    private static Text createText(final Color base, final Color hover, final Color disable) {
-        return new Text(Optional.ofNullable(base), Optional.ofNullable(hover), Optional.ofNullable(disable));
-    }
+
 
 
     Optional<Color> currentText();

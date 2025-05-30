@@ -22,36 +22,34 @@ import java.util.Map;
 import static view.utils.StyleUtils.*;
 
 public class GridPage extends JPanel implements ColorComponent {
-    private final JLabel title;
-
     private final JPanel gridPanel;
     private final Map<Coordinate, SNumberCell> cells;
 
     private final NumberInfoPanel numberInfoPanel;
     private final GridActionPanel gridActionPanel;
 
+    private Color gridColor;
+
     public GridPage() {
         super(new BorderLayout());
         PanelUtils.transparent(this);
-
-        this.title = new JLabel(TITLE_GUI);
-        this.title.setFont(FONT_TITLE);
-        final JPanel titlePanel = PanelUtils.createNorthGap(V_GAP, this.title);
 
         this.gridPanel = PanelUtils.createTransparent();
         this.cells = new HashMap<>();
 
         this.numberInfoPanel = new NumberInfoPanel();
         this.gridActionPanel = new GridActionPanel();
+        this.gridColor = Color.BLACK;
 
         final JPanel interactionPanel = PanelUtils.createTransparent(new BorderLayout());
-        final JPanel gapInteractionPanel = PanelUtils.createSouthGap(V_GAP, interactionPanel);
         interactionPanel.add(this.gridActionPanel, BorderLayout.NORTH);
+        interactionPanel.add(Box.createVerticalStrut(V_GAP + V_GAP), BorderLayout.CENTER);
         interactionPanel.add(this.numberInfoPanel, BorderLayout.SOUTH);
 
-        this.add(titlePanel, BorderLayout.NORTH);
+        final int height = V_GAP * 4;
+        this.add(Box.createVerticalStrut(height), BorderLayout.NORTH);
         this.add(this.gridPanel, BorderLayout.CENTER);
-        this.add(gapInteractionPanel, BorderLayout.SOUTH);
+        this.add(PanelUtils.createCenterWithGap(ZERO_GAP, height, interactionPanel), BorderLayout.SOUTH);
         this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.WEST);
         this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.EAST);
     }
@@ -69,8 +67,7 @@ public class GridPage extends JPanel implements ColorComponent {
             this.cells.put(entry.getKey(), cell);
             this.gridPanel.add(cell);
 
-            cell.setBorder(GridPage.getCellBorder(
-                    entry.getKey().row(), entry.getKey().column(), grid.size(), quadrantSize,
+            cell.setBorder(this.getCellBorder(entry.getKey().row(), entry.getKey().column(), grid.size(), quadrantSize,
                     CELL_BORDER, DIVISOR_BORDER));
         });
 
@@ -89,7 +86,7 @@ public class GridPage extends JPanel implements ColorComponent {
         resetGrid.forEach((coordinate, value) -> this.cells.get(coordinate).setSuggest(value));
     }
 
-    public static Border getCellBorder(final int row, final int col, final int gridSize, final int quadrantSize, final int thin, final int thick) {
+    private Border getCellBorder(final int row, final int col, final int gridSize, final int quadrantSize, final int thin, final int thick) {
         int top = (row % quadrantSize == 0 && row != 0) ? thick : thin;
         int left = (col % quadrantSize == 0 && col != 0) ? thick : thin;
         int bottom = ((row + 1) % quadrantSize == 0 && row != gridSize - 1) ? thick : thin;
@@ -99,7 +96,7 @@ public class GridPage extends JPanel implements ColorComponent {
         if (row == gridSize - 1) bottom = 0;
         if (col == gridSize - 1) right = 0;
 
-        return BorderFactory.createMatteBorder(top, left, bottom, right, Color.green);
+        return BorderFactory.createMatteBorder(top, left, bottom, right, this.gridColor);
     }
 
     public void addGridActionListener(final GridActionListener listener) {
@@ -117,11 +114,12 @@ public class GridPage extends JPanel implements ColorComponent {
     public void addGridCellInsertListener(final GridCellInsertListener listener) {
         this.cells.values().forEach(cell -> cell.addInsertListeners(listener));
     }
-    
+
     @Override
     public void refreshPalette(final Palette palette) {
         this.gridActionPanel.refreshPalette(palette);
-//        this.numberInfoPanel.refreshPalette(palette);
+        this.numberInfoPanel.refreshPalette(palette);
+        this.gridColor = palette.secondaryWithAlpha(230);
 //        this.cells.values().forEach(cell -> cell.refreshPalette(palette));
     }
 }

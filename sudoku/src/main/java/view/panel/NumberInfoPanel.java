@@ -20,7 +20,7 @@ public class NumberInfoPanel extends JPanel implements ColorComponent {
     private final List<SButton> numbers;
 
     public NumberInfoPanel() {
-        super(new FlowLayout(FlowLayout.CENTER, H_GAP, V_GAP));
+        super(new FlowLayout(FlowLayout.CENTER, H_GAP, ZERO_GAP));
         PanelUtils.transparent(this);
 
         this.listeners = new ArrayList<>();
@@ -42,7 +42,7 @@ public class NumberInfoPanel extends JPanel implements ColorComponent {
         }
 
         this.numbers.forEach(button -> button.addActionListener(_ -> this.onClickNumber(button)));
-        this.numbers.forEach(Component::repaint);
+        this.numbers.forEach(button -> button.setColorable(this.colorable));
     }
 
 
@@ -53,7 +53,6 @@ public class NumberInfoPanel extends JPanel implements ColorComponent {
     public void addRemove(final NumberInfoListener listener) {
         this.listeners.remove(listener);
     }
-
 
     private void onClickNumber(final SButton button) {
         try {
@@ -66,6 +65,9 @@ public class NumberInfoPanel extends JPanel implements ColorComponent {
 
     @Override
     public void refreshPalette(final Palette palette) {
-        this.numbers.forEach(button -> button.refreshPalette(palette));
+        final Colorable colorable = Colorable.createSecondaryButton(palette);
+        this.colorable.setBackground(colorable.background());
+        this.colorable.setText(colorable.text());
+        this.numbers.forEach(button -> button.setColorable(colorable));
     }
 }
