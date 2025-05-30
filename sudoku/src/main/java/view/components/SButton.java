@@ -9,7 +9,6 @@ import java.awt.*;
 
 public class SButton extends JButton implements ColorComponent {
     private final Colorable colorable;
-
     private int arcSize;
 
     public SButton(final String text) {
@@ -27,6 +26,12 @@ public class SButton extends JButton implements ColorComponent {
     public void setArcSize(final int arcSize) {
         this.arcSize = arcSize;
     }
+    
+    public void setColorable(final Colorable colorable) {
+        this.colorable.setBackground(colorable.background());
+        this.colorable.setText(colorable.text());
+        this.repaint();
+    }
 
     @Override
     protected void paintComponent(final Graphics g) {
@@ -40,19 +45,9 @@ public class SButton extends JButton implements ColorComponent {
 
     @Override
     public void refreshPalette(final Palette palette) {
-        final Colorable.Background background = Colorable.createBackground(
-                palette.primary(),
-                palette.primaryWithAlpha(150),
-                palette.interaction(),
-                palette.secondaryWithAlpha(50));
-        
-        final Colorable.Text text = Colorable.createText(
-                palette.neutral(),
-                palette.neutral(),
-                palette.neutral());
-                
-        this.colorable.setBackground(background);
-        this.colorable.setText(text);
+        final Colorable colorable = Colorable.createMainButton(palette);
+        this.colorable.setBackground(colorable.background());
+        this.colorable.setText(colorable.text());
         this.repaint();
     }
 }

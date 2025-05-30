@@ -1,5 +1,8 @@
 package view.panel;
 
+import view.color.Colorable;
+import view.color.Palette;
+import view.components.ColorComponent;
 import view.components.SButton;
 import view.listener.GridActionListener;
 import view.utils.PanelUtils;
@@ -11,13 +14,13 @@ import java.util.List;
 
 import static view.utils.StyleUtils.*;
 
-public class GridActionPanel extends JPanel {
+public class GridActionPanel extends JPanel implements ColorComponent {
     private final List<GridActionListener> listeners;
     private final SButton home;
     private final SButton undo;
     private final SButton suggest;
     private final SButton reset;
-
+    
     public GridActionPanel() {
         super(new FlowLayout(FlowLayout.CENTER, H_GAP, V_GAP));
         PanelUtils.transparent(this);
@@ -60,5 +63,13 @@ public class GridActionPanel extends JPanel {
 
     private void onClickReset() {
         this.listeners.forEach(GridActionListener::onReset);
+    }
+
+    @Override
+    public void refreshPalette(final Palette palette) {
+        this.home.refreshPalette(palette);
+        this.undo.refreshPalette(palette);
+        this.suggest.refreshPalette(palette);
+        this.reset.refreshPalette(palette);
     }
 }

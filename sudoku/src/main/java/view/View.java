@@ -106,6 +106,7 @@ public class View extends JFrame implements UI {
     public void refreshPalette(final Palette palette) {
         this.getContentPane().setBackground(palette.neutral());
         this.menuPage.refreshPalette(palette);
+        this.gridPage.refreshPalette(palette);
     }
 
 }

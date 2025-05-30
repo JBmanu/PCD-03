@@ -2,6 +2,8 @@ package view;
 
 import model.Coordinate;
 import model.Grid;
+import view.color.Palette;
+import view.components.ColorComponent;
 import view.components.SNumberCell;
 import view.listener.GridActionListener;
 import view.listener.GridCellInsertListener;
@@ -19,7 +21,7 @@ import java.util.Map;
 
 import static view.utils.StyleUtils.*;
 
-public class GridPage extends JPanel {
+public class GridPage extends JPanel implements ColorComponent {
     private final JLabel title;
 
     private final JPanel gridPanel;
@@ -115,6 +117,11 @@ public class GridPage extends JPanel {
     public void addGridCellInsertListener(final GridCellInsertListener listener) {
         this.cells.values().forEach(cell -> cell.addInsertListeners(listener));
     }
-
-
+    
+    @Override
+    public void refreshPalette(final Palette palette) {
+        this.gridActionPanel.refreshPalette(palette);
+//        this.numberInfoPanel.refreshPalette(palette);
+//        this.cells.values().forEach(cell -> cell.refreshPalette(palette));
+    }
 }

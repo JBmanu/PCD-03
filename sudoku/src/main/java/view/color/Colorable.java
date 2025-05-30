@@ -16,14 +16,28 @@ public interface Colorable {
         return create(Color.black, Color.white, Color.black, Color.cyan,
                 Color.blue, Color.magenta, Color.gray);
     }
+    
+    static Colorable createMainButton(final Palette palette) {
+        final Colorable.Background background = Colorable.createBackground(
+                palette.primary(),
+                palette.primaryWithAlpha(150),
+                palette.interaction(),
+                palette.secondaryWithAlpha(50));
 
-    static Background createBackground(final Color base, final Color hover, final Color click,
+        final Colorable.Text text = Colorable.createText(
+                palette.neutral(),
+                palette.neutral(),
+                palette.neutral());
+        return new ColorableImpl(background, text);
+    }
+
+    private static Background createBackground(final Color base, final Color hover, final Color click,
                                        final Color disabled) {
         return new Background(Optional.ofNullable(base), Optional.ofNullable(hover),
                 Optional.ofNullable(click), Optional.ofNullable(disabled));
     }
 
-    static Text createText(final Color base, final Color hover, final Color disable) {
+    private static Text createText(final Color base, final Color hover, final Color disable) {
         return new Text(Optional.ofNullable(base), Optional.ofNullable(hover), Optional.ofNullable(disable));
     }
 
@@ -31,6 +45,10 @@ public interface Colorable {
     Optional<Color> currentText();
 
     Optional<Color> currentBackground();
+
+    Background background();
+
+    Text text();
 
     void setBackground(Background background);
 
@@ -67,6 +85,16 @@ public interface Colorable {
 
         public Optional<Color> currentBackground() {
             return this.currentBackground;
+        }
+
+        @Override
+        public Background background() {
+            return this.background;
+        }
+
+        @Override
+        public Text text() {
+            return this.text;
         }
 
         @Override

@@ -1,5 +1,8 @@
 package view.panel;
 
+import view.color.Colorable;
+import view.color.Palette;
+import view.components.ColorComponent;
 import view.components.SButton;
 import view.listener.NumberInfoListener;
 import view.utils.PanelUtils;
@@ -11,8 +14,8 @@ import java.util.List;
 
 import static view.utils.StyleUtils.*;
 
-public class NumberInfoPanel extends JPanel {
-
+public class NumberInfoPanel extends JPanel implements ColorComponent {
+    private final Colorable colorable;
     private final List<NumberInfoListener> listeners;
     private final List<SButton> numbers;
 
@@ -22,6 +25,7 @@ public class NumberInfoPanel extends JPanel {
 
         this.listeners = new ArrayList<>();
         this.numbers = new ArrayList<>();
+        this.colorable = Colorable.test();
     }
 
     public void setup(final int length) {
@@ -38,6 +42,7 @@ public class NumberInfoPanel extends JPanel {
         }
 
         this.numbers.forEach(button -> button.addActionListener(_ -> this.onClickNumber(button)));
+        this.numbers.forEach(Component::repaint);
     }
 
 
@@ -59,5 +64,8 @@ public class NumberInfoPanel extends JPanel {
         }
     }
 
-
+    @Override
+    public void refreshPalette(final Palette palette) {
+        this.numbers.forEach(button -> button.refreshPalette(palette));
+    }
 }
