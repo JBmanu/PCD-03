@@ -3,38 +3,52 @@ package view.sound;
 import java.util.List;
 
 public interface SoundManager {
-    void playBackgroundSound(final Track soundBG);
+    static SoundManager createBackground() {
+        return new BackgroundManager();
+    }
+    
+    static SoundManager createEffect() {
+        return new EffectManager();
+    }
+    
+    void playSound(final Track track);
 
-    void playSoundFX(final Track soundFX);
+    void playRandomSound(final List<Track> tracks);
 
-    void playRandomSoundFX(final List<Track> soundFXs);
-
-    class SimpleManager implements SoundManager {
+    class BackgroundManager implements SoundManager {
         private final Sound backgroundSoundFX;
 
-        public SimpleManager() {
+        public BackgroundManager() {
             this.backgroundSoundFX = new Sound.SimpleSound();
-            this.backgroundSoundFX.setLoop();
         }
 
         @Override
-        public void playBackgroundSound(final Track soundBG) {
+        public void playSound(final Track track) {
             this.backgroundSoundFX.stop();
-            this.backgroundSoundFX.setSound(soundBG);
+            this.backgroundSoundFX.setSound(track);
+            this.backgroundSoundFX.setLoop();
             this.backgroundSoundFX.play();
         }
 
         @Override
-        public void playSoundFX(final Track soundFX) {
+        public void playRandomSound(final List<Track> tracks) {
+            final Track soundFX = tracks.get((int) (Math.random() * tracks.size()));
+            this.playSound(soundFX);
+        }
+    }
+    
+    class EffectManager implements SoundManager {
+        @Override
+        public void playSound(final Track track) {
             final Sound sound = new Sound.SimpleSound();
-            sound.setSound(soundFX);
+            sound.setSound(track);
             sound.play();
         }
 
         @Override
-        public void playRandomSoundFX(final List<Track> soundFXs) {
-            final Track soundFX = soundFXs.get((int) (Math.random() * soundFXs.size()));
-            this.playSoundFX(soundFX);
+        public void playRandomSound(final List<Track> tracks) {
+            final Track soundFX = tracks.get((int) (Math.random() * tracks.size()));
+            this.playSound(soundFX);
         }
 
     }

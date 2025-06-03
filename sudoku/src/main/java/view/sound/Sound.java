@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.util.Optional;
 
 public interface Sound {
+    static Sound create() {
+        return new SimpleSound();
+    }
+    
     void play();
 
     void stop();
@@ -21,6 +25,11 @@ public interface Sound {
     class SimpleSound implements Sound {
         private Optional<Clip> clip;
         private boolean isLoop;
+        
+        public SimpleSound() {
+            this.clip = Optional.empty();
+            this.isLoop = false;
+        }
 
         @Override
         public void play() {

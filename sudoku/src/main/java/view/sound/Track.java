@@ -7,13 +7,13 @@ public interface Track {
     String WINNER_PATH = Paths.get(SOUND_PATH, "win").toString();
     String RESET_PATH = Paths.get(SOUND_PATH, "reset").toString();
     String SUGGEST_PATH = Paths.get(SOUND_PATH, "suggest").toString();
-    String BACKGROUND_PATH = Paths.get(SOUND_PATH, "text").toString();
+    String BACKGROUND_PATH = Paths.get(SOUND_PATH, "background").toString();
 
 
     String path();
 
     enum SoundFX implements Track {
-        BUTTON_CLICK(Paths.get(SOUND_PATH, "click.wav").toString()),
+        CLICK(Paths.get(SOUND_PATH, "click.wav").toString()),
 
         SUGGEST(Paths.get(SUGGEST_PATH, "Underwater explosion sound.wav").toString()),
 

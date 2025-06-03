@@ -4,6 +4,8 @@ import model.Coordinate;
 import model.Grid;
 import view.color.Palette;
 import view.listener.*;
+import view.sound.SoundManager;
+import view.sound.Track;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +16,8 @@ import static view.utils.StyleUtils.TITLE_GUI;
 
 
 public class View extends JFrame implements UI, MenuPageListener, GridPageListener.ActionListener, GameListener.ActionListener {
+    private final SoundManager backgroundSoundManager;
+    private final SoundManager effectSoundManager;
     private final MenuPage menuPage;
     private final GridPage gridPage;
 
@@ -25,6 +29,8 @@ public class View extends JFrame implements UI, MenuPageListener, GridPageListen
         this.setLayout(new BorderLayout());
         this.getContentPane().setBackground(Color.blue);
 
+        this.backgroundSoundManager = SoundManager.createBackground();
+        this.effectSoundManager = SoundManager.createEffect();
         this.menuPage = new MenuPage();
         this.gridPage = new GridPage();
 
@@ -43,6 +49,7 @@ public class View extends JFrame implements UI, MenuPageListener, GridPageListen
 
     private void showMenuPage() {
         this.showPage(this.menuPage);
+        this.backgroundSoundManager.playSound(Track.SoundBG.START);
     }
 
     @Override
@@ -58,6 +65,7 @@ public class View extends JFrame implements UI, MenuPageListener, GridPageListen
 
     @Override
     public void showGridPage() {
+        this.backgroundSoundManager.playSound(Track.SoundBG.SUDOKU);
         this.showPage(this.gridPage);
     }
 
