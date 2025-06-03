@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 
 import static view.utils.StyleUtils.*;
 
-public class GridPage extends JPanel implements ColorComponent, GridCellListener {
+public class GridPage extends JPanel implements ColorComponent, GridCellListener, GridCellInsertListener {
     private final JPanel gridPanel;
     private final Map<Coordinate, SNumberCell> cells;
 
@@ -70,6 +70,7 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
             this.cells.put(entry.getKey(), cell);
             cell.setColorable(this.optionPalette);
             cell.addListener(this);
+            cell.addInsertListeners(this);
             this.gridPanel.add(cell);
 
             cell.setBorder(GridUtils.getCellBorder(entry.getKey().row(), entry.getKey().column(), grid.size(),
@@ -109,6 +110,7 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
 
     @Override
     public void onFocusGainedCell(final SNumberCell cell) {
+        if (cell.value().isEmpty()) return;
         final Coordinate coordinate = cell.coordinate();
         final int size = (int) Math.sqrt(this.cells.size());
         final int row = coordinate.row();
@@ -134,6 +136,17 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
         this.cells.values().forEach(SNumberCell::colorOnUnselected);
     }
 
+
+    @Override
+    public void onChangeCell(final SNumberCell cell) {
+        this.onFocusGainedCell(cell);
+    }
+
+    @Override
+    public void onRemoveCell(final SNumberCell cell) {
+        this.onFocusLostCell(cell);
+    }
+    
     @Override
     public void refreshPalette(final Palette palette) {
         this.gridActionPanel.refreshPalette(palette);

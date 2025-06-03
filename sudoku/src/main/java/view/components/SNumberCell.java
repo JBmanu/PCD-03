@@ -70,8 +70,7 @@ public class SNumberCell extends JTextField {
 
     public void setColorable(final Optional<Palette> palette) {
         this.optionalPalette = palette;
-        this.optionalPalette.ifPresent(color -> this.setBackground(color.neutral()));
-        this.optionalPalette.ifPresent(color -> this.setForeground(color.secondary()));
+        this.colorOnUnselected();
     }
 
     public void colorOnSelected() {
@@ -97,7 +96,8 @@ public class SNumberCell extends JTextField {
 
     public void colorOnHelper() {
         this.optionalPalette.ifPresent(color -> {
-            this.setBackground(color.feedbackWithAlpha(50));
+            final int alpha = 50;
+            this.setBackground(color.interactionWithAlpha(alpha));
             this.setForeground(color.secondary());
         });
     }
