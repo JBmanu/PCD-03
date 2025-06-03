@@ -5,10 +5,7 @@ import model.Grid;
 import view.color.Palette;
 import view.components.ColorComponent;
 import view.components.SNumberCell;
-import view.listener.GridActionListener;
-import view.listener.GridCellInsertListener;
-import view.listener.GridCellListener;
-import view.listener.NumberInfoListener;
+import view.listener.*;
 import view.panel.GridActionPanel;
 import view.panel.NumberInfoPanel;
 import view.utils.GridUtils;
@@ -92,19 +89,12 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
         resetGrid.forEach((coordinate, value) -> this.cells.get(coordinate).setSuggest(value));
     }
 
-    public void addGridActionListener(final GridActionListener listener) {
+    public void addListener(final GridActionListener listener) {
         this.gridActionPanel.addListener(listener);
     }
 
-    public void addNumberInfoListener(final NumberInfoListener listener) {
-        this.numberInfoPanel.addListener(listener);
-    }
-
-    public void addGridCellListener(final GridCellListener listener) {
-        this.cells.values().forEach(cell -> cell.addListener(listener));
-    }
-
-    public void addGridCellInsertListener(final GridCellInsertListener listener) {
+    public void addActionListener(final GameListener.PlayerListener listener) {
+        this.gridActionPanel.addActionListener(listener);
         this.cells.values().forEach(cell -> cell.addInsertListeners(listener));
     }
 
@@ -135,7 +125,6 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
     public void onFocusLostCell(final SNumberCell cell) {
         this.cells.values().forEach(SNumberCell::colorOnUnselected);
     }
-
 
     @Override
     public void onChangeCell(final SNumberCell cell) {

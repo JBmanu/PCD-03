@@ -1,9 +1,9 @@
 package view.panel;
 
-import view.color.Colorable;
 import view.color.Palette;
 import view.components.ColorComponent;
 import view.components.SButton;
+import view.listener.GameListener;
 import view.listener.GridActionListener;
 import view.utils.PanelUtils;
 
@@ -16,6 +16,8 @@ import static view.utils.StyleUtils.*;
 
 public class GridActionPanel extends JPanel implements ColorComponent {
     private final List<GridActionListener> listeners;
+    private final List<GameListener.ActionListener> actionListeners;
+    
     private final SButton home;
     private final SButton undo;
     private final SButton suggest;
@@ -26,6 +28,8 @@ public class GridActionPanel extends JPanel implements ColorComponent {
         PanelUtils.transparent(this);
 
         this.listeners = new ArrayList<>();
+        this.actionListeners = new ArrayList<>();
+        
         this.home = new SButton("Home");
         this.undo = new SButton("Undo");
         this.suggest = new SButton("Suggest");
@@ -41,28 +45,31 @@ public class GridActionPanel extends JPanel implements ColorComponent {
         this.reset.addActionListener(e -> this.onClickReset());
     }
 
-    public void addListener(final GridActionListener listener) {
-        this.listeners.add(listener);
-    }
-
-    public void removeListener(final GridActionListener listener) {
-        this.listeners.remove(listener);
-    }
-
     private void onClickHome() {
         this.listeners.forEach(GridActionListener::onHome);
     }
 
     private void onClickUndo() {
         this.listeners.forEach(GridActionListener::onUndo);
+        this.actionListeners.forEach(GameListener.ActionListener::onUndo);
     }
 
     private void onClickSuggest() {
         this.listeners.forEach(GridActionListener::onSuggest);
+        this.actionListeners.forEach(GameListener.ActionListener::onSuggest);
     }
 
     private void onClickReset() {
         this.listeners.forEach(GridActionListener::onReset);
+        this.actionListeners.forEach(GameListener.ActionListener::onReset);
+    }
+
+    public void addListener(final GridActionListener listener) {
+        this.listeners.add(listener);
+    }
+    
+    public void addActionListener(final GameListener.ActionListener listener) {
+        this.actionListeners.add(listener);
     }
 
     @Override

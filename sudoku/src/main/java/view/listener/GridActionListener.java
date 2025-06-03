@@ -1,13 +1,7 @@
 package view.listener;
 
-public interface GridActionListener {
+public interface GridActionListener extends GameListener.ActionListener {
     
     void onHome();
-    
-    void onUndo();
-
-    void onSuggest();
-    
-    void onReset();
     
 }
