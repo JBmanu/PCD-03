@@ -4,7 +4,7 @@ import view.color.Palette;
 import view.components.ColorComponent;
 import view.components.SButton;
 import view.listener.GameListener;
-import view.listener.GridActionListener;
+import view.listener.GridPageListener;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
@@ -15,7 +15,7 @@ import java.util.List;
 import static view.utils.StyleUtils.*;
 
 public class GridActionPanel extends JPanel implements ColorComponent {
-    private final List<GridActionListener> listeners;
+    private final List<GridPageListener.ActionListener> listeners;
     private final List<GameListener.ActionListener> actionListeners;
     
     private final SButton home;
@@ -46,25 +46,25 @@ public class GridActionPanel extends JPanel implements ColorComponent {
     }
 
     private void onClickHome() {
-        this.listeners.forEach(GridActionListener::onHome);
+        this.listeners.forEach(GridPageListener.ActionListener::onHome);
     }
 
     private void onClickUndo() {
-        this.listeners.forEach(GridActionListener::onUndo);
+        this.listeners.forEach(GridPageListener.ActionListener::onUndo);
         this.actionListeners.forEach(GameListener.ActionListener::onUndo);
     }
 
     private void onClickSuggest() {
-        this.listeners.forEach(GridActionListener::onSuggest);
+        this.listeners.forEach(GridPageListener.ActionListener::onSuggest);
         this.actionListeners.forEach(GameListener.ActionListener::onSuggest);
     }
 
     private void onClickReset() {
-        this.listeners.forEach(GridActionListener::onReset);
+        this.listeners.forEach(GridPageListener.ActionListener::onReset);
         this.actionListeners.forEach(GameListener.ActionListener::onReset);
     }
 
-    public void addListener(final GridActionListener listener) {
+    public void addListener(final GridPageListener.ActionListener listener) {
         this.listeners.add(listener);
     }
     

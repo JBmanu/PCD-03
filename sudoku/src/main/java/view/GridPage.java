@@ -6,9 +6,7 @@ import view.color.Palette;
 import view.components.ColorComponent;
 import view.components.SNumberCell;
 import view.listener.GameListener;
-import view.listener.GridActionListener;
-import view.listener.GridCellInsertListener;
-import view.listener.GridCellListener;
+import view.listener.GridPageListener;
 import view.panel.GridActionPanel;
 import view.panel.NumberInfoPanel;
 import view.utils.GridUtils;
@@ -18,11 +16,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static view.utils.StyleUtils.*;
 
-public class GridPage extends JPanel implements ColorComponent, GridCellListener, GridCellInsertListener {
+public class GridPage extends JPanel implements ColorComponent, GridPageListener.CellListener {
     private final JPanel gridPanel;
     private final Map<Coordinate, SNumberCell> cells;
 
@@ -95,7 +93,7 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
         resetGrid.forEach((coordinate, value) -> this.cells.get(coordinate).setSuggest(value));
     }
 
-    public void addListener(final GridActionListener listener) {
+    public void addListener(final GridPageListener.ActionListener listener) {
         this.gridActionPanel.addListener(listener);
     }
 
@@ -109,19 +107,13 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
         if (cell.value().isEmpty()) return;
         final Coordinate coordinate = cell.coordinate();
         final int size = (int) Math.sqrt(this.cells.size());
-        final int row = coordinate.row();
-        final int col = coordinate.column();
 
-        final List<Coordinate> coordinates = new java.util.ArrayList<>(IntStream.range(0, size)
-                .mapToObj(i -> List.of(Coordinate.create(row, i), Coordinate.create(i, col)))
-                .flatMap(List::stream)
-                .toList());
-        coordinates.addAll(GridUtils.computeQuadrant(row, col, size));
-
+        final List<Coordinate> coordinates = Stream.concat(GridUtils.createRowAndColFrom(coordinate, size).stream(),
+                GridUtils.computeQuadrant(coordinate, size).stream()).toList();
+        
         coordinates.stream().map(this.cells::get).forEach(SNumberCell::colorOnHelper);
 
-        this.cells.values().stream()
-                .filter(cellGrid -> cellGrid.value().equals(cell.value()))
+        this.cells.values().stream().filter(cellGrid -> cellGrid.value().equals(cell.value()))
                 .forEach(SNumberCell::colorOnHint);
 
         cell.colorOnSelected();

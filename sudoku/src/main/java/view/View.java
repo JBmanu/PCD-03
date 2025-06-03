@@ -12,8 +12,8 @@ import java.util.Map;
 import static view.utils.StyleUtils.FRAME_SIZE;
 import static view.utils.StyleUtils.TITLE_GUI;
 
-    
-public class View extends JFrame implements UI, MenuPageListener, GridActionListener {
+
+public class View extends JFrame implements UI, MenuPageListener, GridPageListener.ActionListener, GameListener.ActionListener {
     private final MenuPage menuPage;
     private final GridPage gridPage;
 
@@ -94,7 +94,7 @@ public class View extends JFrame implements UI, MenuPageListener, GridActionList
 
     @Override
     public void onExit() {
-        
+
     }
 
     @Override
@@ -114,7 +114,7 @@ public class View extends JFrame implements UI, MenuPageListener, GridActionList
 
     @Override
     public void onUndo() {
-    
+
     }
 
     @Override

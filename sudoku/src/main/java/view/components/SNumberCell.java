@@ -5,8 +5,7 @@ import view.color.Palette;
 import view.components.documentEvent.DocumentEvent;
 import view.components.documentEvent.NumberFilter;
 import view.listener.GameListener;
-import view.listener.GridCellInsertListener;
-import view.listener.GridCellListener;
+import view.listener.GridPageListener;
 
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
@@ -26,7 +25,7 @@ public class SNumberCell extends JTextField {
     private final DocumentEvent documentEvent;
 
     private final Coordinate coordinate;
-    private final List<GridCellListener> listeners;
+    private final List<GridPageListener.SelectionListener> listeners;
 
     private Optional<Palette> optionalPalette;
 
@@ -52,14 +51,14 @@ public class SNumberCell extends JTextField {
     private void setupListener() {
         this.addFocusListener(new FocusAdapter() {
             public void focusGained(final FocusEvent evt) {
-                SwingUtilities.invokeLater(() -> 
-                        SNumberCell.this.listeners.forEach(l -> 
+                SwingUtilities.invokeLater(() ->
+                        SNumberCell.this.listeners.forEach(l ->
                                 l.onFocusGainedCell(SNumberCell.this)));
             }
 
             public void focusLost(final FocusEvent evt) {
-                SwingUtilities.invokeLater(() -> 
-                        SNumberCell.this.listeners.forEach(l -> 
+                SwingUtilities.invokeLater(() ->
+                        SNumberCell.this.listeners.forEach(l ->
                                 l.onFocusLostCell(SNumberCell.this)));
             }
         });
@@ -103,14 +102,14 @@ public class SNumberCell extends JTextField {
         });
     }
 
-    public void addListener(final GridCellListener listener) {
+    public void addListener(final GridPageListener.SelectionListener listener) {
         this.listeners.add(listener);
     }
 
-    public void addInsertListeners(final GridCellInsertListener listener) {
+    public void addInsertListeners(final GridPageListener.InsertListener listener) {
         this.documentEvent.addListener(listener);
     }
-    
+
     public void addCellListeners(final GameListener.CellListener listener) {
         this.documentEvent.addCellListener(listener);
     }
