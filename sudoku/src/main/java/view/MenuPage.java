@@ -7,7 +7,7 @@ import view.components.ColorComponent;
 import view.components.SButton;
 import view.components.SImage;
 import view.components.SSelector;
-import view.listener.MenuListener;
+import view.listener.MenuPageListener;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
@@ -35,7 +35,7 @@ public class MenuPage extends JPanel implements ColorComponent {
     private final SButton themeModeButton;
     private final SButton exitButton;
 
-    private final List<MenuListener> listeners;
+    private final List<MenuPageListener> listeners;
 
     private boolean isDarkMode;
     private final Map<Boolean, Runnable> themeActions;
@@ -54,8 +54,8 @@ public class MenuPage extends JPanel implements ColorComponent {
 
         this.isDarkMode = true;
         this.themeActions = ConditionUtils.createBoolean(
-                () -> this.listeners.forEach(MenuListener::onLightMode),
-                () -> this.listeners.forEach(MenuListener::onDarkMode));
+                () -> this.listeners.forEach(MenuPageListener::onLightMode),
+                () -> this.listeners.forEach(MenuPageListener::onDarkMode));
 
         final List<SSelector<?>> selectors = List.of(this.schemaSelector, this.difficultySelector);
         final List<SButton> buttons = List.of(this.startGameButton, this.themeModeButton, this.exitButton);
@@ -76,24 +76,23 @@ public class MenuPage extends JPanel implements ColorComponent {
     }
 
     private void onStartGame() {
-        this.listeners.forEach(l -> l.onStart(
-                this.schemaSelector.getSelectedItem(),
-                this.difficultySelector.getSelectedItem()));
+        this.listeners.forEach(MenuPageListener::onStart);
     }
 
     private void onThemeMode() {
         this.themeActions.get(this.isDarkMode = !this.isDarkMode).run();
+        this.themeModeButton.setText(this.isDarkMode ? DARK_MODE : LIGHT_MODE);
     }
 
     private void onExit() {
-        this.listeners.forEach(MenuListener::onExit);
+        this.listeners.forEach(MenuPageListener::onExit);
     }
 
-    public void addListener(final MenuListener listener) {
+    public void addListener(final MenuPageListener listener) {
         this.listeners.add(listener);
     }
 
-    public void removeListener(final MenuListener listener) {
+    public void removeListener(final MenuPageListener listener) {
         this.listeners.remove(listener);
     }
 

@@ -12,7 +12,7 @@ import java.util.Map;
 import static view.utils.StyleUtils.FRAME_SIZE;
 import static view.utils.StyleUtils.TITLE_GUI;
 
-public class View extends JFrame implements UI {
+public class View extends JFrame implements UI, MenuPageListener {
     private final MenuPage menuPage;
     private final GridPage gridPage;
 
@@ -26,6 +26,9 @@ public class View extends JFrame implements UI {
 
         this.menuPage = new MenuPage();
         this.gridPage = new GridPage();
+        
+        this.menuPage.addListener(this);
+        
         this.showMenuPage();
     }
 
@@ -39,12 +42,6 @@ public class View extends JFrame implements UI {
     @Override
     public void open() {
         this.setVisible(true);
-    }
-
-    @Override
-    public void close() {
-        this.setVisible(false);
-        this.dispose();
     }
 
     @Override
@@ -78,11 +75,6 @@ public class View extends JFrame implements UI {
     }
 
     @Override
-    public void addMenuListener(final MenuListener listener) {
-        this.menuPage.addListener(listener);
-    }
-
-    @Override
     public void addGridActionListener(final GridActionListener listener) {
         this.gridPage.addGridActionListener(listener);
     }
@@ -100,6 +92,27 @@ public class View extends JFrame implements UI {
     @Override
     public void addGridCellInsertListener(final GridCellInsertListener listener) {
         this.gridPage.addGridCellInsertListener(listener);
+    }
+
+    @Override
+    public void onStart() {
+
+    }
+
+    @Override
+    public void onExit() {
+        this.setVisible(false);
+        this.dispose();
+    }
+
+    @Override
+    public void onLightMode() {
+        this.refreshPalette(Palette.light());
+    }
+
+    @Override
+    public void onDarkMode() {
+        this.refreshPalette(Palette.dark());
     }
 
     @Override

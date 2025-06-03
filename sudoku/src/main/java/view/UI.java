@@ -11,9 +11,6 @@ public interface UI extends ColorComponent {
 
     void open();
     
-    void close();
-
-    
     void showMenuPage();
 
     void showGridPage();
@@ -28,8 +25,6 @@ public interface UI extends ColorComponent {
     void reset(Map<Coordinate, Integer> resetGrid);
 
 
-    void addMenuListener(MenuListener listener);
-    
     void addGridActionListener(GridActionListener listener);
 
     void addNumberInfoListener(NumberInfoListener listener);
