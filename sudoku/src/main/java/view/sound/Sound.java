@@ -24,7 +24,7 @@ public interface Sound {
 
     class SimpleSound implements Sound {
         private Optional<Clip> clip;
-        private boolean isLoop;
+        private final boolean isLoop;
         
         public SimpleSound() {
             this.clip = Optional.empty();
