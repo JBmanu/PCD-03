@@ -52,6 +52,7 @@ public interface Grid {
 
 
     class GridImpl implements Grid {
+        public static final int ZERO = 0;
         private final Settings settings;
         private final GameMatrix solution;
         private final GameMatrix grid;
@@ -96,7 +97,7 @@ public interface Grid {
 
         @Override
         public boolean hasWin() {
-            return this.grid.isValid();
+            return this.countEmptyValue() == ZERO && this.grid.isValid();
         }
 
         @Override

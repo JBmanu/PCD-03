@@ -83,6 +83,7 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
 
     public void setSuggest(final Coordinate key, final Integer value) {
         this.cells.get(key).setSuggest(value);
+        this.cells.values().forEach(SNumberCell::colorOnUnselected);
     }
 
     public void undo(final Coordinate coordinate) {

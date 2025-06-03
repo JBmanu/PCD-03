@@ -109,7 +109,18 @@ public class GridTest {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             grid.emptyCells().forEach(_ -> grid.suggest());
+            assertEquals(ZERO_VALUE, grid.countEmptyValue());
             assertTrue(grid.hasWin());
+        });
+    }
+    
+    @Test
+    public void hasDraw() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            grid.suggest();
+            assertNotEquals(ZERO_VALUE, grid.countEmptyValue());
+            assertFalse(grid.hasWin());
         });
     }
 

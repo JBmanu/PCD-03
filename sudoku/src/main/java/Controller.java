@@ -49,10 +49,11 @@ public class Controller implements GameListener.PlayerListener {
         final Map<Coordinate, Integer> resetGrid = this.grid.reset();
         this.ui.reset(resetGrid);
     }
-
+    
     @Override
     public void onChangeCell(final SNumberCell cell) {
         cell.value().ifPresent(value -> this.grid.saveValue(cell.coordinate(), value));
+        if (this.grid.hasWin()) this.ui.win();
     }
 
     @Override
@@ -60,5 +61,6 @@ public class Controller implements GameListener.PlayerListener {
         cell.value().ifPresentOrElse(
                 value -> this.grid.saveValue(cell.coordinate(), value),
                 () -> this.grid.resetValue(cell.coordinate()));
+        if (this.grid.hasWin()) this.ui.win();
     }
 }
