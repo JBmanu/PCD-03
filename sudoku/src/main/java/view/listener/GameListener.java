@@ -18,7 +18,7 @@ public interface GameListener {
         void onReset();
     }
     
-    interface PlayerListener  extends StartListener, ActionListener {
+    interface PlayerListener extends StartListener, ActionListener, GridCellInsertListener {
         
     }
 }

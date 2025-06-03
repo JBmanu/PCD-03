@@ -7,6 +7,7 @@ import view.components.ColorComponent;
 import view.components.SButton;
 import view.components.SImage;
 import view.components.SSelector;
+import view.listener.GameListener;
 import view.listener.MenuPageListener;
 import view.utils.PanelUtils;
 
@@ -36,6 +37,7 @@ public class MenuPage extends JPanel implements ColorComponent {
     private final SButton exitButton;
 
     private final List<MenuPageListener> listeners;
+    private final List<GameListener.StartListener> startListeners;
 
     private boolean isDarkMode;
     private final Map<Boolean, Runnable> themeActions;
@@ -44,6 +46,7 @@ public class MenuPage extends JPanel implements ColorComponent {
         super(new BorderLayout());
         PanelUtils.transparent(this);
         this.listeners = new ArrayList<>();
+        this.startListeners = new ArrayList<>();
 
         final SImage icon = new SImage(ICON_START, DIMENSION_ICON_MENU);
         this.startGameButton = new SButton(START_GAME);
@@ -77,6 +80,9 @@ public class MenuPage extends JPanel implements ColorComponent {
 
     private void onStartGame() {
         this.listeners.forEach(MenuPageListener::onStart);
+        this.startListeners.forEach(l -> l.onStart(
+                this.schemaSelector.getSelectedItem(),
+                this.difficultySelector.getSelectedItem()));
     }
 
     private void onThemeMode() {
@@ -86,23 +92,26 @@ public class MenuPage extends JPanel implements ColorComponent {
 
     private void onExit() {
         this.listeners.forEach(MenuPageListener::onExit);
+        this.startListeners.forEach(GameListener.StartListener::onExit);
     }
 
     public void addListener(final MenuPageListener listener) {
         this.listeners.add(listener);
     }
 
-    public void removeListener(final MenuPageListener listener) {
-        this.listeners.remove(listener);
+    public void addStartListener(final GameListener.StartListener listener) {
+        this.startListeners.add(listener);
     }
 
     @Override
     public void refreshPalette(final Palette palette) {
         this.schemaSelector.refreshPalette(palette);
         this.difficultySelector.refreshPalette(palette);
-        
+
         this.startGameButton.refreshPalette(palette);
         this.themeModeButton.refreshPalette(palette);
         this.exitButton.refreshPalette(palette);
     }
+
+
 }

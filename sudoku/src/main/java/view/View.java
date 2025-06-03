@@ -12,6 +12,7 @@ import java.util.Map;
 import static view.utils.StyleUtils.FRAME_SIZE;
 import static view.utils.StyleUtils.TITLE_GUI;
 
+    
 public class View extends JFrame implements UI, MenuPageListener, GridActionListener {
     private final MenuPage menuPage;
     private final GridPage gridPage;
@@ -49,8 +50,19 @@ public class View extends JFrame implements UI, MenuPageListener, GridActionList
     }
 
     @Override
+    public void close() {
+        this.setVisible(false);
+        this.dispose();
+    }
+
+    @Override
     public void showGridPage() {
         this.showPage(this.gridPage);
+    }
+
+    @Override
+    public void addPlayerListener(final GameListener.PlayerListener listener) {
+        this.menuPage.addStartListener(listener);
     }
 
     @Override
@@ -59,7 +71,7 @@ public class View extends JFrame implements UI, MenuPageListener, GridActionList
     }
 
     @Override
-    public void setSuggest(final Coordinate key, final Integer value) {
+    public void suggest(final Coordinate key, final Integer value) {
         this.gridPage.setSuggest(key, value);
     }
 
@@ -74,34 +86,13 @@ public class View extends JFrame implements UI, MenuPageListener, GridActionList
     }
 
     @Override
-    public void addGridActionListener(final GridActionListener listener) {
-        this.gridPage.addGridActionListener(listener);
-    }
-
-    @Override
-    public void addNumberInfoListener(final NumberInfoListener listener) {
-        this.gridPage.addNumberInfoListener(listener);
-    }
-
-    @Override
-    public void addGridCellListener(final GridCellListener listener) {
-        this.gridPage.addGridCellListener(listener);
-    }
-
-    @Override
-    public void addGridCellInsertListener(final GridCellInsertListener listener) {
-        this.gridPage.addGridCellInsertListener(listener);
-    }
-
-    @Override
     public void onStart() {
 
     }
 
     @Override
     public void onExit() {
-        this.setVisible(false);
-        this.dispose();
+        
     }
 
     @Override
