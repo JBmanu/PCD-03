@@ -83,7 +83,7 @@ public class SNumberCell extends JTextField {
     public void colorOnUnselected() {
         this.optionalPalette.ifPresent(color -> {
             this.setBackground(color.neutral());
-            this.setForeground(color.secondary());
+            this.setForeground(this.isEditable() ? color.primary() : color.secondary());
         });
     }
 
