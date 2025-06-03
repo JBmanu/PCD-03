@@ -73,6 +73,8 @@ public class MenuPage extends JPanel implements ColorComponent {
         this.add(icon, BorderLayout.NORTH);
         this.add(PanelUtils.createCenter(panel), BorderLayout.CENTER);
 
+        this.schemaSelector.addActionListener(() -> this.listeners.forEach(MenuPageListener::onChangeScheme));
+        this.difficultySelector.addActionListener(() -> this.listeners.forEach(MenuPageListener::onChangeDifficulty));
         this.startGameButton.addActionListener(_ -> this.onStartGame());
         this.themeModeButton.addActionListener(_ -> this.onThemeMode());
         this.exitButton.addActionListener(_ -> this.onExit());
@@ -81,8 +83,7 @@ public class MenuPage extends JPanel implements ColorComponent {
     private void onStartGame() {
         this.listeners.forEach(MenuPageListener::onStart);
         this.startListeners.forEach(l -> l.onStart(
-                this.schemaSelector.getSelectedItem(),
-                this.difficultySelector.getSelectedItem()));
+                this.schemaSelector.item(), this.difficultySelector.item()));
     }
 
     private void onThemeMode() {

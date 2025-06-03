@@ -1,6 +1,5 @@
 package view.components;
 
-import view.color.Colorable;
 import view.color.Palette;
 
 import javax.swing.*;
@@ -54,10 +53,15 @@ public class SSelector<T> extends JPanel implements ColorComponent {
         this.updateLabel();
     }
 
-    public T getSelectedItem() {
+    public T item() {
         return this.items.get(this.index);
     }
 
+    public void addActionListener(final Runnable runnable) {
+        this.rightButton.addActionListener(_ -> runnable.run());
+        this.leftButton.addActionListener(_ -> runnable.run());
+    }
+    
     @Override
     public void setFont(final Font font) {
         if (Objects.nonNull(this.label)) this.label.setFont(font);
@@ -82,4 +86,6 @@ public class SSelector<T> extends JPanel implements ColorComponent {
         this.rightButton.refreshPalette(palette);
         this.repaint();
     }
+
+ 
 }

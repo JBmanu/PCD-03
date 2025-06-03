@@ -3,7 +3,9 @@ package view;
 import model.Coordinate;
 import model.Grid;
 import view.color.Palette;
-import view.listener.*;
+import view.listener.GameListener;
+import view.listener.GridPageListener;
+import view.listener.MenuPageListener;
 import view.sound.SoundManager;
 import view.sound.Track;
 
@@ -102,43 +104,56 @@ public class View extends JFrame implements UI, MenuPageListener, GridPageListen
     }
 
     @Override
-    public void onStart() {
+    public void onChangeScheme() {
+        this.effectSoundManager.playSound(Track.SoundFX.CLICK);
+    }
 
+    @Override
+    public void onChangeDifficulty() {
+        this.effectSoundManager.playSound(Track.SoundFX.CLICK);
+    }
+    
+    @Override
+    public void onStart() {
+        this.effectSoundManager.playSound(Track.SoundFX.CLICK);
     }
 
     @Override
     public void onExit() {
-
+        this.effectSoundManager.playSound(Track.SoundFX.CLICK);
     }
 
     @Override
     public void onLightMode() {
         this.refreshPalette(Palette.light());
+        this.effectSoundManager.playSound(Track.SoundFX.CLICK);
     }
 
     @Override
     public void onDarkMode() {
         this.refreshPalette(Palette.dark());
+        this.effectSoundManager.playSound(Track.SoundFX.CLICK);
     }
 
     @Override
     public void onHome() {
         this.showMenuPage();
+        this.effectSoundManager.playSound(Track.SoundFX.CLICK);
     }
 
     @Override
     public void onUndo() {
-
+        this.effectSoundManager.playSound(Track.SoundFX.RESET);
     }
 
     @Override
     public void onSuggest() {
-
+        this.effectSoundManager.playSound(Track.SoundFX.SUGGEST);
     }
 
     @Override
     public void onReset() {
-
+        this.effectSoundManager.playSound(Track.SoundFX.RESET);
     }
 
     @Override
