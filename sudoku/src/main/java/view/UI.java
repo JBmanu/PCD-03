@@ -11,8 +11,6 @@ public interface UI extends ColorComponent {
 
     void open();
     
-    void showMenuPage();
-
     void showGridPage();
 
 

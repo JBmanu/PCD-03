@@ -5,16 +5,13 @@ import view.color.Palette;
 import view.components.SNumberCell;
 import view.listener.*;
 
-public class Controller implements NumberInfoListener, GridCellInsertListener {
+public class Controller implements GridCellInsertListener {
     private Grid grid;
     private final UI ui;
 
     public Controller() {
         this.ui = new View();
 
-//        this.ui.addMenuListener(this);
-//        this.ui.addGridActionListener(this);
-        
         this.ui.refreshPalette(Palette.light());
         this.ui.open();
     }
@@ -27,12 +24,6 @@ public class Controller implements NumberInfoListener, GridCellInsertListener {
 //        this.ui.showGridPage();
 //    }
 
-//
-//    @Override
-//    public void onHome() {
-//        this.ui.showMenuPage();
-//    }
-//
 //    @Override
 //    public void onUndo() {
 //        this.grid.undo().ifPresent(this.ui::undo);
@@ -49,10 +40,6 @@ public class Controller implements NumberInfoListener, GridCellInsertListener {
 //        this.ui.reset(resetGrid);
 //    }
 
-    @Override
-    public void onSelectedNumberInfo(final int number) {
-
-    }
 
     @Override
     public void onChangeCell(final SNumberCell cell) {

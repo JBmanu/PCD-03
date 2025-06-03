@@ -12,7 +12,7 @@ import java.util.Map;
 import static view.utils.StyleUtils.FRAME_SIZE;
 import static view.utils.StyleUtils.TITLE_GUI;
 
-public class View extends JFrame implements UI, MenuPageListener {
+public class View extends JFrame implements UI, MenuPageListener, GridActionListener {
     private final MenuPage menuPage;
     private final GridPage gridPage;
 
@@ -26,9 +26,9 @@ public class View extends JFrame implements UI, MenuPageListener {
 
         this.menuPage = new MenuPage();
         this.gridPage = new GridPage();
-        
+
         this.menuPage.addListener(this);
-        
+
         this.showMenuPage();
     }
 
@@ -39,14 +39,13 @@ public class View extends JFrame implements UI, MenuPageListener {
         this.repaint();
     }
 
-    @Override
-    public void open() {
-        this.setVisible(true);
+    private void showMenuPage() {
+        this.showPage(this.menuPage);
     }
 
     @Override
-    public void showMenuPage() {
-        this.showPage(this.menuPage);
+    public void open() {
+        this.setVisible(true);
     }
 
     @Override
@@ -116,10 +115,29 @@ public class View extends JFrame implements UI, MenuPageListener {
     }
 
     @Override
+    public void onHome() {
+        this.showMenuPage();
+    }
+
+    @Override
+    public void onUndo() {
+    
+    }
+
+    @Override
+    public void onSuggest() {
+
+    }
+
+    @Override
+    public void onReset() {
+
+    }
+
+    @Override
     public void refreshPalette(final Palette palette) {
         this.getContentPane().setBackground(palette.neutral());
         this.menuPage.refreshPalette(palette);
         this.gridPage.refreshPalette(palette);
     }
-
 }
