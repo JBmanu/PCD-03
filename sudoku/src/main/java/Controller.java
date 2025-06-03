@@ -25,7 +25,6 @@ public class Controller implements GameListener.PlayerListener {
     public void onStart(final Settings.Schema schema, final Settings.Difficulty difficulty) {
         this.grid = Grid.create(Settings.create(schema, difficulty));
         this.ui.buildGrid(this.grid);
-//        this.ui.addGridCellInsertListener(this);
         this.ui.showGridPage();
     }
 

@@ -5,7 +5,10 @@ import model.Grid;
 import view.color.Palette;
 import view.components.ColorComponent;
 import view.components.SNumberCell;
-import view.listener.*;
+import view.listener.GameListener;
+import view.listener.GridActionListener;
+import view.listener.GridCellInsertListener;
+import view.listener.GridCellListener;
 import view.panel.GridActionPanel;
 import view.panel.NumberInfoPanel;
 import view.utils.GridUtils;
@@ -13,10 +16,8 @@ import view.utils.PanelUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static view.utils.StyleUtils.*;
@@ -27,6 +28,8 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
 
     private final NumberInfoPanel numberInfoPanel;
     private final GridActionPanel gridActionPanel;
+
+    private final List<GameListener.CellListener> cellListeners;
 
     private Optional<Palette> optionPalette;
     private Color gridColor;
@@ -42,6 +45,8 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
         this.gridActionPanel = new GridActionPanel();
         this.optionPalette = Optional.empty();
         this.gridColor = Color.BLACK;
+
+        this.cellListeners = new ArrayList<>();
 
         final JPanel interactionPanel = PanelUtils.createTransparent(new BorderLayout());
         interactionPanel.add(this.gridActionPanel, BorderLayout.NORTH);
@@ -68,6 +73,7 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
             cell.setColorable(this.optionPalette);
             cell.addListener(this);
             cell.addInsertListeners(this);
+            this.cellListeners.forEach(cell::addCellListeners);
             this.gridPanel.add(cell);
 
             cell.setBorder(GridUtils.getCellBorder(entry.getKey().row(), entry.getKey().column(), grid.size(),
@@ -95,7 +101,7 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
 
     public void addActionListener(final GameListener.PlayerListener listener) {
         this.gridActionPanel.addActionListener(listener);
-        this.cells.values().forEach(cell -> cell.addInsertListeners(listener));
+        this.cellListeners.add(listener);
     }
 
     @Override
@@ -135,7 +141,7 @@ public class GridPage extends JPanel implements ColorComponent, GridCellListener
     public void onRemoveCell(final SNumberCell cell) {
         this.onFocusLostCell(cell);
     }
-    
+
     @Override
     public void refreshPalette(final Palette palette) {
         this.gridActionPanel.refreshPalette(palette);

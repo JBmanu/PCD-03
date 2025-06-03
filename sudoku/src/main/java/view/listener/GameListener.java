@@ -1,15 +1,16 @@
 package view.listener;
 
 import model.Settings;
+import view.components.SNumberCell;
 
 public interface GameListener {
-    
+
     interface StartListener {
         void onStart(final Settings.Schema schema, final Settings.Difficulty difficulty);
-        
+
         void onExit();
     }
-    
+
     interface ActionListener {
         void onUndo();
 
@@ -17,8 +18,14 @@ public interface GameListener {
 
         void onReset();
     }
-    
-    interface PlayerListener extends StartListener, ActionListener, GridCellInsertListener {
-        
+
+    interface CellListener {
+        void onChangeCell(final SNumberCell cell);
+
+        void onRemoveCell(final SNumberCell cell);
+    }
+
+    interface PlayerListener extends StartListener, ActionListener, CellListener {
+
     }
 }

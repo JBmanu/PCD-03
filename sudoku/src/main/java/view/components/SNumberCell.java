@@ -4,6 +4,7 @@ import model.Coordinate;
 import view.color.Palette;
 import view.components.documentEvent.DocumentEvent;
 import view.components.documentEvent.NumberFilter;
+import view.listener.GameListener;
 import view.listener.GridCellInsertListener;
 import view.listener.GridCellListener;
 
@@ -106,16 +107,12 @@ public class SNumberCell extends JTextField {
         this.listeners.add(listener);
     }
 
-    public void removeListener(final GridCellListener listener) {
-        this.listeners.remove(listener);
-    }
-
     public void addInsertListeners(final GridCellInsertListener listener) {
         this.documentEvent.addListener(listener);
     }
-
-    public void removeInsertListeners(final GridCellInsertListener listener) {
-        this.documentEvent.removeListener(listener);
+    
+    public void addCellListeners(final GameListener.CellListener listener) {
+        this.documentEvent.addCellListener(listener);
     }
 
     public Optional<Integer> value() {

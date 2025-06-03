@@ -1,6 +1,7 @@
 package view.components.documentEvent;
 
 import view.components.SNumberCell;
+import view.listener.GameListener;
 import view.listener.GridCellInsertListener;
 
 import javax.swing.*;
@@ -10,10 +11,13 @@ import java.util.List;
 
 public class DocumentEvent implements DocumentListener {
     private final List<GridCellInsertListener> listeners;
+    private final List<GameListener.CellListener> cellListeners;
+
     private final SNumberCell cell;
 
     public DocumentEvent(final SNumberCell cell) {
         this.listeners = new ArrayList<>();
+        this.cellListeners = new ArrayList<>();
         this.cell = cell;
     }
 
@@ -21,8 +25,8 @@ public class DocumentEvent implements DocumentListener {
         this.listeners.add(listener);
     }
 
-    public void removeListener(final GridCellInsertListener listener) {
-        this.listeners.remove(listener);
+    public void addCellListener(final GameListener.CellListener listener) {
+        this.cellListeners.add(listener);
     }
 
     @Override
@@ -31,6 +35,7 @@ public class DocumentEvent implements DocumentListener {
             final String insertedText = this.getInsertedText(e);
             if (insertedText.isBlank()) return;
             this.listeners.forEach(listener -> listener.onChangeCell(this.cell));
+            this.cellListeners.forEach(listener -> listener.onChangeCell(this.cell));
         });
     }
 
@@ -38,6 +43,7 @@ public class DocumentEvent implements DocumentListener {
     public void removeUpdate(final javax.swing.event.DocumentEvent e) {
         SwingUtilities.invokeLater(() -> {
             this.listeners.forEach(listener -> listener.onRemoveCell(this.cell));
+            this.cellListeners.forEach(listener -> listener.onRemoveCell(this.cell));
         });
     }
 
