@@ -52,7 +52,7 @@ public class Controller implements GameListener.PlayerListener {
     @Override
     public void onModifyCell(final Coordinate coordinate, final int value) {
         this.grid.saveValue(coordinate, value);
-        if (this.grid.hasWin()) this.ui.win();
+        if (this.grid.hasWin()) this.ui.win("Congratulations! You solved the Sudoku!");
     }
 
 }

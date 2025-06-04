@@ -98,8 +98,8 @@ public class View extends JFrame implements UI, MenuPageListener, GridPageListen
     }
 
     @Override
-    public void win() {
-        JOptionPane.showMessageDialog(this, "Congratulations! You solved the Sudoku!", "Victory", JOptionPane.INFORMATION_MESSAGE);
+    public void win(final String message) {
+        JOptionPane.showMessageDialog(this, message, "Victory", JOptionPane.INFORMATION_MESSAGE);
         this.showMenuPage();
     }
 

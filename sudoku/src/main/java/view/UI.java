@@ -28,5 +28,5 @@ public interface UI extends ColorComponent {
     void reset(Map<Coordinate, Integer> resetGrid);
 
 
-    void win();
+    void win(final String message);
 }
