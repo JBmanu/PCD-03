@@ -37,7 +37,7 @@ public class View extends JFrame implements UI, MenuPageListener, GridPageListen
         this.gridPage = new GridPage();
 
         this.menuPage.addListener(this);
-        this.gridPage.addListener(this);
+        this.gridPage.addActionListener(this);
 
         this.showMenuPage();
     }
@@ -74,7 +74,7 @@ public class View extends JFrame implements UI, MenuPageListener, GridPageListen
     @Override
     public void addPlayerListener(final GameListener.PlayerListener listener) {
         this.menuPage.addStartListener(listener);
-        this.gridPage.addActionListener(listener);
+        this.gridPage.addPlayerListener(listener);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class View extends JFrame implements UI, MenuPageListener, GridPageListen
 
     @Override
     public void suggest(final Coordinate key, final Integer value) {
-        this.gridPage.setSuggest(key, value);
+        this.gridPage.suggest(key, value);
     }
 
     @Override

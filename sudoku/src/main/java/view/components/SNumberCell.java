@@ -1,13 +1,17 @@
 package view.components;
 
 import model.Coordinate;
+import utils.IntUtils;
 import view.color.Palette;
 import view.components.documentEvent.DocumentEvent;
 import view.components.documentEvent.NumberFilter;
 import view.listener.GameListener;
 import view.listener.GridPageListener;
+import view.utils.BorderUtils;
+import view.utils.StyleUtils;
 
 import javax.swing.*;
+import javax.swing.border.MatteBorder;
 import javax.swing.text.AbstractDocument;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -15,11 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static view.utils.StyleUtils.SIZE_CELL_FONT;
-
-
 public class SNumberCell extends JTextField {
-    private static final String SPACE = "";
+    private static final String EMPTY = "";
 
     private final NumberFilter numberFilter;
     private final DocumentEvent documentEvent;
@@ -33,7 +34,6 @@ public class SNumberCell extends JTextField {
         super();
 
         this.numberFilter = new NumberFilter(this);
-        
         this.documentEvent = new DocumentEvent(this);
 
         this.coordinate = coordinate;
@@ -41,8 +41,8 @@ public class SNumberCell extends JTextField {
         this.optionalPalette = Optional.empty();
 
         this.setSuggest(value);
+        this.setFont(StyleUtils.CELL_FONT);
         this.setHorizontalAlignment(JTextField.CENTER);
-        this.setFont(this.getFont().deriveFont(SIZE_CELL_FONT));
         this.getDocument().addDocumentListener(this.documentEvent);
         ((AbstractDocument) this.getDocument()).setDocumentFilter(this.numberFilter);
 
@@ -53,14 +53,12 @@ public class SNumberCell extends JTextField {
         this.addFocusListener(new FocusAdapter() {
             public void focusGained(final FocusEvent evt) {
                 SwingUtilities.invokeLater(() ->
-                        SNumberCell.this.listeners.forEach(l ->
-                                l.onFocusGainedCell(SNumberCell.this)));
+                        SNumberCell.this.listeners.forEach(l -> l.onFocusGainedCell(SNumberCell.this)));
             }
 
             public void focusLost(final FocusEvent evt) {
                 SwingUtilities.invokeLater(() ->
-                        SNumberCell.this.listeners.forEach(l ->
-                                l.onFocusLostCell(SNumberCell.this)));
+                        SNumberCell.this.listeners.forEach(l -> l.onFocusLostCell(SNumberCell.this)));
             }
         });
     }
@@ -70,32 +68,38 @@ public class SNumberCell extends JTextField {
     }
 
     public void setColorable(final Optional<Palette> palette) {
-        this.optionalPalette = palette;
-        this.colorOnUnselected();
+        SwingUtilities.invokeLater(() -> {
+            this.optionalPalette = palette;
+            this.unselectedColor();
+            
+            final int alpha = 130;
+            palette.ifPresent(color -> BorderUtils.changeColor(this, MatteBorder.class, 
+                    color.secondaryWithAlpha(alpha)));
+        });
     }
 
-    public void colorOnSelected() {
+    public void selectionColor() {
         this.optionalPalette.ifPresent(color -> {
             this.setBackground(color.interaction());
             this.setForeground(color.neutral());
         });
     }
 
-    public void colorOnUnselected() {
+    public void unselectedColor() {
         this.optionalPalette.ifPresent(color -> {
             this.setBackground(color.neutral());
             this.setForeground(this.isEditable() ? color.primary() : color.secondary());
         });
     }
 
-    public void colorOnHint() {
+    public void hintColor() {
         this.optionalPalette.ifPresent(color -> {
             this.setBackground(color.feedback());
             this.setForeground(color.secondary());
         });
     }
 
-    public void colorOnHelper() {
+    public void helpColor() {
         this.optionalPalette.ifPresent(color -> {
             final int alpha = 50;
             this.setBackground(color.interactionWithAlpha(alpha));
@@ -103,7 +107,7 @@ public class SNumberCell extends JTextField {
         });
     }
 
-    public void addListener(final GridPageListener.SelectionListener listener) {
+    public void addSelectionListener(final GridPageListener.SelectionListener listener) {
         this.listeners.add(listener);
     }
 
@@ -116,15 +120,11 @@ public class SNumberCell extends JTextField {
     }
 
     public Optional<Integer> value() {
-        try {
-            return Optional.of(Integer.parseInt(this.getText().trim()));
-        } catch (final NumberFormatException e) {
-            return Optional.empty();
-        }
+        return IntUtils.valueOf(this.getText());
     }
 
     public void setValue(final int value) {
-        this.setText(value == 0 ? SPACE : String.valueOf(value));
+        this.setText(value == 0 ? EMPTY : String.valueOf(value));
     }
 
     public void setSuggest(final int value) {

@@ -2,6 +2,7 @@ package view;
 
 import model.Coordinate;
 import model.Grid;
+import utils.GridUtils;
 import view.color.Palette;
 import view.components.ColorComponent;
 import view.components.SNumberCell;
@@ -9,7 +10,7 @@ import view.listener.GameListener;
 import view.listener.GridPageListener;
 import view.panel.GridActionPanel;
 import view.panel.NumberInfoPanel;
-import view.utils.GridUtils;
+import view.utils.BorderUtils;
 import view.utils.PanelUtils;
 
 import javax.swing.*;
@@ -69,26 +70,25 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
             final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
             this.cells.put(entry.getKey(), cell);
             cell.setColorable(this.optionPalette);
-            cell.addListener(this);
             cell.addInsertListeners(this);
+            cell.addSelectionListener(this);
             this.cellListeners.forEach(cell::addCellListeners);
             this.gridPanel.add(cell);
 
-            cell.setBorder(GridUtils.getCellBorder(entry.getKey().row(), entry.getKey().column(), grid.size(),
-                    CELL_BORDER, DIVISOR_BORDER, this.gridColor));
+            cell.setBorder(BorderUtils.create(cell, grid.size(), CELL_BORDER, DIVISOR_BORDER, this.gridColor));
         });
 
         this.numberInfoPanel.setup(grid.size());
 
-        for (int i = 1; i <= grid.size(); i++) {
-            this.numberInfoPanel.checkNumber(i, grid.size(), this.countValue(i));
-        }
+        for (int i = 1; i <= grid.size();
+             this.numberInfoPanel.checkNumber(i, grid.size(), this.countValue(i++)))
+            ;
 
     }
 
-    public void setSuggest(final Coordinate key, final Integer value) {
+    public void suggest(final Coordinate key, final Integer value) {
         this.cells.get(key).setSuggest(value);
-        this.cells.values().forEach(SNumberCell::colorOnUnselected);
+        this.cells.values().forEach(SNumberCell::unselectedColor);
     }
 
     public void undo(final Coordinate coordinate) {
@@ -99,13 +99,19 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
         resetGrid.forEach((coordinate, value) -> this.cells.get(coordinate).setSuggest(value));
     }
 
-    public void addListener(final GridPageListener.ActionListener listener) {
+    public void addActionListener(final GridPageListener.ActionListener listener) {
         this.gridActionPanel.addListener(listener);
     }
 
-    public void addActionListener(final GameListener.PlayerListener listener) {
+    public void addPlayerListener(final GameListener.PlayerListener listener) {
         this.gridActionPanel.addActionListener(listener);
         this.cellListeners.add(listener);
+    }
+
+    private List<SNumberCell> cellsOf(final int value) {
+        return this.cells.values().stream()
+                .filter(cell -> cell.value().isPresent() && cell.value().get() == value)
+                .toList();
     }
 
     @Override
@@ -113,21 +119,17 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
         if (cell.value().isEmpty()) return;
         final Coordinate coordinate = cell.coordinate();
         final int size = (int) Math.sqrt(this.cells.size());
-
         final List<Coordinate> coordinates = Stream.concat(GridUtils.createRowAndColFrom(coordinate, size).stream(),
                 GridUtils.computeQuadrant(coordinate, size).stream()).toList();
 
-        coordinates.stream().map(this.cells::get).forEach(SNumberCell::colorOnHelper);
-
-        this.cells.values().stream().filter(cellGrid -> cellGrid.value().equals(cell.value()))
-                .forEach(SNumberCell::colorOnHint);
-
-        cell.colorOnSelected();
+        coordinates.stream().map(this.cells::get).forEach(SNumberCell::helpColor);
+        cell.value().ifPresent(value -> this.cellsOf(value).forEach(SNumberCell::hintColor));
+        cell.selectionColor();
     }
 
     @Override
     public void onFocusLostCell(final SNumberCell cell) {
-        this.cells.values().forEach(SNumberCell::colorOnUnselected);
+        this.cells.values().forEach(SNumberCell::unselectedColor);
     }
 
     private int countValue(final int value) {
