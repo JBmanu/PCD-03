@@ -4,7 +4,6 @@ import model.Settings;
 import view.UI;
 import view.View;
 import view.color.Palette;
-import view.components.SNumberCell;
 import view.listener.GameListener;
 
 import java.util.Map;
@@ -49,18 +48,11 @@ public class Controller implements GameListener.PlayerListener {
         final Map<Coordinate, Integer> resetGrid = this.grid.reset();
         this.ui.reset(resetGrid);
     }
-    
+
     @Override
-    public void onChangeCell(final SNumberCell cell) {
-        cell.value().ifPresent(value -> this.grid.saveValue(cell.coordinate(), value));
+    public void onModifyCell(final Coordinate coordinate, final int value) {
+        this.grid.saveValue(coordinate, value);
         if (this.grid.hasWin()) this.ui.win();
     }
 
-    @Override
-    public void onRemoveCell(final SNumberCell cell) {
-        cell.value().ifPresentOrElse(
-                value -> this.grid.saveValue(cell.coordinate(), value),
-                () -> this.grid.resetValue(cell.coordinate()));
-        if (this.grid.hasWin()) this.ui.win();
-    }
 }

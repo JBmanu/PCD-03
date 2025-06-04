@@ -83,7 +83,7 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
         for (int i = 1; i <= grid.size(); i++) {
             this.numberInfoPanel.checkNumber(i, grid.size(), this.countValue(i));
         }
-        
+
     }
 
     public void setSuggest(final Coordinate key, final Integer value) {
@@ -116,7 +116,7 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
 
         final List<Coordinate> coordinates = Stream.concat(GridUtils.createRowAndColFrom(coordinate, size).stream(),
                 GridUtils.computeQuadrant(coordinate, size).stream()).toList();
-        
+
         coordinates.stream().map(this.cells::get).forEach(SNumberCell::colorOnHelper);
 
         this.cells.values().stream().filter(cellGrid -> cellGrid.value().equals(cell.value()))
@@ -134,19 +134,10 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
         return (int) this.cells.values().stream()
                 .filter(cell -> cell.value().isPresent() && cell.value().get() == value).count();
     }
-    
-    @Override
-    public void onChangeCell(final SNumberCell cell) {
-        this.onFocusGainedCell(cell);
-        cell.value().ifPresent(value -> {
-            final int size = (int) Math.sqrt(this.cells.size());
-            this.numberInfoPanel.checkNumber(value, size, this.countValue(value));
-        });
-    }
 
     @Override
-    public void onRemoveCell(final SNumberCell cell) {
-        this.onFocusLostCell(cell);
+    public void onModifyCell(final SNumberCell cell) {
+        this.onFocusGainedCell(cell);
         cell.value().ifPresent(value -> {
             final int size = (int) Math.sqrt(this.cells.size());
             this.numberInfoPanel.checkNumber(value, size, this.countValue(value));
@@ -162,4 +153,6 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
         this.gridColor = palette.secondaryWithAlpha(alpha);
         this.optionPalette = Optional.of(palette);
     }
+
+
 }

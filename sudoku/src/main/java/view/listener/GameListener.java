@@ -1,7 +1,7 @@
 package view.listener;
 
+import model.Coordinate;
 import model.Settings;
-import view.components.SNumberCell;
 
 public interface GameListener {
 
@@ -20,9 +20,7 @@ public interface GameListener {
     }
 
     interface CellListener {
-        void onChangeCell(final SNumberCell cell);
-
-        void onRemoveCell(final SNumberCell cell);
+        void onModifyCell(final Coordinate coordinate, final int value);
     }
 
     interface PlayerListener extends StartListener, ActionListener, CellListener {

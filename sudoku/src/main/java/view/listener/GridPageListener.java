@@ -14,8 +14,8 @@ public interface GridPageListener {
         void onFocusLostCell(final SNumberCell cell);
     }
 
-    interface InsertListener extends GameListener.CellListener {
-        
+    interface InsertListener {
+        void onModifyCell(final SNumberCell cell);
     }
     
     interface CellListener extends SelectionListener, InsertListener {

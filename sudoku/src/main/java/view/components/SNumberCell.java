@@ -32,7 +32,8 @@ public class SNumberCell extends JTextField {
     public SNumberCell(final Coordinate coordinate, final int value) {
         super();
 
-        this.numberFilter = new NumberFilter();
+        this.numberFilter = new NumberFilter(this);
+        
         this.documentEvent = new DocumentEvent(this);
 
         this.coordinate = coordinate;
@@ -111,7 +112,7 @@ public class SNumberCell extends JTextField {
     }
 
     public void addCellListeners(final GameListener.CellListener listener) {
-        this.documentEvent.addCellListener(listener);
+        this.numberFilter.addListener(listener);
     }
 
     public Optional<Integer> value() {
