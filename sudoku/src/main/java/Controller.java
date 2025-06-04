@@ -1,10 +1,10 @@
 import grid.Coordinate;
 import grid.Grid;
 import grid.Settings;
-import view.UI;
-import view.View;
-import view.color.Palette;
-import view.listener.GameListener;
+import ui.UI;
+import ui.View;
+import ui.color.Palette;
+import ui.listener.GameListener;
 
 import java.util.Map;
 

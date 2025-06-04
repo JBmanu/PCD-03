@@ -4,7 +4,7 @@ ThisBuild / scalaVersion := "3.3.4"
 //libraryDependencies += "com.github.USERNAME" %% "REPO" % "TAG"
 
 lazy val root = (project in file("."))
-  .aggregate(grid, sudoku)
+  .aggregate(sudokuGrid, sudoku)
   .settings(
     name := "PCD-03",
   )
@@ -15,18 +15,27 @@ lazy val commonSettings = Seq(
     )
   )
 
-lazy val grid = (project in file("grid"))
+lazy val sudokuGrid = (project in file("sudokuGrid"))
   .settings(commonSettings *)
   .settings(
-    name := "grid",
+    name := "sudoku-grid",
     resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
       "com.github.sfuhrm" % "sudoku" % "sudoku-parent-5.0.2",
       )
     )
 
+lazy val sudokuUI = (project in file("sudoku-ui"))
+  .dependsOn(sudokuGrid % "compile->compile")
+  .settings(commonSettings *)
+  .settings(
+    name := "sudoku-ui",
+    libraryDependencies ++= Seq(
+      )
+    )
+
 lazy val sudoku = (project in file("sudoku"))
-  .dependsOn(grid % "compile->compile")
+  .dependsOn(sudokuGrid % "compile->compile", sudokuUI % "compile->compile")
   .settings(commonSettings *)
   .settings(
     name := "sudoku",
