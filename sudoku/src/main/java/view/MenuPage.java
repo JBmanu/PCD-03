@@ -1,6 +1,6 @@
 package view;
 
-import model.Settings;
+import grid.Settings;
 import utils.ConditionUtils;
 import view.color.Palette;
 import view.components.ColorComponent;

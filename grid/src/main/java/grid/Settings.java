@@ -1,4 +1,4 @@
-package model;
+package grid;
 
 import de.sfuhrm.sudoku.GameSchema;
 import de.sfuhrm.sudoku.GameSchemas;
@@ -77,7 +77,7 @@ public interface Settings {
         
         @Override
         public String toString() {
-            return "Settings: size[" + this.schema + "] difficulty[" + this.difficulty + "]";
+            return "model.Settings: size[" + this.schema + "] difficulty[" + this.difficulty + "]";
         }
 
     }

@@ -1,6 +1,6 @@
-import model.Coordinate;
-import model.Grid;
-import model.Settings;
+import grid.Coordinate;
+import grid.Grid;
+import grid.Settings;
 import view.UI;
 import view.View;
 import view.color.Palette;

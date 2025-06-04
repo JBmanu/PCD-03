@@ -1,7 +1,7 @@
 package view;
 
-import model.Coordinate;
-import model.Grid;
+import grid.Coordinate;
+import grid.Grid;
 import utils.GridUtils;
 import view.color.Palette;
 import view.components.ColorComponent;

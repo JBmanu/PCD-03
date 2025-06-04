@@ -1,6 +1,6 @@
 package view.components;
 
-import model.Coordinate;
+import grid.Coordinate;
 import utils.IntUtils;
 import view.color.Palette;
 import view.components.documentEvent.DocumentEvent;

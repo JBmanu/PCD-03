@@ -1,4 +1,4 @@
-package model;
+package grid;
 
 public interface Coordinate {
 

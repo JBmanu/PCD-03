@@ -1,7 +1,7 @@
 package view.listener;
 
-import model.Coordinate;
-import model.Settings;
+import grid.Coordinate;
+import grid.Settings;
 
 public interface GameListener {
 

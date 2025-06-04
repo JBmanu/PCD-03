@@ -1,6 +1,6 @@
 package utils;
 
-import model.Coordinate;
+import grid.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;

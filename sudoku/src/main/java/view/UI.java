@@ -1,7 +1,7 @@
 package view;
 
-import model.Coordinate;
-import model.Grid;
+import grid.Coordinate;
+import grid.Grid;
 import view.components.ColorComponent;
 import view.listener.GameListener;
 

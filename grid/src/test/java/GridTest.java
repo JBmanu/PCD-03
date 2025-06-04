@@ -1,3 +1,6 @@
+import grid.Coordinate;
+import grid.Grid;
+import grid.Settings;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

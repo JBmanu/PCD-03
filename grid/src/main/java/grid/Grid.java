@@ -1,4 +1,4 @@
-package model;
+package grid;
 
 import de.sfuhrm.sudoku.Creator;
 import de.sfuhrm.sudoku.GameMatrix;
