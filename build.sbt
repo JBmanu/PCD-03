@@ -9,7 +9,6 @@ lazy val sudoku = (project in file("sudoku"))
     resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
       "com.github.sfuhrm" % "sudoku" % "sudoku-parent-5.0.2",
-      // junit
-      "org.junit.jupiter" % "junit-jupiter-api" % "5.10.3" % Test,
+      "org.junit.jupiter" % "junit-jupiter-api" % "5.13.0" % Test,
       )
     )
