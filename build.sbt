@@ -34,11 +34,11 @@ lazy val sudokuUI = (project in file("sudoku-ui"))
       )
     )
 
-lazy val sudoku = (project in file("sudoku"))
+lazy val sudoku = (project in file("sudoku-local"))
   .dependsOn(sudokuGrid % "compile->compile", sudokuUI % "compile->compile")
   .settings(commonSettings *)
   .settings(
-    name := "sudoku",
+    name := "sudoku-local",
     Compile / mainClass := Some("Main"),
     assembly / assemblyJarName := "sudoku.jar",
     libraryDependencies ++= Seq(
