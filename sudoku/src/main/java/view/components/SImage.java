@@ -7,27 +7,23 @@ public class SImage extends JLabel {
     private static final int DEFAULT_SPACE = 50;
     private final Dimension imageDimension;
     private final String path;
-    private int space;
-
-    public SImage(final String path) {
-        this(path, new Dimension(100, 100));
-    }
+    private int padding;
 
     public SImage(final String path, final Dimension dimension) {
         super();
-        this.space = DEFAULT_SPACE;
+        this.padding = DEFAULT_SPACE;
         this.imageDimension = new Dimension();
         this.setImageDimension(dimension);
         this.path = path;
     }
 
-    public void setSpace(final int space) {
-        this.space = space;
+    public void setPadding(final int padding) {
+        this.padding = padding;
     }
 
     public void setImageDimension(final Dimension imageDimension) {
         this.setPreferredSize(imageDimension);
-        this.imageDimension.setSize(new Dimension(imageDimension.width - this.space, imageDimension.height - this.space));
+        this.imageDimension.setSize(new Dimension(imageDimension.width - this.padding, imageDimension.height - this.padding));
     }
 
     @Override
