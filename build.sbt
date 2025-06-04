@@ -7,7 +7,7 @@ lazy val root = (project in file("."))
   .aggregate(sudokuGrid, sudokuUI, sudokuLocal)
   .settings(
     name := "PCD-03",
-  )
+    )
 
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
@@ -31,7 +31,7 @@ lazy val sudokuUI = (project in file("sudoku-ui"))
   .settings(
     name := "sudoku-ui",
     libraryDependencies ++= Seq(
-      )
+    )
     )
 
 lazy val sudokuLocal = (project in file("sudoku-local"))
@@ -42,7 +42,7 @@ lazy val sudokuLocal = (project in file("sudoku-local"))
     Compile / mainClass := Some("Main"),
     assembly / assemblyJarName := "sudoku-local.jar",
     libraryDependencies ++= Seq(
-      )
+    )
     )
 
 lazy val sudokuMOM = (project in file("sudoku-mom"))
@@ -53,6 +53,7 @@ lazy val sudokuMOM = (project in file("sudoku-mom"))
     Compile / mainClass := Some("Main"),
     assembly / assemblyJarName := "sudoku-mom.jar",
     libraryDependencies ++= Seq(
-      "com.rabbitmq" % "amqp-client" % "5.25.0"
+      "com.rabbitmq" % "amqp-client" % "5.25.0",
+      "org.slf4j" % "slf4j-simple" % "2.0.17",
       )
     )
