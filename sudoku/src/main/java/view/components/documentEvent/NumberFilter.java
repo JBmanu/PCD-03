@@ -26,9 +26,13 @@ public class NumberFilter extends DocumentFilter {
         return text != null && text.matches("\\d*");
     }
 
-    private void notifyListeners(final String text) {
+    private boolean notifyListeners(final String text) {
         final int value = text.isEmpty() ? 0 : Integer.parseInt(text);
-        this.cellListeners.forEach(listener -> listener.onModifyCell(this.cell.coordinate(), value));
+        return this.cellListeners.stream().allMatch(listener -> listener.onModifyCell(this.cell.coordinate(), value));
+    }
+
+    private boolean canInsert(final String text) {
+        return this.isValidNumber(text) && this.notifyListeners(text);
     }
 
     @Override
@@ -36,8 +40,7 @@ public class NumberFilter extends DocumentFilter {
         final StringBuilder newText = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
         newText.insert(offset, string);
 
-        if (this.isValidNumber(newText.toString())) {
-            this.notifyListeners(newText.toString());
+        if (this.canInsert(newText.toString())) {
             super.insertString(fb, offset, string, attr);
         }
     }
@@ -47,8 +50,7 @@ public class NumberFilter extends DocumentFilter {
         final StringBuilder newText = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
         newText.replace(offset, offset + length, text);
 
-        if (this.isValidNumber(newText.toString())) {
-            this.notifyListeners(newText.toString());
+        if (this.canInsert(newText.toString())) {
             super.replace(fb, offset, length, text, attrs);
         }
     }
@@ -57,9 +59,8 @@ public class NumberFilter extends DocumentFilter {
     public void remove(final FilterBypass fb, final int offset, final int length) throws BadLocationException {
         final StringBuilder newText = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
         newText.delete(offset, offset + length);
-
-        if (this.isValidNumber(newText.toString())) {
-            this.notifyListeners(newText.toString());
+        
+        if (this.canInsert(newText.toString())) {
             super.remove(fb, offset, length);
         }
     }

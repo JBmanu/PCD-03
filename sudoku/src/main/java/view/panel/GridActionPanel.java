@@ -17,19 +17,19 @@ import static view.utils.StyleUtils.*;
 public class GridActionPanel extends JPanel implements ColorComponent {
     private final List<GridPageListener.ActionListener> listeners;
     private final List<GameListener.ActionListener> actionListeners;
-    
+
     private final SButton home;
     private final SButton undo;
     private final SButton suggest;
     private final SButton reset;
-    
+
     public GridActionPanel() {
         super(new FlowLayout(FlowLayout.CENTER, H_GAP, ZERO_GAP));
         PanelUtils.transparent(this);
 
         this.listeners = new ArrayList<>();
         this.actionListeners = new ArrayList<>();
-        
+
         this.home = new SButton("Home");
         this.undo = new SButton("Undo");
         this.suggest = new SButton("Suggest");
@@ -39,10 +39,10 @@ public class GridActionPanel extends JPanel implements ColorComponent {
         buttons.forEach(button -> button.setFont(FONT_GAME));
         buttons.forEach(this::add);
 
-        this.home.addActionListener(e -> this.onClickHome());
-        this.undo.addActionListener(e -> this.onClickUndo());
-        this.suggest.addActionListener(e -> this.onClickSuggest());
-        this.reset.addActionListener(e -> this.onClickReset());
+        this.home.addActionListener(_ -> this.onClickHome());
+        this.undo.addActionListener(_ -> this.onClickUndo());
+        this.suggest.addActionListener(_ -> this.onClickSuggest());
+        this.reset.addActionListener(_ -> this.onClickReset());
     }
 
     private void onClickHome() {
@@ -67,7 +67,7 @@ public class GridActionPanel extends JPanel implements ColorComponent {
     public void addListener(final GridPageListener.ActionListener listener) {
         this.listeners.add(listener);
     }
-    
+
     public void addActionListener(final GameListener.ActionListener listener) {
         this.actionListeners.add(listener);
     }

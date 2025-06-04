@@ -20,7 +20,7 @@ public interface GameListener {
     }
 
     interface CellListener {
-        void onModifyCell(final Coordinate coordinate, final int value);
+        boolean onModifyCell(final Coordinate coordinate, final int value);
     }
 
     interface PlayerListener extends StartListener, ActionListener, CellListener {
