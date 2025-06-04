@@ -4,7 +4,7 @@ ThisBuild / scalaVersion := "3.3.4"
 //libraryDependencies += "com.github.USERNAME" %% "REPO" % "TAG"
 
 lazy val root = (project in file("."))
-  .aggregate(sudokuGrid, sudoku)
+  .aggregate(sudokuGrid, sudokuUI, sudokuLocal)
   .settings(
     name := "PCD-03",
   )
@@ -34,13 +34,25 @@ lazy val sudokuUI = (project in file("sudoku-ui"))
       )
     )
 
-lazy val sudoku = (project in file("sudoku-local"))
+lazy val sudokuLocal = (project in file("sudoku-local"))
   .dependsOn(sudokuGrid % "compile->compile", sudokuUI % "compile->compile")
   .settings(commonSettings *)
   .settings(
     name := "sudoku-local",
     Compile / mainClass := Some("Main"),
-    assembly / assemblyJarName := "sudoku.jar",
+    assembly / assemblyJarName := "sudoku-local.jar",
     libraryDependencies ++= Seq(
+      )
+    )
+
+lazy val sudokuMOM = (project in file("sudoku-mom"))
+  .dependsOn(sudokuGrid % "compile->compile", sudokuUI % "compile->compile")
+  .settings(commonSettings *)
+  .settings(
+    name := "sudoku-mom",
+    Compile / mainClass := Some("Main"),
+    assembly / assemblyJarName := "sudoku-mom.jar",
+    libraryDependencies ++= Seq(
+      "com.rabbitmq" % "amqp-client" % "5.25.0"
       )
     )
