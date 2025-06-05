@@ -9,7 +9,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface Player {
+    String EXCHANGE = "exchange";
+    String QUEUE = "queue";
+    String DIVISOR = ".";
 
+    String DOMAIN = "sudoku";
+    String ROOM = "room";
+    String PLAYER = "player";
+    
     static Player create() {
         return new PlayerImpl();
     }
@@ -26,14 +33,6 @@ public interface Player {
     class PlayerImpl implements Player {
         private static final String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
         private static final String EXCHANGE_TYPE = "direct";
-
-        public static final String EXCHANGE = "exchange";
-        public static final String QUEUE = "queue";
-        public static final String DIVISOR = ".";
-
-        public static final String DOMAIN = "sudoku";
-        public static final String ROOM = "room";
-        public static final String PLAYER = "player";
 
         private Optional<String> room;
         private Optional<String> queue;
@@ -67,9 +66,9 @@ public interface Player {
             this.name = Optional.of(playerName);
 
             try {
-                this.channel.exchangeDeclare(roomName, EXCHANGE_TYPE, true);
-                this.channel.queueDeclare(queueName, true, false, false, null);
-                this.channel.queueBind(queueName, roomName, routingKey);
+//                this.channel.exchangeDeclare(roomName, EXCHANGE_TYPE, true);
+//                this.channel.queueDeclare(queueName, true, false, false, null);
+//                this.channel.queueBind(queueName, roomName, routingKey);
 
                 System.out.println("ROOM NAME: " + roomName);
                 System.out.println("QUEUE NAME: " + queueName);
