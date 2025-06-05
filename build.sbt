@@ -52,8 +52,10 @@ lazy val sudokuMOM = (project in file("sudoku-mom"))
     name := "sudoku-mom",
     Compile / mainClass := Some("Main"),
     assembly / assemblyJarName := "sudoku-mom.jar",
+    resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
       "com.rabbitmq" % "amqp-client" % "5.25.0",
+      "com.github.rabbitmq" % "hop" % "5.3.0",
       "org.slf4j" % "slf4j-simple" % "2.0.17",
       )
     )

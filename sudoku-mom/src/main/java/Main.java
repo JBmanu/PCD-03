@@ -7,23 +7,29 @@ public final class Main {
     private final static String QUEUE_NAME = "hello";
     public static String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         
-        ConnectionFactory factory = new ConnectionFactory();
+        final ConnectionFactory factory = new ConnectionFactory();
         try {
             factory.setUri(URI);
 
-            try (Connection connection = factory.newConnection();
-                 Channel channel = connection.createChannel()) {
+            try (final Connection connection = factory.newConnection();
+                 final Channel channel = connection.createChannel()) {
+                
+                // Nome della coda e dell'exchange da eliminare
+                final String queueName = QUEUE_NAME;
+                final String exchangeName = "(AMQP default)";
 
-                channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-                String message = "Messaggio di prova da Java";
+                // Elimina la coda
+                channel.queueDelete(queueName);
+                System.out.println("Coda eliminata: " + queueName);
 
-                channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
-                System.out.println("Messaggio inviato: " + message);
+                // Elimina l'exchange
+                channel.exchangeDelete(exchangeName);
+                System.out.println("Exchange eliminato: " + exchangeName);
             }
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             System.err.println("Errore durante la connessione o l’invio:");
             e.printStackTrace();
         }
