@@ -27,6 +27,13 @@ public interface Player {
     
     Optional<String> name();
     
+    void computeRoom(String countRoom);
+    
+    void computeQueue(String countRoom, String countQueue, String playerName);
+
+    void name(String name);
+    
+    
     void createRoom(String countRoom, String countQueue, String playerName);
 
     void joinRoom(String countRoom, String countQueue, String playerName);
@@ -35,8 +42,7 @@ public interface Player {
 
     void putNumber(Coordinate coordinate, int number);
 
-
-
+    
     class PlayerImpl implements Player {
         private static final String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
         private static final String EXCHANGE_TYPE = "direct";
@@ -78,22 +84,36 @@ public interface Player {
         }
 
         @Override
-        public void createRoom(final String countRoom, final String countQueue, final String playerName) {
+        public void computeRoom(final String countRoom) {
             final String roomName = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom));
-            final String queueName = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom, QUEUE, countQueue, PLAYER, playerName));
-            final String routingKey = PLAYER + playerName;
-
             this.room = Optional.of(roomName);
+        }
+
+        @Override
+        public void computeQueue(final String countRoom, final String countQueue, final String playerName) {
+            final String queueName = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom, QUEUE, countQueue, PLAYER, playerName));
             this.queue = Optional.of(queueName);
-            this.name = Optional.of(playerName);
+        }
+
+        @Override
+        public void name(final String name) {
+            this.name = Optional.of(name);
+        }
+
+        @Override
+        public void createRoom(final String countRoom, final String countQueue, final String playerName) {
+//            final String routingKey = PLAYER + playerName;
+//            this.room = Optional.of(roomName);
+//            this.queue = Optional.of(queueName);
+//            this.name = Optional.of(playerName);
 
             try {
 //                this.channel.exchangeDeclare(roomName, EXCHANGE_TYPE, true);
 //                this.channel.queueDeclare(queueName, true, false, false, null);
 //                this.channel.queueBind(queueName, roomName, routingKey);
 
-                System.out.println("ROOM NAME: " + roomName);
-                System.out.println("QUEUE NAME: " + queueName);
+//                System.out.println("ROOM NAME: " + roomName);
+//                System.out.println("QUEUE NAME: " + queueName);
             } catch (final Exception e) {
                 throw new RuntimeException("Failed to create room: " + e.getMessage(), e);
             }
