@@ -16,11 +16,17 @@ public interface Player {
     String DOMAIN = "sudoku";
     String ROOM = "room";
     String PLAYER = "player";
-    
+
     static Player create() {
         return new PlayerImpl();
     }
 
+    Optional<String> room();
+    
+    Optional<String> queue();
+    
+    Optional<String> name();
+    
     void createRoom(String countRoom, String countQueue, String playerName);
 
     void joinRoom(String countRoom, String countQueue, String playerName);
@@ -28,6 +34,7 @@ public interface Player {
     void leaveRoom();
 
     void putNumber(Coordinate coordinate, int number);
+
 
 
     class PlayerImpl implements Player {
@@ -56,11 +63,26 @@ public interface Player {
         }
 
         @Override
+        public Optional<String> room() {
+            return this.room;
+        }
+
+        @Override
+        public Optional<String> queue() {
+            return this.queue;
+        }
+
+        @Override
+        public Optional<String> name() {
+            return this.name;
+        }
+
+        @Override
         public void createRoom(final String countRoom, final String countQueue, final String playerName) {
             final String roomName = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom));
             final String queueName = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom, QUEUE, countQueue, PLAYER, playerName));
             final String routingKey = PLAYER + playerName;
-            
+
             this.room = Optional.of(roomName);
             this.queue = Optional.of(queueName);
             this.name = Optional.of(playerName);
