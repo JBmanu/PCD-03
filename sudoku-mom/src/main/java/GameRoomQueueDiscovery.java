@@ -10,12 +10,13 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public interface GameRoomQueueDiscovery {
+    int COUNT_DEFAULT_EXCHANGE = 7;
     
     static GameRoomQueueDiscovery create() {
         return new GameRoomQueueDiscoveryImpl();
     }
     
-    int countRooms();
+    int countExchanges();
     
     int countQueues();
     
@@ -67,13 +68,13 @@ public interface GameRoomQueueDiscovery {
         }
 
         @Override
-        public int countRooms() {
-            return this.client.getExchanges().size() - 6;
+        public int countExchanges() {
+            return this.client.getExchanges().size();
         }
 
         @Override
         public int countQueues() {
-            return this.client.getQueues().size() + 1;
+            return this.client.getQueues().size();
         }
     }
 }

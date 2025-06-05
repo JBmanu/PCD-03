@@ -9,7 +9,7 @@ public final class Main {
         final GameRoomQueueDiscovery discovery = GameRoomQueueDiscovery.create();
         final Player player = Player.create();
         
-        final int roomCount = discovery.countRooms();
+        final int roomCount = discovery.countExchanges();
         final int queueCount = discovery.countQueues();
 
         
