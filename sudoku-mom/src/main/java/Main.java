@@ -6,11 +6,11 @@ public final class Main {
     public static String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
 
     public static void main(final String[] args) {
-        final RoomPlayerQueueInspector inspector = RoomPlayerQueueInspector.create();
+        final GameRoomQueueDiscovery discovery = GameRoomQueueDiscovery.create();
         final Player player = Player.create();
         
-        final int roomCount = inspector.countRooms();
-        final int queueCount = inspector.countQueues();
+        final int roomCount = discovery.countRooms();
+        final int queueCount = discovery.countQueues();
 
         
         

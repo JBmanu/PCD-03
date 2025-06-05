@@ -9,18 +9,17 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-//other name: GameRoomQueueDiscovery
-public interface RoomPlayerQueueInspector {
+public interface GameRoomQueueDiscovery {
     
-    static RoomPlayerQueueInspector create() {
-        return new RoomPlayerQueueInspectorImpl();
+    static GameRoomQueueDiscovery create() {
+        return new GameRoomQueueDiscoveryImpl();
     }
     
     int countRooms();
     
     int countQueues();
     
-    class RoomPlayerQueueInspectorImpl implements RoomPlayerQueueInspector {
+    class GameRoomQueueDiscoveryImpl implements GameRoomQueueDiscovery {
         private static final String HOST = "kangaroo.rmq.cloudamqp.com";
         private static final String USERNAME = "fanltles";
         private static final String PASSWORD = "6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0";
@@ -28,7 +27,7 @@ public interface RoomPlayerQueueInspector {
 
         private final Client client;
 
-        public RoomPlayerQueueInspectorImpl() {
+        public GameRoomQueueDiscoveryImpl() {
             try {
                 this.client = new Client(new ClientParameters()
                         .url(URL)
