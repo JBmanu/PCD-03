@@ -8,10 +8,10 @@ public interface RabbitMQConnector {
     static RabbitMQConnector create() {
         return new RabbitMQConnectorImpl();
     }
-    
-    
+
+
     void createRoom(final String roomName, final String queueName, final String playerName);
-    
+
     
     class RabbitMQConnectorImpl implements RabbitMQConnector {
         private static final String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
