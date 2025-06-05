@@ -36,5 +36,11 @@ public class GameRoomQueueDiscoveryTest {
         final int count = this.discovery.countQueues();
         assertEquals(0, count);
     }
+    
+    @Test
+    public void countQueuesWithName() {
+        final int count = this.discovery.countQueuesWithName("");
+        assertEquals(0, count);
+    }
 
 }

@@ -25,6 +25,8 @@ public interface GameRoomQueueDiscovery {
 
     int countQueues();
 
+    int countQueuesWithName(String name);
+
 
     class GameRoomQueueDiscoveryImpl implements GameRoomQueueDiscovery {
         private static final String HOST = "kangaroo.rmq.cloudamqp.com";
@@ -45,6 +47,13 @@ public interface GameRoomQueueDiscovery {
             }
         }
 
+        private void exchanges() {
+            final List<ExchangeInfo> exchanges = this.client.getExchanges();
+            for (final ExchangeInfo exchange : exchanges) {
+                System.out.println("Exchange: " + exchange.getName() + ", Tipo: " + exchange.getType());
+            }
+        }
+        
         private void queues() {
             final List<QueueInfo> queues = this.client.getQueues();
             for (final QueueInfo queue : queues) {
@@ -52,12 +61,7 @@ public interface GameRoomQueueDiscovery {
             }
         }
 
-        private void exchanges() {
-            final List<ExchangeInfo> exchanges = this.client.getExchanges();
-            for (final ExchangeInfo exchange : exchanges) {
-                System.out.println("Exchange: " + exchange.getName() + ", Tipo: " + exchange.getType());
-            }
-        }
+
 
         private void connections() {
             final List<ConnectionInfo> connections = this.client.getConnections();
@@ -95,6 +99,13 @@ public interface GameRoomQueueDiscovery {
         @Override
         public int countQueues() {
             return this.client.getQueues().size();
+        }
+
+        @Override
+        public int countQueuesWithName(final String name) {
+            return (int) this.client.getQueues().stream()
+                    .filter(queueInfo -> queueInfo.getName().equals(name))
+                    .count();
         }
     }
 }
