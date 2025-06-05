@@ -62,9 +62,7 @@ public interface GameRoomQueueDiscovery {
                 System.out.println("Coda: " + queue.getName() + ", Messaggi: " + queue.getMessageStats().toString());
             }
         }
-
-
-
+        
         private void connections() {
             final List<ConnectionInfo> connections = this.client.getConnections();
             for (final ConnectionInfo connection : connections) {
