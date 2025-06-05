@@ -25,5 +25,12 @@ public class GameRoomQueueDiscoveryTest {
         assertEquals(1, count);
     }
     
+    @Test
+    public void countExchangesContainsName() {
+        final int count = this.discovery.countExchangesContains("amq");
+        assertEquals(GameRoomQueueDiscovery.COUNT_DEFAULT_EXCHANGE - 1, count);
+    }
+
+    
 
 }

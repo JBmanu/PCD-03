@@ -21,6 +21,8 @@ public interface GameRoomQueueDiscovery {
 
     int countExchangesWithName(String name);
 
+    int countExchangesContains(String subString);
+
     int countQueues();
 
 
@@ -80,6 +82,13 @@ public interface GameRoomQueueDiscovery {
         public int countExchangesWithName(final String name) {
             return (int) this.client.getExchanges().stream()
                     .filter(exchangeInfo -> exchangeInfo.getName().equals(name))
+                    .count();
+        }
+
+        @Override
+        public int countExchangesContains(final String subString) {
+            return (int) this.client.getExchanges().stream()
+                    .filter(exchange -> exchange.getName().contains(subString))
                     .count();
         }
 
