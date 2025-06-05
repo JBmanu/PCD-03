@@ -31,6 +31,10 @@ public class GameRoomQueueDiscoveryTest {
         assertEquals(GameRoomQueueDiscovery.COUNT_DEFAULT_EXCHANGE - 1, count);
     }
 
-    
+    @Test
+    public void countQueues() {
+        final int count = this.discovery.countQueues();
+        assertEquals(0, count);
+    }
 
 }
