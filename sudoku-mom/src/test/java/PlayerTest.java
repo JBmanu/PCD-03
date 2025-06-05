@@ -5,7 +5,6 @@ import player.Player;
 import java.util.List;
 import java.util.Optional;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static player.Player.*;
@@ -15,11 +14,7 @@ public class PlayerTest {
 
     @BeforeEach
     public void create() {
-        await().until(() -> {
-            this.player = Player.create();
-            return true;
-        });
-
+        this.player = Player.create();
         assertNotNull(this.player);
     }
 

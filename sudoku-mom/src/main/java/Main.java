@@ -1,4 +1,5 @@
 import player.Player;
+import rabbitMQ.GameRoomQueueDiscovery;
 
 public final class Main {
 
@@ -12,7 +13,10 @@ public final class Main {
         final int roomCount = discovery.countExchanges();
         final int queueCount = discovery.countQueues();
 
-        
+//        await().until(() -> {
+//            this.player = Player.create();
+//            return true;
+//        });
         
 //        System.out.println("Room count: " + roomCount + " - Queue: " + queueCount);
         

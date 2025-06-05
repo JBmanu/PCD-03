@@ -1,3 +1,5 @@
+package rabbitMQ;
+
 import com.rabbitmq.http.client.Client;
 import com.rabbitmq.http.client.ClientParameters;
 import com.rabbitmq.http.client.domain.ChannelInfo;
