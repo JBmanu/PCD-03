@@ -10,16 +10,20 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public interface GameRoomQueueDiscovery {
+    String DEFAULT_EXCHANGE_NAME = "";
     int COUNT_DEFAULT_EXCHANGE = 7;
-    
+
     static GameRoomQueueDiscovery create() {
         return new GameRoomQueueDiscoveryImpl();
     }
-    
+
     int countExchanges();
-    
+
+    int countExchangesWithName(String name);
+
     int countQueues();
-    
+
+
     class GameRoomQueueDiscoveryImpl implements GameRoomQueueDiscovery {
         private static final String HOST = "kangaroo.rmq.cloudamqp.com";
         private static final String USERNAME = "fanltles";
@@ -70,6 +74,13 @@ public interface GameRoomQueueDiscovery {
         @Override
         public int countExchanges() {
             return this.client.getExchanges().size();
+        }
+
+        @Override
+        public int countExchangesWithName(final String name) {
+            return (int) this.client.getExchanges().stream()
+                    .filter(exchangeInfo -> exchangeInfo.getName().equals(name))
+                    .count();
         }
 
         @Override
