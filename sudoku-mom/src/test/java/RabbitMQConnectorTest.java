@@ -8,30 +8,37 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class RabbitMQConnectorTest {
-
-    private RabbitMQConnector connector;
+    private static final String ROOM_NAME = "room1";
+    private static final String PLAYER_NAME = "player1";
+    private static final String QUEUE_NAME = ROOM_NAME + ".queue1." + PLAYER_NAME;
     
+    private RabbitMQConnector connector;
+    private GameRoomQueueDiscovery discovery;
+
     @BeforeEach
     public void create() {
         await().until(() -> {
             this.connector = RabbitMQConnector.create();
+            this.discovery = GameRoomQueueDiscovery.create();
             return true;
         });
         assertNotNull(this.connector);
     }
-    
+
     @Test
     public void createRoom() {
-        final String roomName = "room1";
-        final String queueName = "queue1";
-        final String playerName = "player1";
-        this.connector.createRoom(roomName, queueName, playerName);
-        
-        final GameRoomQueueDiscovery gameRoomQueueDiscovery = GameRoomQueueDiscovery.create();
-        assertEquals(1, gameRoomQueueDiscovery.countExchangesWithName(roomName));
-        assertEquals(1, gameRoomQueueDiscovery.countQueuesWithName(queueName));
+        this.connector.createRoom(ROOM_NAME, QUEUE_NAME, PLAYER_NAME);
+
+        assertEquals(1, this.discovery.countExchangesWithName(ROOM_NAME));
+        assertEquals(1, this.discovery.countQueuesWithName(QUEUE_NAME));
     }
     
-    
-    
+    @Test
+    public void deleteRoom() {
+        this.connector.deleteRoom(ROOM_NAME);
+        assertEquals(0, this.discovery.countExchangesWithName(ROOM_NAME));
+    }
+
+
+
 }

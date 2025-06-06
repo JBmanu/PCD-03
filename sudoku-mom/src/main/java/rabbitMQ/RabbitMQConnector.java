@@ -3,8 +3,10 @@ package rabbitMQ;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConnectionFactory;
 
+import java.io.IOException;
+
 public interface RabbitMQConnector {
-    
+
     static RabbitMQConnector create() {
         return new RabbitMQConnectorImpl();
     }
@@ -12,7 +14,9 @@ public interface RabbitMQConnector {
 
     void createRoom(final String roomName, final String queueName, final String playerName);
 
-    
+    void deleteRoom(String roomName);
+
+
     class RabbitMQConnectorImpl implements RabbitMQConnector {
         private static final String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
         private static final String EXCHANGE_TYPE = "direct";
@@ -34,14 +38,25 @@ public interface RabbitMQConnector {
             try {
                 this.channel.exchangeDeclare(roomName, EXCHANGE_TYPE, true);
                 this.channel.queueDeclare(queueName, true, false, false, null);
+
                 this.channel.queueBind(queueName, roomName, playerName);
-//
+
                 System.out.println("ROOM NAME: " + roomName);
                 System.out.println("QUEUE NAME: " + queueName);
                 System.out.println("PLAYER NAME: " + playerName);
             } catch (final Exception e) {
                 throw new RuntimeException("Failed to create room: " + e.getMessage(), e);
             }
+        }
+
+        @Override
+        public void deleteRoom(final String roomName) {
+            try {
+                this.channel.exchangeDelete(roomName);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+
         }
 
     }

@@ -23,13 +23,15 @@ public interface GameRoomQueueDiscovery {
 
     int countExchangesWithName(String name);
 
-    int countExchangesContains(String subString);
+    int countExchangesThatContains(String subString);
 
     int countQueues();
 
     int countQueuesWithName(String name);
 
-    int countQueuesContains(String subString);
+    int countQueuesThatContains(String subString);
+
+    List<String> queuesNameThatContains(String subString);
 
 
     class GameRoomQueueDiscoveryImpl implements GameRoomQueueDiscovery {
@@ -64,7 +66,7 @@ public interface GameRoomQueueDiscovery {
                 System.out.println("Coda: " + queue.getName() + ", Messaggi: " + queue.getMessageStats().toString());
             }
         }
-        
+
         private void connections() {
             final List<ConnectionInfo> connections = this.client.getConnections();
             for (final ConnectionInfo connection : connections) {
@@ -92,7 +94,7 @@ public interface GameRoomQueueDiscovery {
         }
 
         @Override
-        public int countExchangesContains(final String subString) {
+        public int countExchangesThatContains(final String subString) {
             return (int) this.client.getExchanges().stream()
                     .filter(exchange -> exchange.getName().contains(subString))
                     .count();
@@ -111,10 +113,18 @@ public interface GameRoomQueueDiscovery {
         }
 
         @Override
-        public int countQueuesContains(final String subString) {
+        public int countQueuesThatContains(final String subString) {
             return (int) this.client.getQueues().stream()
                     .filter(queue -> queue.getName().contains(subString))
                     .count();
+        }
+
+        @Override
+        public List<String> queuesNameThatContains(final String subString) {
+            return this.client.getQueues().stream()
+                    .map(QueueInfo::getName)
+                    .filter(name -> name.contains(subString))
+                    .toList();
         }
     }
 }
