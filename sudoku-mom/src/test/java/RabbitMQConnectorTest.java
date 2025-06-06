@@ -23,7 +23,7 @@ public class RabbitMQConnectorTest {
         await().until(() -> {
             this.connector = RabbitMQConnector.create();
             this.discovery = GameRoomQueueDiscovery.create();
-            return true;
+            return this.connector != null;
         });
         assertNotNull(this.connector);
     }

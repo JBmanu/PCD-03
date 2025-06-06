@@ -27,6 +27,8 @@ public interface Player {
 
     void name(String name);
 
+    Optional<String> computeRoomID();
+
     class PlayerImpl implements Player {
         private Optional<String> room;
         private Optional<String> queue;
@@ -68,6 +70,11 @@ public interface Player {
         @Override
         public void name(final String name) {
             this.name = Optional.of(name);
+        }
+
+        @Override
+        public Optional<String> computeRoomID() {
+            return this.room.map(name -> name.replaceAll("sudoku\\.", "").replaceAll("\\.", ""));
         }
 
     }

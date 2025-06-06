@@ -5,11 +5,13 @@ import player.Player;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static player.Player.*;
 
 public class PlayerTest {
+    public static final String COUNT_ROOM = "1";
+    public static final String COUNT_QUEUE = "1";
+    public static final String NAME = "Manu";
     private Player player;
 
     @BeforeEach
@@ -25,21 +27,28 @@ public class PlayerTest {
         assertEquals(Optional.empty(), this.player.name());
     }
 
+    private void computePlayer() {
+        this.player.computeRoom(COUNT_ROOM);
+        this.player.computeQueue(COUNT_ROOM, COUNT_QUEUE, NAME);
+        this.player.name(NAME);
+    }
+    
     @Test
     public void computePlayerData() {
-        final String countRoom = "1";
-        final String countQueue = "1";
-        final String name = "Manu";
-        this.player.computeRoom(countRoom);
-        this.player.computeQueue(countRoom, countQueue, name);
-        this.player.name(name);
-
-        final String room = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom));
-        final String queue = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom, QUEUE, countQueue, PLAYER, name));
+        this.computePlayer();
+        final String room = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM));
+        final String queue = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM, QUEUE, COUNT_QUEUE, PLAYER, NAME));
 
         assertEquals(Optional.of(room), this.player.room());
         assertEquals(Optional.of(queue), this.player.queue());
-        assertEquals(Optional.of(name), this.player.name());
+        assertEquals(Optional.of(NAME), this.player.name());
+    }
+    
+    @Test
+    public void computeRoomID() {
+        this.computePlayer();
+        final Optional<String> roomID = this.player.computeRoomID();
+        assertEquals(Optional.of("room1"), roomID);
     }
 
 
