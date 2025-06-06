@@ -96,6 +96,8 @@ public interface RabbitMQConnector {
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
+            
+//            this.channel.basicPublish();
         }
 
     }

@@ -2,9 +2,11 @@ package rabbitMQ;
 
 import com.rabbitmq.http.client.Client;
 import com.rabbitmq.http.client.ClientParameters;
+import com.rabbitmq.http.client.domain.BindingInfo;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 public interface GameRoomQueueDiscovery {
     String DEFAULT_EXCHANGE_NAME = "";
@@ -33,6 +35,8 @@ public interface GameRoomQueueDiscovery {
 
     int countQueueBinds(String queueName);
 
+    List<String> routingKeyFromBindsExchange(String roomName);
+
 
     class GameRoomQueueDiscoveryImpl implements GameRoomQueueDiscovery {
         private static final String HOST = "kangaroo.rmq.cloudamqp.com";
@@ -57,7 +61,7 @@ public interface GameRoomQueueDiscovery {
         public int countExchanges() {
             return this.client.getExchanges().size();
         }
-        
+
         @Override
         public int countExchangesWithoutDefault() {
             return this.countExchanges() - COUNT_DEFAULT_EXCHANGE;
@@ -108,6 +112,13 @@ public interface GameRoomQueueDiscovery {
                     .findFirst()
                     .map(queueInfo -> this.client.getQueueBindings(USERNAME, queueInfo.getName()).size())
                     .orElse(0);
+        }
+
+        @Override
+        public List<String> routingKeyFromBindsExchange(final String roomName) {
+            return this.client.getBindingsBySource(USERNAME, roomName).stream()
+                    .map(BindingInfo::getRoutingKey)
+                    .toList();
         }
 
 
