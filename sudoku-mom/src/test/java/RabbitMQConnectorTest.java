@@ -106,5 +106,21 @@ public class RabbitMQConnectorTest {
 
         player2.queue().ifPresent(this.connector::deletePlayerQueue);
     }
+    
+    @Test
+    public void receiveMove() {
+        final Player player2 = Player.create();
+        player2.computeData(COUNT_ROOM, "2", "Lu");
+
+        this.connector.createRoomWithPlayer(this.player1);
+        player2.queue().ifPresent(this.connector::createPlayerQueue);
+        this.connector.joinRoom(player2);
+        assertEquals(2, this.discovery.countQueues());
+
+        this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
+        player2.queue().ifPresent(queue -> this.connector.receiveMessage(queue));
+
+        player2.queue().ifPresent(this.connector::deletePlayerQueue);
+    }
 
 }

@@ -31,6 +31,8 @@ public interface RabbitMQConnector {
 
     void sendMove(final GameRoomQueueDiscovery discovery, Player player, Coordinate coordinate, int value);
 
+    void receiveMessage(String queue);
+
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
         private static final String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
@@ -129,6 +131,17 @@ public interface RabbitMQConnector {
                     }
                 });
             });
+        }
+        
+        public void receiveMessage(final String queueName) {
+            try {
+                this.channel.basicConsume(queueName, true, (consumerTag, delivery) -> {
+                    String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+                    System.out.println("Received message: " + message);
+                }, consumerTag -> { });
+            } catch (final IOException e) {
+                throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
+            }
         }
 
     }
