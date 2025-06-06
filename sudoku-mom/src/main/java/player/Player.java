@@ -84,8 +84,8 @@ public interface Player {
         @Override
         public void computeData(final String countRoom, final String countQueue, final String playerName) {
             this.computeRoom(countRoom);
-            this.computeQueue(countQueue, countQueue, playerName);
-            this.computeName(countRoom);
+            this.computeQueue(countRoom, countQueue, playerName);
+            this.computeName(playerName);
         }
 
         @Override
@@ -106,5 +106,9 @@ public interface Player {
                                     action.apply(roomName, queueName, playerName))));
         }
 
+        @Override
+        public String toString() {
+            return this.queue.orElse("");
+        }
     }
 }

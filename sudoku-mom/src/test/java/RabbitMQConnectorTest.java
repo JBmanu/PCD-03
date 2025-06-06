@@ -33,8 +33,8 @@ public class RabbitMQConnectorTest {
 
     @AfterEach
     public void cleanup() {
-        this.player1.room().ifPresent(this.connector::deleteRoom);
-        this.player1.queue().ifPresent(this.connector::deletePlayerQueue);
+//        this.player1.room().ifPresent(this.connector::deleteRoom);
+//        this.player1.queue().ifPresent(this.connector::deletePlayerQueue);
     }
 
     @Test
@@ -84,11 +84,19 @@ public class RabbitMQConnectorTest {
                 .map(this.discovery::countQueueBinds).orElse(0));
     }
 
-//    @Test
-//    public void sendMove() {
-//        
-//        this.connector.createRoomWithPlayer(ROOM_NAME, QUEUE_NAME, PLAYER_NAME);
-//        this.connector.createPlayerQueue(QUEUE_NAME);
-//    }
+    @Test
+    public void sendMove() {
+        final Player player2 = Player.create();
+        player2.computeData(COUNT_ROOM, "2", "Lu");
+
+        System.out.println(this.player1);
+        System.out.println(player2);
+        
+        
+//        this.connector.createRoomWithPlayer(this.player1);
+//        this.connector.joinRoom(player2);
+
+//        assertEquals(2, this.discovery.countQueues());
+    }
 
 }

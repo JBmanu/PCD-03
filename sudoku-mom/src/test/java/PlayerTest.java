@@ -60,6 +60,17 @@ public class PlayerTest {
         final Optional<String> convertedRoom = roomID.map(id -> this.player.convertRoomID(id));
         assertEquals(Optional.of(expectedRoom), convertedRoom);
     }
+    
+    @Test
+    public void computeData() {
+        this.player.computeData(COUNT_ROOM, COUNT_QUEUE, NAME);
+        final String room = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM));
+        final String queue = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM, QUEUE, COUNT_QUEUE, PLAYER, NAME));
+
+        assertEquals(Optional.of(room), this.player.room());
+        assertEquals(Optional.of(queue), this.player.queue());
+        assertEquals(Optional.of(NAME), this.player.name());
+    }
 
     @Test
     public void callActionOnData() {
