@@ -51,34 +51,6 @@ public interface GameRoomQueueDiscovery {
             }
         }
 
-//        private void exchanges() {
-//            final List<ExchangeInfo> exchanges = this.client.getExchanges();
-//            for (final ExchangeInfo exchange : exchanges) {
-//                System.out.println("Exchange: " + exchange.getName() + ", Tipo: " + exchange.getType());
-//            }
-//        }
-//
-//        private void queues() {
-//            final List<QueueInfo> queues = this.client.getQueues();
-//            for (final QueueInfo queue : queues) {
-//                System.out.println("Coda: " + queue.getName() + ", Messaggi: " + queue.getMessageStats().toString());
-//            }
-//        }
-//
-//        private void connections() {
-//            final List<ConnectionInfo> connections = this.client.getConnections();
-//            for (final ConnectionInfo connection : connections) {
-//                System.out.println("Connessione: " + connection.getName());
-//            }
-//        }
-//
-//        private void channels() {
-//            final List<ChannelInfo> channels = this.client.getChannels();
-//            for (final ChannelInfo channel : channels) {
-//                System.out.println("Canale: " + channel.getName());
-//            }
-//        }
-
         @Override
         public int countExchanges() {
             return this.client.getExchanges().size();

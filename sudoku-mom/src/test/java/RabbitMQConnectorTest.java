@@ -30,8 +30,8 @@ public class RabbitMQConnectorTest {
 
     @AfterEach
     public void cleanup() {
-        this.connector.deletePlayerQueue(QUEUE_NAME);
         this.connector.deleteRoom(ROOM_NAME);
+        this.connector.deletePlayerQueue(QUEUE_NAME);
     }
 
     @Test
@@ -74,8 +74,7 @@ public class RabbitMQConnectorTest {
         this.connector.joinRoom(ROOM_NAME, QUEUE_NAME, PLAYER_NAME);
         
         assertEquals(1, this.discovery.countExchangeBinds(ROOM_NAME));
-        assertEquals(COUNT_DEFAULT_QUEUE_BINDS, this.discovery.countQueueBinds(QUEUE_NAME));
+        assertEquals(COUNT_DEFAULT_QUEUE_BINDS + 1, this.discovery.countQueueBinds(QUEUE_NAME));
     }
-
 
 }
