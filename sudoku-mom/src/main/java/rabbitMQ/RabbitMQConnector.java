@@ -1,6 +1,7 @@
 package rabbitMQ;
 
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import java.io.IOException;
@@ -24,7 +25,6 @@ public interface RabbitMQConnector {
     void joinRoom(String roomName, String queueName, String playerName);
 
 
-
     class RabbitMQConnectorImpl implements RabbitMQConnector {
         private static final String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
         private static final String EXCHANGE_TYPE = "direct";
@@ -33,10 +33,10 @@ public interface RabbitMQConnector {
 
         public RabbitMQConnectorImpl() {
             final ConnectionFactory connectionFactory = new ConnectionFactory();
-
             try {
                 connectionFactory.setUri(URI);
-                this.channel = connectionFactory.newConnection().createChannel();
+                final Connection connection = connectionFactory.newConnection();
+                this.channel = connection.createChannel();
             } catch (final Exception e) {
                 throw new RuntimeException("Failed to create RabbitMQ channel: " + e.getMessage(), e);
             }
@@ -90,7 +90,11 @@ public interface RabbitMQConnector {
         
         @Override
         public void joinRoom(final String roomName, final String queueName, final String playerName) {
-//            this.channel.queueBind(queueName, roomName, playerName);
+            try {
+                this.channel.queueBind(queueName, roomName, playerName);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     }

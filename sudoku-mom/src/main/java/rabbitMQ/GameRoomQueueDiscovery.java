@@ -31,7 +31,7 @@ public interface GameRoomQueueDiscovery {
 
     int countQueuesThatContains(String subString);
 
-    List<String> queuesNameThatContains(String subString);
+    int countExchangeBinds(String roomName);
 
 
     class GameRoomQueueDiscoveryImpl implements GameRoomQueueDiscovery {
@@ -120,11 +120,10 @@ public interface GameRoomQueueDiscovery {
         }
 
         @Override
-        public List<String> queuesNameThatContains(final String subString) {
-            return this.client.getQueues().stream()
-                    .map(QueueInfo::getName)
-                    .filter(name -> name.contains(subString))
-                    .toList();
+        public int countExchangeBinds(final String roomName) {
+            return this.client.getBindingsBySource(USERNAME, roomName).size();
         }
+
+
     }
 }

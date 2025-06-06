@@ -68,8 +68,11 @@ public class RabbitMQConnectorTest {
 
     @Test
     public void joinRoom() {
+        this.connector.createRoom(ROOM_NAME);
+        this.connector.createPlayerQueue(QUEUE_NAME);
         this.connector.joinRoom(ROOM_NAME, QUEUE_NAME, PLAYER_NAME);
         
+        assertEquals(1, this.discovery.countExchangeBinds(ROOM_NAME));
     }
 
 

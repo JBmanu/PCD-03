@@ -49,14 +49,9 @@ public class GameRoomQueueDiscoveryTest {
     }
     
     @Test
-    public void countQueuesThatContainsName() {
-        final int count = this.discovery.countQueuesThatContains("amq");
+    public void countExchangeBinds() {
+        final int count = this.discovery.countExchangeBinds("amq");
         assertEquals(0, count);
     }
 
-//    @Test
-//    public void queuesThatContainsName() {
-//        final List<String> names = this.discovery.queuesNameThatContains("amq");
-//        assertEquals(COUNT_DEFAULT_EXCHANGE - 1, names.size());
-//    }
 }
