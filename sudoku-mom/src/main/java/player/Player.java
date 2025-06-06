@@ -1,5 +1,7 @@
 package player;
 
+import utils.TriFunction;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -26,12 +28,15 @@ public interface Player {
     void computeQueue(String countRoom, String countQueue, String playerName);
 
     void computeName(String name);
-    
+
     void computeData(String countRoom, String countQueue, String playerName);
 
     Optional<String> computeRoomID();
 
     String convertRoomID(String roomId);
+
+    void callActionOnData(TriFunction<String, String, String> action);
+
 
     class PlayerImpl implements Player {
         private Optional<String> room;
@@ -91,6 +96,14 @@ public interface Player {
         @Override
         public String convertRoomID(final String roomId) {
             return String.join(DIVISOR, List.of(DOMAIN, ROOM, roomId.replaceAll(ROOM, "")));
+        }
+
+        @Override
+        public void callActionOnData(final TriFunction<String, String, String> action) {
+            this.room.ifPresent(roomName ->
+                    this.queue.ifPresent(queueName ->
+                            this.name.ifPresent(playerName ->
+                                    action.apply(roomName, queueName, playerName))));
         }
 
     }

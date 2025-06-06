@@ -5,7 +5,8 @@ import player.Player;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static player.Player.*;
 
 public class PlayerTest {
@@ -32,7 +33,7 @@ public class PlayerTest {
         this.player.computeQueue(COUNT_ROOM, COUNT_QUEUE, NAME);
         this.player.computeName(NAME);
     }
-    
+
     @Test
     public void computePlayerData() {
         this.computePlayer();
@@ -43,14 +44,14 @@ public class PlayerTest {
         assertEquals(Optional.of(queue), this.player.queue());
         assertEquals(Optional.of(NAME), this.player.name());
     }
-    
+
     @Test
     public void computeRoomID() {
         this.computePlayer();
         final Optional<String> roomID = this.player.computeRoomID();
         assertEquals(Optional.of("room1"), roomID);
     }
-    
+
     @Test
     public void convertRoomID() {
         this.computePlayer();
@@ -60,5 +61,13 @@ public class PlayerTest {
         assertEquals(Optional.of(expectedRoom), convertedRoom);
     }
 
+    @Test
+    public void callActionOnData() {
+        this.player.callActionOnData((room, queue, name) -> {
+            assertEquals(room, this.player.room().orElse(""));
+            assertEquals(queue, this.player.queue().orElse(""));
+            assertEquals(name, this.player.name().orElse(""));
+        });
+    }
 
 }
