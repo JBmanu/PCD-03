@@ -8,6 +8,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static rabbitMQ.GameRoomQueueDiscovery.COUNT_DEFAULT_EXCHANGE;
+import static rabbitMQ.GameRoomQueueDiscovery.COUNT_DEFAULT_QUEUE_BINDS;
 
 public class RabbitMQConnectorTest {
     private static final String ROOM_NAME = "room1";
@@ -73,6 +74,7 @@ public class RabbitMQConnectorTest {
         this.connector.joinRoom(ROOM_NAME, QUEUE_NAME, PLAYER_NAME);
         
         assertEquals(1, this.discovery.countExchangeBinds(ROOM_NAME));
+        assertEquals(COUNT_DEFAULT_QUEUE_BINDS, this.discovery.countQueueBinds(QUEUE_NAME));
     }
 
 

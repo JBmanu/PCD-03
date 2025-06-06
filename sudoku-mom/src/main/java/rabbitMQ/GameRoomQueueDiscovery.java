@@ -2,18 +2,14 @@ package rabbitMQ;
 
 import com.rabbitmq.http.client.Client;
 import com.rabbitmq.http.client.ClientParameters;
-import com.rabbitmq.http.client.domain.ChannelInfo;
-import com.rabbitmq.http.client.domain.ConnectionInfo;
-import com.rabbitmq.http.client.domain.ExchangeInfo;
-import com.rabbitmq.http.client.domain.QueueInfo;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.List;
 
 public interface GameRoomQueueDiscovery {
     String DEFAULT_EXCHANGE_NAME = "";
     int COUNT_DEFAULT_EXCHANGE = 7;
+    int COUNT_DEFAULT_QUEUE_BINDS = 1;
 
     static GameRoomQueueDiscovery create() {
         return new GameRoomQueueDiscoveryImpl();
@@ -32,6 +28,8 @@ public interface GameRoomQueueDiscovery {
     int countQueuesThatContains(String subString);
 
     int countExchangeBinds(String roomName);
+
+    int countQueueBinds(String queueName);
 
 
     class GameRoomQueueDiscoveryImpl implements GameRoomQueueDiscovery {
@@ -53,33 +51,33 @@ public interface GameRoomQueueDiscovery {
             }
         }
 
-        private void exchanges() {
-            final List<ExchangeInfo> exchanges = this.client.getExchanges();
-            for (final ExchangeInfo exchange : exchanges) {
-                System.out.println("Exchange: " + exchange.getName() + ", Tipo: " + exchange.getType());
-            }
-        }
-
-        private void queues() {
-            final List<QueueInfo> queues = this.client.getQueues();
-            for (final QueueInfo queue : queues) {
-                System.out.println("Coda: " + queue.getName() + ", Messaggi: " + queue.getMessageStats().toString());
-            }
-        }
-
-        private void connections() {
-            final List<ConnectionInfo> connections = this.client.getConnections();
-            for (final ConnectionInfo connection : connections) {
-                System.out.println("Connessione: " + connection.getName());
-            }
-        }
-
-        private void channels() {
-            final List<ChannelInfo> channels = this.client.getChannels();
-            for (final ChannelInfo channel : channels) {
-                System.out.println("Canale: " + channel.getName());
-            }
-        }
+//        private void exchanges() {
+//            final List<ExchangeInfo> exchanges = this.client.getExchanges();
+//            for (final ExchangeInfo exchange : exchanges) {
+//                System.out.println("Exchange: " + exchange.getName() + ", Tipo: " + exchange.getType());
+//            }
+//        }
+//
+//        private void queues() {
+//            final List<QueueInfo> queues = this.client.getQueues();
+//            for (final QueueInfo queue : queues) {
+//                System.out.println("Coda: " + queue.getName() + ", Messaggi: " + queue.getMessageStats().toString());
+//            }
+//        }
+//
+//        private void connections() {
+//            final List<ConnectionInfo> connections = this.client.getConnections();
+//            for (final ConnectionInfo connection : connections) {
+//                System.out.println("Connessione: " + connection.getName());
+//            }
+//        }
+//
+//        private void channels() {
+//            final List<ChannelInfo> channels = this.client.getChannels();
+//            for (final ChannelInfo channel : channels) {
+//                System.out.println("Canale: " + channel.getName());
+//            }
+//        }
 
         @Override
         public int countExchanges() {
@@ -122,6 +120,15 @@ public interface GameRoomQueueDiscovery {
         @Override
         public int countExchangeBinds(final String roomName) {
             return this.client.getBindingsBySource(USERNAME, roomName).size();
+        }
+
+        @Override
+        public int countQueueBinds(final String queueName) {
+            return this.client.getQueues(USERNAME).stream()
+                    .filter(queue -> queue.getName().equals(queueName))
+                    .findFirst()
+                    .map(queueInfo -> this.client.getQueueBindings(USERNAME, queueInfo.getName()).size())
+                    .orElse(0);
         }
 
 

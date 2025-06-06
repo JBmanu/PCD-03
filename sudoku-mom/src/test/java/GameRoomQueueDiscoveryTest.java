@@ -2,8 +2,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rabbitMQ.GameRoomQueueDiscovery;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static rabbitMQ.GameRoomQueueDiscovery.COUNT_DEFAULT_EXCHANGE;
@@ -49,8 +47,20 @@ public class GameRoomQueueDiscoveryTest {
     }
     
     @Test
+    public void countQueuesThatContainsName() {
+        final int count = this.discovery.countQueuesThatContains("queue");
+        assertEquals(0, count);
+    }
+    
+    @Test
     public void countExchangeBinds() {
         final int count = this.discovery.countExchangeBinds("amq");
+        assertEquals(0, count);
+    }
+    
+    @Test
+    public void countQueueBinds() {
+        final int count = this.discovery.countQueueBinds("queue");
         assertEquals(0, count);
     }
 
