@@ -76,5 +76,10 @@ public class GameRoomQueueDiscoveryTest {
         final List<String> queues = this.discovery.routingKeyFromBindsExchange("amq");
         assertEquals(0, queues.size());
     }
+    
+    @Test
+    public void countMessageOnQueue() {
+        assertEquals(0, this.discovery.countMessageOnQueue("amq"));
+    }
 
 }

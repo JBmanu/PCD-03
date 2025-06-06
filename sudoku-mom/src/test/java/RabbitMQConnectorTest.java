@@ -1,3 +1,4 @@
+import grid.Coordinate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,15 +89,14 @@ public class RabbitMQConnectorTest {
     public void sendMove() {
         final Player player2 = Player.create();
         player2.computeData(COUNT_ROOM, "2", "Lu");
-
-        System.out.println(this.player1);
-        System.out.println(player2);
         
+        this.connector.createRoomWithPlayer(this.player1);
+        player2.queue().ifPresent(this.connector::createPlayerQueue);
+        this.connector.joinRoom(player2);
+        assertEquals(2, this.discovery.countQueues());
         
-//        this.connector.createRoomWithPlayer(this.player1);
-//        this.connector.joinRoom(player2);
-
-//        assertEquals(2, this.discovery.countQueues());
+        this.connector.sendMove(this.player1, Coordinate.create(0, 0), 1);
+        assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
     }
 
 }

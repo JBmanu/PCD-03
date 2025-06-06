@@ -3,6 +3,7 @@ package rabbitMQ;
 import com.rabbitmq.http.client.Client;
 import com.rabbitmq.http.client.ClientParameters;
 import com.rabbitmq.http.client.domain.BindingInfo;
+import com.rabbitmq.http.client.domain.QueueInfo;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -36,6 +37,8 @@ public interface GameRoomQueueDiscovery {
     int countQueueBinds(String queueName);
 
     List<String> routingKeyFromBindsExchange(String roomName);
+
+    int countMessageOnQueue(String queueName);
 
 
     class GameRoomQueueDiscoveryImpl implements GameRoomQueueDiscovery {
@@ -119,6 +122,15 @@ public interface GameRoomQueueDiscovery {
             return this.client.getBindingsBySource(USERNAME, roomName).stream()
                     .map(BindingInfo::getRoutingKey)
                     .toList();
+        }
+
+        @Override
+        public int countMessageOnQueue(final String queueName) {
+            return this.client.getQueues(USERNAME).stream()
+                    .filter(queue -> queue.getName().equals(queueName))
+                    .findFirst()
+                    .map(QueueInfo::getMessagesReady)
+                    .orElse(0L).intValue();
         }
 
 
