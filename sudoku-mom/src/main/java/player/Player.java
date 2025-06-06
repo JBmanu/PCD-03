@@ -25,7 +25,9 @@ public interface Player {
 
     void computeQueue(String countRoom, String countQueue, String playerName);
 
-    void name(String name);
+    void computeName(String name);
+    
+    void computeData(String countRoom, String countQueue, String playerName);
 
     Optional<String> computeRoomID();
 
@@ -70,8 +72,15 @@ public interface Player {
         }
 
         @Override
-        public void name(final String name) {
+        public void computeName(final String name) {
             this.name = Optional.of(name);
+        }
+
+        @Override
+        public void computeData(final String countRoom, final String countQueue, final String playerName) {
+            this.computeRoom(countRoom);
+            this.computeQueue(countQueue, countQueue, playerName);
+            this.computeName(countRoom);
         }
 
         @Override

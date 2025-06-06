@@ -30,7 +30,7 @@ public class PlayerTest {
     private void computePlayer() {
         this.player.computeRoom(COUNT_ROOM);
         this.player.computeQueue(COUNT_ROOM, COUNT_QUEUE, NAME);
-        this.player.name(NAME);
+        this.player.computeName(NAME);
     }
     
     @Test
