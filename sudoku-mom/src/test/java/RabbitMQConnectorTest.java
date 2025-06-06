@@ -26,6 +26,12 @@ public class RabbitMQConnectorTest {
     }
 
     @Test
+    public void createQueue() {
+        this.connector.createPlayer(QUEUE_NAME);
+        assertEquals(1, this.discovery.countQueues());
+    }
+    
+    @Test
     public void createRoom() {
         this.connector.createRoom(ROOM_NAME, QUEUE_NAME, PLAYER_NAME);
 

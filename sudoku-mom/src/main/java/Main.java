@@ -4,9 +4,6 @@ import rabbitMQ.RabbitMQConnector;
 
 public final class Main {
 
-    private final static String QUEUE_NAME = "hello";
-    public static String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
-
     public static void main(final String[] args) {
         final GameRoomQueueDiscovery discovery = GameRoomQueueDiscovery.create();
         final RabbitMQConnector connector = RabbitMQConnector.create();
