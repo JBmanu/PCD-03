@@ -85,30 +85,26 @@ public interface RabbitMQConnector {
 
         @Override
         public void createRoomWithPlayer(final Player player) {
-            player.room().ifPresent(room ->
-                    player.queue().ifPresent(queue ->
-                            player.name().ifPresent(name -> {
-                                try {
-                                    this.channel.exchangeDeclare(room, EXCHANGE_TYPE, true);
-                                    this.channel.queueDeclare(queue, true, false, false, null);
-                                    this.channel.queueBind(queue, room, name);
-                                } catch (final Exception e) {
-                                    throw new RuntimeException("Failed to create room: " + e.getMessage(), e);
-                                }
-                            })));
+            player.callActionOnData((room, queue, name) -> {
+                try {
+                    this.channel.exchangeDeclare(room, EXCHANGE_TYPE, true);
+                    this.channel.queueDeclare(queue, true, false, false, null);
+                    this.channel.queueBind(queue, room, name);
+                } catch (final Exception e) {
+                    throw new RuntimeException("Failed to create room: " + e.getMessage(), e);
+                }
+            });
         }
 
         @Override
         public void joinRoom(final Player player) {
-            player.room().ifPresent(room ->
-                    player.queue().ifPresent(queue ->
-                            player.name().ifPresent(name -> {
-                                try {
-                                    this.channel.queueBind(queue, room, name);
-                                } catch (final IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            })));
+            player.callActionOnData((room, queue, name) -> {
+                try {
+                    this.channel.queueBind(queue, room, name);
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
 
         @Override
