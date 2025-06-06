@@ -13,10 +13,11 @@ public interface RabbitMQConnector {
 
     void createPlayer(String queueName);
 
+    void deletePlayer(String queueName);
+
     void createRoom(final String roomName, final String queueName, final String playerName);
 
     void deleteRoom(String roomName);
-
 
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
@@ -40,6 +41,15 @@ public interface RabbitMQConnector {
         public void createPlayer(final String queueName) {
             try {
                 this.channel.queueDeclare(queueName, true, false, false, null);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void deletePlayer(final String queueName) {
+            try {
+                this.channel.queueDelete(queueName);
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
