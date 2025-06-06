@@ -6,6 +6,8 @@ import player.Player;
 import rabbitMQ.GameRoomQueueDiscovery;
 import rabbitMQ.RabbitMQConnector;
 
+import java.time.Duration;
+
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static rabbitMQ.GameRoomQueueDiscovery.COUNT_DEFAULT_EXCHANGE;
@@ -22,20 +24,21 @@ public class RabbitMQConnectorTest {
 
     @BeforeEach
     public void create() {
-        await().until(() -> {
-            this.connector = RabbitMQConnector.create();
-            this.discovery = GameRoomQueueDiscovery.create();
-            this.player1 = Player.create();
-            this.player1.computeData(COUNT_ROOM, COUNT_QUEUE, PLAYER_1_NAME);
-            return this.connector != null;
-        });
+        await().atMost(Duration.ofSeconds(10))
+                .until(() -> {
+                    this.connector = RabbitMQConnector.create();
+                    this.discovery = GameRoomQueueDiscovery.create();
+                    this.player1 = Player.create();
+                    this.player1.computeData(COUNT_ROOM, COUNT_QUEUE, PLAYER_1_NAME);
+                    return this.connector != null;
+                });
         assertNotNull(this.connector);
     }
 
     @AfterEach
     public void cleanup() {
-//        this.player1.room().ifPresent(this.connector::deleteRoom);
-//        this.player1.queue().ifPresent(this.connector::deletePlayerQueue);
+        this.player1.room().ifPresent(this.connector::deleteRoom);
+        this.player1.queue().ifPresent(this.connector::deletePlayerQueue);
     }
 
     @Test
@@ -89,14 +92,19 @@ public class RabbitMQConnectorTest {
     public void sendMove() {
         final Player player2 = Player.create();
         player2.computeData(COUNT_ROOM, "2", "Lu");
-        
+
         this.connector.createRoomWithPlayer(this.player1);
         player2.queue().ifPresent(this.connector::createPlayerQueue);
         this.connector.joinRoom(player2);
         assertEquals(2, this.discovery.countQueues());
-        
-        this.connector.sendMove(this.player1, Coordinate.create(0, 0), 1);
+
+        this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
+
+        await().atMost(Duration.ofSeconds(10))
+                .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
         assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
+
+        player2.queue().ifPresent(this.connector::deletePlayerQueue);
     }
 
 }

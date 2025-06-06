@@ -36,7 +36,7 @@ public interface GameRoomQueueDiscovery {
 
     int countQueueBinds(String queueName);
 
-    List<String> routingKeyFromBindsExchange(String roomName);
+    List<String> routingKeysFromBindsExchange(String roomName);
 
     int countMessageOnQueue(String queueName);
 
@@ -118,7 +118,7 @@ public interface GameRoomQueueDiscovery {
         }
 
         @Override
-        public List<String> routingKeyFromBindsExchange(final String roomName) {
+        public List<String> routingKeysFromBindsExchange(final String roomName) {
             return this.client.getBindingsBySource(USERNAME, roomName).stream()
                     .map(BindingInfo::getRoutingKey)
                     .toList();

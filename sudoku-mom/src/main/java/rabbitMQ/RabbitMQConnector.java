@@ -1,5 +1,6 @@
 package rabbitMQ;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -7,6 +8,8 @@ import grid.Coordinate;
 import player.Player;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public interface RabbitMQConnector {
 
@@ -26,7 +29,7 @@ public interface RabbitMQConnector {
 
     void joinRoom(final Player player);
 
-    void sendMove(Player player, Coordinate coordinate, int value);
+    void sendMove(final GameRoomQueueDiscovery discovery, Player player, Coordinate coordinate, int value);
 
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
@@ -108,8 +111,24 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void sendMove(final Player player, final Coordinate coordinate, final int value) {
+        public void sendMove(final GameRoomQueueDiscovery discovery, final Player player, final Coordinate coordinate, final int value) {
+            player.callActionOnData((room, queue, name) -> {
+                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room).stream()
+                        .filter(key -> !key.equals(name))
+                        .toList();
 
+                final AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
+                        .contentType("application/json")
+                        .build();
+
+                routingKeys.forEach(routingKey -> {
+                    try {
+                        this.channel.basicPublish(room, routingKey, props, "ciao".getBytes(StandardCharsets.UTF_8));
+                    } catch (final IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            });
         }
 
     }
