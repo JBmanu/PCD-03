@@ -17,6 +17,8 @@ public interface GameRoomQueueDiscovery {
 
     int countExchanges();
 
+    int countExchangesWithoutDefault();
+
     int countExchangesWithName(String name);
 
     int countExchangesThatContains(String subString);
@@ -54,6 +56,11 @@ public interface GameRoomQueueDiscovery {
         @Override
         public int countExchanges() {
             return this.client.getExchanges().size();
+        }
+        
+        @Override
+        public int countExchangesWithoutDefault() {
+            return this.countExchanges() - COUNT_DEFAULT_EXCHANGE;
         }
 
         @Override

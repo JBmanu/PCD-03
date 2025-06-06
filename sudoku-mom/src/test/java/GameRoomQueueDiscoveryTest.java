@@ -23,6 +23,11 @@ public class GameRoomQueueDiscoveryTest {
     }
     
     @Test
+    public void countExchangesWithoutDefault() {
+        assertEquals(0, this.discovery.countExchangesWithoutDefault());        
+    }
+    
+    @Test
     public void countExchangesWithName() {
         final int count = this.discovery.countExchangesWithName(DEFAULT_EXCHANGE_NAME);
         assertEquals(1, count);

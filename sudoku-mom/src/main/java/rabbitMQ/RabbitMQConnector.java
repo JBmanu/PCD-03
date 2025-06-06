@@ -79,6 +79,7 @@ public interface RabbitMQConnector {
 
         }
 
+        @Override
         public void createRoomWithPlayer(final String roomName, final String queueName, final String playerName) {
             try {
                 this.channel.exchangeDeclare(roomName, EXCHANGE_TYPE, true);
