@@ -16,9 +16,9 @@ public interface Player {
     }
 
     Optional<String> room();
-    
+
     Optional<String> queue();
-    
+
     Optional<String> name();
 
     void computeRoom(String countRoom);
@@ -28,6 +28,8 @@ public interface Player {
     void name(String name);
 
     Optional<String> computeRoomID();
+
+    String convertRoomID(String roomId);
 
     class PlayerImpl implements Player {
         private Optional<String> room;
@@ -75,6 +77,11 @@ public interface Player {
         @Override
         public Optional<String> computeRoomID() {
             return this.room.map(name -> name.replaceAll("sudoku\\.", "").replaceAll("\\.", ""));
+        }
+
+        @Override
+        public String convertRoomID(final String roomId) {
+            return String.join(DIVISOR, List.of(DOMAIN, ROOM, roomId.replaceAll(ROOM, "")));
         }
 
     }

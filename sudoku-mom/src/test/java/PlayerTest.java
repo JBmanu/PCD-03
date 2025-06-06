@@ -50,6 +50,15 @@ public class PlayerTest {
         final Optional<String> roomID = this.player.computeRoomID();
         assertEquals(Optional.of("room1"), roomID);
     }
+    
+    @Test
+    public void convertRoomID() {
+        this.computePlayer();
+        final String expectedRoom = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM));
+        final Optional<String> roomID = this.player.computeRoomID();
+        final Optional<String> convertedRoom = roomID.map(id -> this.player.convertRoomID(id));
+        assertEquals(Optional.of(expectedRoom), convertedRoom);
+    }
 
 
 }
