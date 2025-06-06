@@ -11,13 +11,18 @@ public interface RabbitMQConnector {
         return new RabbitMQConnectorImpl();
     }
 
-    void createPlayer(String queueName);
+    void createPlayerQueue(String queueName);
 
-    void deletePlayer(String queueName);
+    void deletePlayerQueue(String queueName);
 
-    void createRoom(final String roomName, final String queueName, final String playerName);
-
+    void createRoom(String roomName);
+    
     void deleteRoom(String roomName);
+
+    void createRoomWithPlayer(final String roomName, final String queueName, final String playerName);
+    
+    void joinRoom(String roomName, String queueName, String playerName);
+
 
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
@@ -38,7 +43,7 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void createPlayer(final String queueName) {
+        public void createPlayerQueue(final String queueName) {
             try {
                 this.channel.queueDeclare(queueName, true, false, false, null);
             } catch (final IOException e) {
@@ -47,7 +52,7 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void deletePlayer(final String queueName) {
+        public void deletePlayerQueue(final String queueName) {
             try {
                 this.channel.queueDelete(queueName);
             } catch (final IOException e) {
@@ -55,10 +60,10 @@ public interface RabbitMQConnector {
             }
         }
 
-        public void createRoom(final String roomName, final String queueName, final String playerName) {
+        @Override
+        public void createRoom(final String roomName) {
             try {
                 this.channel.exchangeDeclare(roomName, EXCHANGE_TYPE, true);
-                this.channel.queueBind(queueName, roomName, playerName);
             } catch (final Exception e) {
                 throw new RuntimeException("Failed to create room: " + e.getMessage(), e);
             }
@@ -72,6 +77,20 @@ public interface RabbitMQConnector {
                 throw new RuntimeException(e);
             }
 
+        }
+
+        public void createRoomWithPlayer(final String roomName, final String queueName, final String playerName) {
+            try {
+                this.channel.exchangeDeclare(roomName, EXCHANGE_TYPE, true);
+                this.channel.queueBind(queueName, roomName, playerName);
+            } catch (final Exception e) {
+                throw new RuntimeException("Failed to create room: " + e.getMessage(), e);
+            }
+        }
+        
+        @Override
+        public void joinRoom(final String roomName, final String queueName, final String playerName) {
+//            this.channel.queueBind(queueName, roomName, playerName);
         }
 
     }
