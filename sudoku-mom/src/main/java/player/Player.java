@@ -90,12 +90,14 @@ public interface Player {
 
         @Override
         public Optional<String> computeRoomID() {
-            return this.room.map(name -> name.replaceAll("sudoku\\.", "").replaceAll("\\.", ""));
+            return this.room.map(name -> name.replaceAll("sudoku\\.", "")
+                    .replaceAll("\\.", ""));
         }
 
         @Override
         public String convertRoomID(final String roomId) {
-            return String.join(DIVISOR, List.of(DOMAIN, ROOM, roomId.replaceAll(ROOM, "")));
+            return String.join(DIVISOR,
+                    List.of(DOMAIN, ROOM, roomId.replaceAll(ROOM, "")));
         }
 
         @Override

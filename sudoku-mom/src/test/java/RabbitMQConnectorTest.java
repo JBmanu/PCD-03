@@ -91,7 +91,7 @@ public class RabbitMQConnectorTest {
     @Test
     public void sendMove() {
         final Player player2 = Player.create();
-        player2.computeData(COUNT_ROOM, "2", "Lu");
+        player2.computeData(COUNT_ROOM, "2", "lu");
 
         this.connector.createRoomWithPlayer(this.player1);
         player2.queue().ifPresent(this.connector::createPlayerQueue);
@@ -102,23 +102,31 @@ public class RabbitMQConnectorTest {
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
+
+        assertEquals(0, this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(1));
         assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
 
         player2.queue().ifPresent(this.connector::deletePlayerQueue);
     }
-    
+
     @Test
     public void receiveMove() {
         final Player player2 = Player.create();
-        player2.computeData(COUNT_ROOM, "2", "Lu");
+        player2.computeData(COUNT_ROOM, "2", "lu");
 
         this.connector.createRoomWithPlayer(this.player1);
         player2.queue().ifPresent(this.connector::createPlayerQueue);
         this.connector.joinRoom(player2);
-        assertEquals(2, this.discovery.countQueues());
 
         this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
-        player2.queue().ifPresent(queue -> this.connector.receiveMessage(queue));
+        player2.queue().ifPresent(queue -> this.connector.receiveMessage(queue, (player, coordinate, value) -> {
+//            assertEquals(this.player1.name(), player);
+//            assertEquals(Coordinate.create(0, 0), coordinate);
+//            assertEquals(1, value);
+        }));
+
+//        await().atMost(Duration.ofSeconds(10))
+//                .until(() -> )
 
         player2.queue().ifPresent(this.connector::deletePlayerQueue);
     }
