@@ -7,6 +7,7 @@ import rabbitMQ.GameRoomQueueDiscovery;
 import rabbitMQ.RabbitMQConnector;
 
 import java.time.Duration;
+import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,13 +121,14 @@ public class RabbitMQConnectorTest {
 
         this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
         player2.queue().ifPresent(queue -> this.connector.receiveMessage(queue, (player, coordinate, value) -> {
-//            assertEquals(this.player1.name(), player);
-//            assertEquals(Coordinate.create(0, 0), coordinate);
-//            assertEquals(1, value);
+            assertEquals(this.player1.name(), Optional.of(player));
+            assertEquals(Coordinate.create(0, 0), coordinate);
+            assertEquals(1, value);
         }));
 
-//        await().atMost(Duration.ofSeconds(10))
-//                .until(() -> )
+        await().atMost(Duration.ofSeconds(10))
+                .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
+        assertEquals(0, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
 
         player2.queue().ifPresent(this.connector::deletePlayerQueue);
     }

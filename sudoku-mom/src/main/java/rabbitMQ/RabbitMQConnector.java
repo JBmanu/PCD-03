@@ -117,7 +117,7 @@ public interface RabbitMQConnector {
 
         @Override
         public void sendMove(final GameRoomQueueDiscovery discovery, final Player player, final Coordinate coordinate, final int value) {
-            player.callActionOnData((room, queue, name) -> {
+            player.callActionOnData((room, _, name) -> {
                 final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room).stream()
                         .filter(routingKey -> !routingKey.equals(name))
                         .toList();
@@ -137,9 +137,6 @@ public interface RabbitMQConnector {
                                     "value", value
                             )
                     );
-
-                    System.out.println("Sending message: " + json);
-
                     try {
                         this.channel.basicPublish(room, routingKey, properties, json.getBytes(StandardCharsets.UTF_8));
                     } catch (final IOException e) {
@@ -151,28 +148,25 @@ public interface RabbitMQConnector {
 
         public void receiveMessage(final String queueName, final PlayerAction action) {
             try {
-                this.channel.basicConsume(queueName, false, (consumerTag, delivery) -> {
+                this.channel.basicConsume(queueName, false, (_, delivery) -> {
                     try {
                     
                         final String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
                         final Gson gson = new Gson();
                         final Map<String, Object> data = gson.fromJson(message, Map.class);
                         final String playerName = (String) data.get("player");
-                        final Map<String, Integer> coordinate = (Map<String, Integer>) data.get("coordinate");
-                        final int row = coordinate.get("row");
-                        final int column = coordinate.get("column");
-                        final int value = ((Number) data.get("value")).intValue();
+                        final Map<String, Object> coordinate = (Map<String, Object>) data.get("coordinate");
+                        final int row = (int)((double) coordinate.get("row"));
+                        final int column = (int)((double) coordinate.get("column"));
+                        final int value = (int)((double) data.get("value"));
                         action.accept(playerName, Coordinate.create(row, column), value);
-                        System.out.println("Received message: " + coordinate);
-                        // Acknowledge the message after processing
+                        
                         this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                     } catch (final IOException e) {
                         this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                         throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
                     }
-                }, consumerTag -> {
-
-                });
+                }, _ -> { });
             } catch (final IOException e) {
                 throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
             }
