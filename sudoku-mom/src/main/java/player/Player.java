@@ -1,6 +1,6 @@
 package player;
 
-import utils.TriFunction;
+import utils.GameConsumers.PlayerData;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +35,7 @@ public interface Player {
 
     String convertRoomID(String roomId);
 
-    void callActionOnData(TriFunction<String, String, String> action);
+    void callActionOnData(PlayerData action);
 
 
     class PlayerImpl implements Player {
@@ -99,11 +99,11 @@ public interface Player {
         }
 
         @Override
-        public void callActionOnData(final TriFunction<String, String, String> action) {
-            this.room.ifPresent(roomName ->
-                    this.queue.ifPresent(queueName ->
-                            this.name.ifPresent(playerName ->
-                                    action.apply(roomName, queueName, playerName))));
+        public void callActionOnData(final PlayerData action) {
+            this.room.ifPresent(room ->
+                    this.queue.ifPresent(queue ->
+                            this.name.ifPresent(name ->
+                                    action.accept(room, queue, name))));
         }
 
         @Override

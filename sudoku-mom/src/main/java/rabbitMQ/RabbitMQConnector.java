@@ -114,23 +114,7 @@ public interface RabbitMQConnector {
 
         @Override
         public void sendMove(final GameRoomQueueDiscovery discovery, final Player player, final Coordinate coordinate, final int value) {
-            player.callActionOnData((room, queue, name) -> {
-                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room).stream()
-                        .filter(key -> !key.equals(name))
-                        .toList();
-
-                final AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
-                        .contentType("application/json")
-                        .build();
-
-                routingKeys.forEach(routingKey -> {
-                    try {
-                        this.channel.basicPublish(room, routingKey, props, "ciao".getBytes(StandardCharsets.UTF_8));
-                    } catch (final IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-            });
+            
         }
         
         public void receiveMessage(final String queueName) {
