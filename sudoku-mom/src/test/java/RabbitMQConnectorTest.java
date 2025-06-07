@@ -120,7 +120,7 @@ public class RabbitMQConnectorTest {
         this.connector.joinRoom(player2);
 
         this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
-        player2.queue().ifPresent(queue -> this.connector.receiveMessage(queue, (player, coordinate, value) -> {
+        player2.queue().ifPresent(queue -> this.connector.receiveMove(queue, (player, coordinate, value) -> {
             assertEquals(this.player1.name(), Optional.of(player));
             assertEquals(Coordinate.create(0, 0), coordinate);
             assertEquals(1, value);

@@ -34,7 +34,7 @@ public interface RabbitMQConnector {
 
     void sendMove(GameRoomQueueDiscovery discovery, Player player, Coordinate coordinate, int value);
 
-    void receiveMessage(String queue, PlayerAction action);
+    void receiveMove(String queue, PlayerAction action);
 
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
@@ -93,14 +93,10 @@ public interface RabbitMQConnector {
 
         @Override
         public void createRoomWithPlayer(final Player player) {
-            player.callActionOnData((room, queue, name) -> {
-                try {
-                    this.channel.exchangeDeclare(room, EXCHANGE_TYPE, true);
-                    this.channel.queueDeclare(queue, true, false, false, null);
-                    this.channel.queueBind(queue, room, name);
-                } catch (final Exception e) {
-                    throw new RuntimeException("Failed to create room: " + e.getMessage(), e);
-                }
+            player.callActionOnData((room, queue, _) -> {
+                this.createRoom(room);
+                this.createPlayerQueue(queue);
+                this.joinRoom(player);
             });
         }
 
@@ -146,7 +142,7 @@ public interface RabbitMQConnector {
             });
         }
 
-        public void receiveMessage(final String queueName, final PlayerAction action) {
+        public void receiveMove(final String queueName, final PlayerAction action) {
             try {
                 this.channel.basicConsume(queueName, false, (_, delivery) -> {
                     try {
