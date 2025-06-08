@@ -80,8 +80,8 @@ public interface Player {
         
         @Override
         public Optional<String> computeRoomID() {
-            return this.room.map(name -> name.replaceAll("sudoku\\.", "")
-                    .replaceAll("\\.", ""));
+            return this.room.map(name -> name.replaceAll(DOMAIN + "\\" + DIVISOR, "")
+                    .replaceAll("\\" + DIVISOR, ""));
         }
 
         @Override
