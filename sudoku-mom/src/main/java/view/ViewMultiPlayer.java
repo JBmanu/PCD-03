@@ -2,15 +2,14 @@ package view;
 
 import grid.Coordinate;
 import grid.Grid;
-import ui.GridPage;
-import ui.MenuPage;
-import ui.UI;
 import ui.color.Palette;
 import ui.listener.GameListener;
 import ui.listener.GridPageListener;
 import ui.listener.MenuPageListener;
 import ui.sound.SoundManager;
 import ui.sound.Track;
+import view.page.GridMultiplayerPage;
+import view.page.MenuMultiplayerPage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,11 +19,11 @@ import static ui.utils.StyleUtils.FRAME_SIZE;
 import static ui.utils.StyleUtils.TITLE_GUI;
 
 
-public class ViewMultiPlayer extends JFrame implements UI, MenuPageListener, GridPageListener.ActionListener, GameListener.ActionListener {
+public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageListener, GridPageListener.ActionListener, GameListener.ActionListener {
     private final SoundManager backgroundSoundManager;
     private final SoundManager effectSoundManager;
     private final MenuMultiplayerPage menuPage;
-    private final GridPage gridPage;
+    private final GridMultiplayerPage gridPage;
 
     public ViewMultiPlayer() {
         super(TITLE_GUI);
@@ -37,7 +36,7 @@ public class ViewMultiPlayer extends JFrame implements UI, MenuPageListener, Gri
         this.backgroundSoundManager = SoundManager.createBackground();
         this.effectSoundManager = SoundManager.createEffect();
         this.menuPage = new MenuMultiplayerPage();
-        this.gridPage = new GridPage();
+        this.gridPage = new GridMultiplayerPage();
 
         this.menuPage.addListener(this);
         this.gridPage.addActionListener(this);
@@ -75,7 +74,7 @@ public class ViewMultiPlayer extends JFrame implements UI, MenuPageListener, Gri
     }
 
     @Override
-    public void addPlayerListener(final GameListener.PlayerListener listener) {
+    public void addPlayerListener(final GameMultiplayerListener.PlayerListener listener) {
         this.menuPage.addStartListener(listener);
         this.gridPage.addPlayerListener(listener);
     }

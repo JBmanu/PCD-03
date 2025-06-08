@@ -5,22 +5,25 @@ import grid.Settings;
 import model.Player;
 import ui.UI;
 import ui.color.Palette;
-import ui.listener.GameListener;
+import view.GameMultiplayerListener;
+import view.UIMultiplayer;
 import view.ViewMultiPlayer;
 
-public class Controller implements GameListener.PlayerListener {
+import java.util.Optional;
+
+public class Controller implements GameMultiplayerListener.PlayerListener {
     private final RabbitMQDiscovery discovery;
     private final RabbitMQConnector connector;
     private final Player player;
-    
-    private final UI ui;
-    
+
+    private final UIMultiplayer ui;
+
     public Controller() {
         this.discovery = RabbitMQDiscovery.create();
         this.connector = RabbitMQConnector.create();
         this.player = Player.create();
         this.ui = new ViewMultiPlayer();
-        
+
         this.ui.open();
         this.ui.refreshPalette(Palette.light());
     }
@@ -28,7 +31,7 @@ public class Controller implements GameListener.PlayerListener {
 
     @Override
     public void onUndo() {
-        
+
     }
 
     @Override
@@ -47,8 +50,8 @@ public class Controller implements GameListener.PlayerListener {
     }
 
     @Override
-    public void onStart(final Settings.Schema schema, final Settings.Difficulty difficulty) {
-
+    public void onStart(final Optional<String> room, final Optional<String> playerName,
+                        final Settings.Schema schema, final Settings.Difficulty difficulty) {
     }
 
     @Override

@@ -1,7 +1,7 @@
 package view;
 
-import grid.Coordinate;
 import grid.Settings;
+import ui.listener.GameListener;
 
 import java.util.Optional;
 
@@ -13,20 +13,8 @@ public interface GameMultiplayerListener {
 
         void onExit();
     }
-
-    interface ActionListener {
-        void onUndo();
-
-        void onSuggest();
-
-        void onReset();
-    }
-
-    interface CellListener {
-        boolean onModifyCell(final Coordinate coordinate, final int value);
-    }
-
-    interface PlayerListener extends StartListener, ActionListener, CellListener {
+    
+    interface PlayerListener extends StartListener, GameListener.ActionListener, GameListener.CellListener {
 
     }
 }

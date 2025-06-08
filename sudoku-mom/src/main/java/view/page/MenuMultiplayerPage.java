@@ -1,22 +1,17 @@
-package view;
+package view.page;
 
 import grid.Settings;
 import ui.color.Palette;
-import ui.components.ColorComponent;
-import ui.components.SButton;
-import ui.components.SImage;
-import ui.components.SSelector;
-import ui.listener.GameListener;
+import ui.components.*;
 import ui.listener.MenuPageListener;
 import ui.utils.PanelUtils;
 import utils.ConditionUtils;
+import view.GameMultiplayerListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static ui.utils.PathUtils.ICON_START;
@@ -39,7 +34,7 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent {
     private final SButton exitButton;
 
     private final List<MenuPageListener> listeners;
-    private final List<GameListener.StartListener> startListeners;
+    private final List<GameMultiplayerListener.StartListener> startListeners;
 
     private boolean isDarkMode;
     private final Map<Boolean, Runnable> themeActions;
@@ -88,8 +83,13 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent {
 
     private void onStartGame() {
         this.listeners.forEach(MenuPageListener::onStart);
+        final Optional<String> roomName = this.roomNameField.getText().isEmpty() ?
+                Optional.empty() : Optional.of(this.roomNameField.getText());
+        final Optional<String> playerName = this.playerNameField.getText().isEmpty() ?
+                Optional.empty() : Optional.of(this.playerNameField.getText());
+        
         this.startListeners.forEach(l -> l.onStart(
-                this.schemaSelector.item(), this.difficultySelector.item()));
+                roomName, playerName, this.schemaSelector.item(), this.difficultySelector.item()));
     }
 
     private void onThemeMode() {
@@ -99,14 +99,14 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent {
 
     private void onExit() {
         this.listeners.forEach(MenuPageListener::onExit);
-        this.startListeners.forEach(GameListener.StartListener::onExit);
+        this.startListeners.forEach(GameMultiplayerListener.StartListener::onExit);
     }
 
     public void addListener(final MenuPageListener listener) {
         this.listeners.add(listener);
     }
 
-    public void addStartListener(final GameListener.StartListener listener) {
+    public void addStartListener(final GameMultiplayerListener.StartListener listener) {
         this.startListeners.add(listener);
     }
 
