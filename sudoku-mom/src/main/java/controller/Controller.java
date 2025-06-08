@@ -4,9 +4,9 @@ import grid.Coordinate;
 import grid.Settings;
 import model.Player;
 import ui.UI;
-import ui.View;
 import ui.color.Palette;
 import ui.listener.GameListener;
+import view.ViewMultiPlayer;
 
 public class Controller implements GameListener.PlayerListener {
     private final RabbitMQDiscovery discovery;
@@ -19,7 +19,7 @@ public class Controller implements GameListener.PlayerListener {
         this.discovery = RabbitMQDiscovery.create();
         this.connector = RabbitMQConnector.create();
         this.player = Player.create();
-        this.ui = new View();
+        this.ui = new ViewMultiPlayer();
         
         this.ui.open();
         this.ui.refreshPalette(Palette.light());
