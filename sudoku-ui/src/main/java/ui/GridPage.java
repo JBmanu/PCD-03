@@ -116,7 +116,10 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
 
     @Override
     public void onFocusGainedCell(final SNumberCell cell) {
-        if (cell.value().isEmpty()) return;
+        if (cell.value().isEmpty()) {
+            this.onFocusLostCell(cell);
+            return;
+        }
         final Coordinate coordinate = cell.coordinate();
         final int size = (int) Math.sqrt(this.cells.size());
         final List<Coordinate> coordinates = Stream.concat(GridUtils.createRowAndColFrom(coordinate, size).stream(),

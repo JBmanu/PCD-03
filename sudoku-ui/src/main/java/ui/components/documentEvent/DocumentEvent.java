@@ -24,29 +24,20 @@ public class DocumentEvent implements DocumentListener {
 
     @Override
     public void insertUpdate(final javax.swing.event.DocumentEvent e) {
-        SwingUtilities.invokeLater(() -> {
-            final String insertedText = this.getInsertedText(e);
-            if (insertedText.isBlank()) return;
-            this.listeners.forEach(listener -> listener.onModifyCell(this.cell));
-        });
+        SwingUtilities.invokeLater(() -> 
+                this.listeners.forEach(listener -> listener.onModifyCell(this.cell)));
     }
 
     @Override
     public void removeUpdate(final javax.swing.event.DocumentEvent e) {
-        SwingUtilities.invokeLater(() -> {
-            this.listeners.forEach(listener -> listener.onModifyCell(this.cell));
-        });
+        SwingUtilities.invokeLater(() -> 
+                this.listeners.forEach(listener -> listener.onModifyCell(this.cell)));
     }
 
     @Override
     public void changedUpdate(final javax.swing.event.DocumentEvent e) {
+        SwingUtilities.invokeLater(() -> 
+                this.listeners.forEach(listener -> listener.onModifyCell(this.cell)));
     }
 
-    private String getInsertedText(final javax.swing.event.DocumentEvent e) {
-        try {
-            return e.getDocument().getText(e.getOffset(), e.getLength());
-        } catch (final Exception ex) {
-            return "";
-        }
-    }
 }
