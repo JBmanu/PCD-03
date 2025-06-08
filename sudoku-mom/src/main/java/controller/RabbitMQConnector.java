@@ -28,9 +28,11 @@ public interface RabbitMQConnector {
 
     void deleteRoom(String roomName);
 
-    void createRoomWithPlayer(Player player);
-
     void joinRoom(Player player);
+
+    void createPlayerAndJoin(Player player);
+
+    void createRoomPlayerAndJoin(Player player);
 
     void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
 
@@ -88,16 +90,6 @@ public interface RabbitMQConnector {
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
-
-        }
-
-        @Override
-        public void createRoomWithPlayer(final Player player) {
-            player.callActionOnData((room, queue, _) -> {
-                this.createRoom(room);
-                this.createPlayerQueue(queue);
-                this.joinRoom(player);
-            });
         }
 
         @Override
@@ -108,6 +100,23 @@ public interface RabbitMQConnector {
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
+            });
+        }
+
+        @Override
+        public void createPlayerAndJoin(final Player player) {
+            player.callActionOnData((room, queue, _) -> {
+                this.createPlayerQueue(queue);
+                this.joinRoom(player);
+            });
+        }
+
+        @Override
+        public void createRoomPlayerAndJoin(final Player player) {
+            player.callActionOnData((room, queue, _) -> {
+                this.createRoom(room);
+                this.createPlayerQueue(queue);
+                this.createPlayerAndJoin(player);
             });
         }
 
@@ -146,23 +155,24 @@ public interface RabbitMQConnector {
             try {
                 this.channel.basicConsume(queueName, false, (_, delivery) -> {
                     try {
-                    
+
                         final String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
                         final Gson gson = new Gson();
                         final Map<String, Object> data = gson.fromJson(message, Map.class);
                         final String playerName = (String) data.get("player");
                         final Map<String, Object> coordinate = (Map<String, Object>) data.get("coordinate");
-                        final int row = (int)((double) coordinate.get("row"));
-                        final int column = (int)((double) coordinate.get("column"));
-                        final int value = (int)((double) data.get("value"));
+                        final int row = (int) ((double) coordinate.get("row"));
+                        final int column = (int) ((double) coordinate.get("column"));
+                        final int value = (int) ((double) data.get("value"));
                         action.accept(playerName, Coordinate.create(row, column), value);
-                        
+
                         this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                     } catch (final IOException e) {
                         this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                         throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
                     }
-                }, _ -> { });
+                }, _ -> {
+                });
             } catch (final IOException e) {
                 throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
             }

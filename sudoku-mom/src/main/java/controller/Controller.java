@@ -39,16 +39,17 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
         }
         if (playerName.isPresent()) {
             this.grid = Grid.create(Settings.create(schema, difficulty));
+            this.connector.createPlayerQueue(playerName.get());
             if (room.isEmpty()) {
                 final String countRoom = this.discovery.countExchangesWithoutDefault() + 1 + "";
                 final String countQueues = 1 + "";
                 this.player.computeToCreateRoom(countRoom, countQueues, playerName.get());
-                this.connector.createRoomWithPlayer(this.player);
+                this.connector.createRoomPlayerAndJoin(this.player);
             } else {
                 final String roomName = this.player.computeRoomNameFrom(room.get());
                 final String countQueues = this.discovery.countExchangeBinds(roomName) + 1 + "";
                 this.player.computeToJoinRoom(room.get(), countQueues, playerName.get());
-                this.connector.joinRoom(this.player);
+                this.connector.createPlayerAndJoin(this.player);
             }
             this.ui.buildGrid(this.grid);
             this.ui.showGridPage();

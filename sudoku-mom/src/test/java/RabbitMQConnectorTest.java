@@ -70,15 +70,7 @@ public class RabbitMQConnectorTest {
     }
 
     @Test
-    public void createRoomWithPlayer() {
-        this.connector.createRoomWithPlayer(this.player1);
-        assertEquals(1, this.player1.room().map(this.discovery::countExchangesWithName).orElse(0));
-        assertEquals(1, this.player1.queue().map(this.discovery::countQueuesWithName).orElse(0));
-        assertEquals(1, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
-    }
-
-    @Test
-    public void joinRoom() {
+    public void joinOnRoom() {
         this.player1.room().ifPresent(this.connector::createRoom);
         this.player1.queue().ifPresent(this.connector::createPlayerQueue);
         this.connector.joinRoom(this.player1);
@@ -88,6 +80,25 @@ public class RabbitMQConnectorTest {
         assertEquals(COUNT_DEFAULT_QUEUE_BINDS + 1, this.player1.queue()
                 .map(this.discovery::countQueueBinds).orElse(0));
     }
+    
+    @Test
+    public void createPlayerAndJoin() {
+        this.player1.room().ifPresent(this.connector::createRoom);
+        this.connector.createPlayerAndJoin(this.player1);
+
+        assertEquals(1, this.player1.room()
+                .map(this.discovery::countExchangeBinds).orElse(0));
+        assertEquals(COUNT_DEFAULT_QUEUE_BINDS + 1, this.player1.queue()
+                .map(this.discovery::countQueueBinds).orElse(0));
+    }
+
+    @Test
+    public void createRoomPlayerAndJoin() {
+        this.connector.createRoomPlayerAndJoin(this.player1);
+        assertEquals(1, this.player1.room().map(this.discovery::countExchangesWithName).orElse(0));
+        assertEquals(1, this.player1.queue().map(this.discovery::countQueuesWithName).orElse(0));
+        assertEquals(1, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
+    }
 
     private Player computePlayer2(final String countQueue, final String name) {
         final Player player2 = Player.create();
@@ -96,9 +107,9 @@ public class RabbitMQConnectorTest {
     }
 
     private void createRoomWithTwoPlayers(final Player player2) {
-        this.connector.createRoomWithPlayer(this.player1);
+        this.connector.createRoomPlayerAndJoin(this.player1);
         player2.queue().ifPresent(this.connector::createPlayerQueue);
-        this.connector.joinRoom(player2);
+        this.connector.createPlayerAndJoin(player2);
     }
 
     @Test
