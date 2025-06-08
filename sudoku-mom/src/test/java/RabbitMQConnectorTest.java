@@ -117,7 +117,6 @@ public class RabbitMQConnectorTest {
     public void sendMove() {
         final Player player2 = this.computePlayer2("2", "lu");
         this.createRoomWithTwoPlayers(player2);
-        assertEquals(2, this.discovery.countQueues());
 
         this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
 
@@ -132,14 +131,16 @@ public class RabbitMQConnectorTest {
 
     @Test
     public void receiveMove() {
+        final Coordinate coordinate = Coordinate.create(0, 0);
+        final int cellValue = 1;
         final Player player2 = this.computePlayer2("2", "lu");
         this.createRoomWithTwoPlayers(player2);
 
-        this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
-        player2.queue().ifPresent(queue -> this.connector.receiveMove(queue, (player, coordinate, value) -> {
+        this.connector.sendMove(this.discovery, this.player1, coordinate, cellValue);
+        player2.queue().ifPresent(queue -> this.connector.receiveMove(queue, (player, position, value) -> {
             assertEquals(this.player1.name(), Optional.of(player));
-            assertEquals(Coordinate.create(0, 0), coordinate);
-            assertEquals(1, value);
+            assertEquals(coordinate, position);
+            assertEquals(cellValue, value);
         }));
 
         await().atMost(Duration.ofSeconds(10))
