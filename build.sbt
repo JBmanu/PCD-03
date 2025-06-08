@@ -1,17 +1,20 @@
+import scala.language.postfixOps
+
 ThisBuild / scalaVersion := "3.3.4"
 
 //libraryDependencies += "com.github.User" % "Repo" % "Tag"
 //libraryDependencies += "com.github.USERNAME" %% "REPO" % "TAG"
 
 lazy val root = (project in file("."))
-  .aggregate(sudokuGrid, sudokuUI, sudokuLocal)
+  .aggregate(sudokuGrid, sudokuUI, sudokuLocal, sudokuMOM)
   .settings(
     name := "PCD-03",
     )
 
 lazy val commonSettings = Seq(
+  resolvers += "jitpack" at "https://jitpack.io",
   libraryDependencies ++= Seq(
-    "org.junit.jupiter" % "junit-jupiter-api" % "5.13.0" % Test,
+    "org.junit.jupiter" % "junit-jupiter-api" % "5.13.1" % Test,
     )
   )
 
@@ -19,9 +22,9 @@ lazy val sudokuGrid = (project in file("sudokuGrid"))
   .settings(commonSettings *)
   .settings(
     name := "sudoku-grid",
-    resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
-      "com.github.sfuhrm" % "sudoku" % "sudoku-parent-5.0.2",
+      "de.sfuhrm" % "sudoku-client" % "5.0.3",
+//      "de.sfuhrm" % "sudoku-parent" % "5.0.3"
       )
     )
 
@@ -52,7 +55,6 @@ lazy val sudokuMOM = (project in file("sudoku-mom"))
     name := "sudoku-mom",
     Compile / mainClass := Some("Main"),
     assembly / assemblyJarName := "sudoku-mom.jar",
-    resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
       "com.rabbitmq" % "amqp-client" % "5.25.0",
       "org.awaitility" % "awaitility" % "4.3.0",
