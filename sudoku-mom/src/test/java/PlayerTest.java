@@ -1,13 +1,13 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import player.Player;
+import model.Player;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static player.Player.*;
+import static model.Player.*;
 
 public class PlayerTest {
     public static final String COUNT_ROOM = "1";

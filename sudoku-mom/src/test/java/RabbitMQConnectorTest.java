@@ -2,24 +2,24 @@ import grid.Coordinate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import player.Player;
-import rabbitMQ.GameRoomQueueDiscovery;
-import rabbitMQ.RabbitMQConnector;
+import model.Player;
+import controller.RabbitMQDiscovery;
+import controller.RabbitMQConnector;
 
 import java.time.Duration;
 import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
-import static rabbitMQ.GameRoomQueueDiscovery.COUNT_DEFAULT_EXCHANGE;
-import static rabbitMQ.GameRoomQueueDiscovery.COUNT_DEFAULT_QUEUE_BINDS;
+import static controller.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
+import static controller.RabbitMQDiscovery.COUNT_DEFAULT_QUEUE_BINDS;
 
 public class RabbitMQConnectorTest {
     private static final String COUNT_ROOM = "1";
     private static final String COUNT_QUEUE = "1";
     private static final String PLAYER_1_NAME = "manu";
 
-    private GameRoomQueueDiscovery discovery;
+    private RabbitMQDiscovery discovery;
     private RabbitMQConnector connector;
     private Player player1;
 
@@ -28,7 +28,7 @@ public class RabbitMQConnectorTest {
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> {
                     this.connector = RabbitMQConnector.create();
-                    this.discovery = GameRoomQueueDiscovery.create();
+                    this.discovery = RabbitMQDiscovery.create();
                     this.player1 = Player.create();
                     this.player1.computeData(COUNT_ROOM, COUNT_QUEUE, PLAYER_1_NAME);
                     return this.connector != null;

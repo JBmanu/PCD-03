@@ -1,4 +1,4 @@
-package rabbitMQ;
+package controller;
 
 import com.google.gson.Gson;
 import com.rabbitmq.client.AMQP;
@@ -6,7 +6,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import grid.Coordinate;
-import player.Player;
+import model.Player;
 import utils.GameConsumers.PlayerAction;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public interface RabbitMQConnector {
 
     void joinRoom(Player player);
 
-    void sendMove(GameRoomQueueDiscovery discovery, Player player, Coordinate coordinate, int value);
+    void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
 
     void receiveMove(String queue, PlayerAction action);
 
@@ -112,7 +112,7 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void sendMove(final GameRoomQueueDiscovery discovery, final Player player, final Coordinate coordinate, final int value) {
+        public void sendMove(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate, final int value) {
             player.callActionOnData((room, _, name) -> {
                 final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room).stream()
                         .filter(routingKey -> !routingKey.equals(name))

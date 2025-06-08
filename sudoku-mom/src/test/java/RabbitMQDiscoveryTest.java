@@ -1,21 +1,21 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import rabbitMQ.GameRoomQueueDiscovery;
+import controller.RabbitMQDiscovery;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static rabbitMQ.GameRoomQueueDiscovery.COUNT_DEFAULT_EXCHANGE;
-import static rabbitMQ.GameRoomQueueDiscovery.DEFAULT_EXCHANGE_NAME;
+import static controller.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
+import static controller.RabbitMQDiscovery.DEFAULT_EXCHANGE_NAME;
 
-public class GameRoomQueueDiscoveryTest {
+public class RabbitMQDiscoveryTest {
 
-    private GameRoomQueueDiscovery discovery;
+    private RabbitMQDiscovery discovery;
 
     @BeforeEach
     public void create() {
-        this.discovery = GameRoomQueueDiscovery.create();
+        this.discovery = RabbitMQDiscovery.create();
         assertNotNull(this.discovery);
     }
     

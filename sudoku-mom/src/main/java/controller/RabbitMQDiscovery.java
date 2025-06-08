@@ -1,4 +1,4 @@
-package rabbitMQ;
+package controller;
 
 import com.rabbitmq.http.client.Client;
 import com.rabbitmq.http.client.ClientParameters;
@@ -9,13 +9,13 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-public interface GameRoomQueueDiscovery {
+public interface RabbitMQDiscovery {
     String DEFAULT_EXCHANGE_NAME = "";
     int COUNT_DEFAULT_EXCHANGE = 7;
     int COUNT_DEFAULT_QUEUE_BINDS = 1;
 
-    static GameRoomQueueDiscovery create() {
-        return new GameRoomQueueDiscoveryImpl();
+    static RabbitMQDiscovery create() {
+        return new RabbitMQDiscoveryImpl();
     }
 
     int countExchanges();
@@ -41,7 +41,7 @@ public interface GameRoomQueueDiscovery {
     int countMessageOnQueue(String queueName);
 
 
-    class GameRoomQueueDiscoveryImpl implements GameRoomQueueDiscovery {
+    class RabbitMQDiscoveryImpl implements RabbitMQDiscovery {
         private static final String HOST = "kangaroo.rmq.cloudamqp.com";
         private static final String USERNAME = "fanltles";
         private static final String PASSWORD = "6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0";
@@ -49,7 +49,7 @@ public interface GameRoomQueueDiscovery {
 
         private final Client client;
 
-        public GameRoomQueueDiscoveryImpl() {
+        public RabbitMQDiscoveryImpl() {
             try {
                 this.client = new Client(new ClientParameters()
                         .url(URL)
