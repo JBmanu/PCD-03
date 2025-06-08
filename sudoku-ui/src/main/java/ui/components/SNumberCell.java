@@ -13,6 +13,7 @@ import ui.utils.StyleUtils;
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.text.AbstractDocument;
+import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class SNumberCell extends JTextField {
 
     public SNumberCell(final Coordinate coordinate, final int value) {
         super();
+        this.setOpaque(false);
 
         this.numberFilter = new NumberFilter(this);
         this.documentEvent = new DocumentEvent(this);
@@ -136,4 +138,17 @@ public class SNumberCell extends JTextField {
         this.setValue(0);
         this.setEditable(true);
     }
+
+    @Override
+    protected void paintComponent(final Graphics g) {
+        final Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        final Color bg = this.getBackground();
+        g2.setColor(bg);
+        g2.fillRect(0, 0, this.getWidth(), this.getHeight());
+        g2.dispose();
+        super.paintComponent(g);
+    }
+    
 }
