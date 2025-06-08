@@ -128,7 +128,6 @@ public class RabbitMQConnectorTest {
 
     private void createRoomWithTwoPlayers(final Player player2) {
         this.connector.createRoomPlayerAndJoin(this.player1);
-//        player2.queue().ifPresent(this.connector::createPlayerQueue);
         this.connector.createPlayerAndJoin(player2);
     }
 

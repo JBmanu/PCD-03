@@ -105,7 +105,7 @@ public interface RabbitMQConnector {
 
         @Override
         public void createPlayerAndJoin(final Player player) {
-            player.callActionOnData((room, queue, _) -> {
+            player.callActionOnData((_, queue, _) -> {
                 this.createPlayerQueue(queue);
                 this.joinRoom(player);
             });
