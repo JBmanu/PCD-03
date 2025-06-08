@@ -44,7 +44,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                         this.discovery.countQueues() + "", playerName.get());
                 this.connector.createRoomWithPlayer(this.player);
             } else {
-                this.player.computeAndConvertRoomID(room.get());
+                this.player.computeRoomNameFrom(room.get());
 //                this.player.computeQueue();
 //                this.player.computeName(playerName.get());
                 this.connector.joinRoom(this.player);

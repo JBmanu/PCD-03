@@ -29,7 +29,7 @@ public interface Player {
 
     Optional<String> computeRoomID();
 
-    String computeAndConvertRoomID(String roomId);
+    String computeRoomNameFrom(String roomId);
 
     void callActionOnData(PlayerData action);
 
@@ -71,9 +71,13 @@ public interface Player {
 
         @Override
         public void computeToJoinRoom(final String roomId, final String countQueue, final String playerName) {
-
+            final String roomName = this.computeRoomNameFrom(roomId);
+            final String queueName = String.join(DIVISOR, List.of(roomName, QUEUE, countQueue, PLAYER, playerName));
+            this.room = Optional.of(roomName);
+            this.queue = Optional.of(queueName);
+            this.name = Optional.of(playerName);
         }
-
+        
         @Override
         public Optional<String> computeRoomID() {
             return this.room.map(name -> name.replaceAll("sudoku\\.", "")
@@ -81,11 +85,9 @@ public interface Player {
         }
 
         @Override
-        public String computeAndConvertRoomID(final String roomId) {
-            final String roomName = String.join(DIVISOR,
+        public String computeRoomNameFrom(final String roomId) {
+            return String.join(DIVISOR,
                     List.of(DOMAIN, ROOM, roomId.replaceAll(ROOM, "")));
-            this.room = Optional.of(roomName);
-            return roomName;
         }
 
         @Override
