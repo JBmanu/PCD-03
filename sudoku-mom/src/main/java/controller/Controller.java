@@ -1,20 +1,22 @@
 package controller;
 
 import grid.Coordinate;
+import grid.Grid;
 import grid.Settings;
 import model.Player;
-import ui.UI;
 import ui.color.Palette;
 import view.GameMultiplayerListener;
 import view.UIMultiplayer;
 import view.ViewMultiPlayer;
 
+import javax.swing.*;
 import java.util.Optional;
 
 public class Controller implements GameMultiplayerListener.PlayerListener {
     private final RabbitMQDiscovery discovery;
     private final RabbitMQConnector connector;
     private final Player player;
+    private Grid grid;
 
     private final UIMultiplayer ui;
 
@@ -24,10 +26,49 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
         this.player = Player.create();
         this.ui = new ViewMultiPlayer();
 
-        this.ui.open();
         this.ui.refreshPalette(Palette.light());
+        this.ui.addPlayerListener(this);
+        this.ui.open();
     }
 
+    @Override
+    public void onStart(final Optional<String> room, final Optional<String> playerName,
+                        final Settings.Schema schema, final Settings.Difficulty difficulty) {
+        if (playerName.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Insert name for to play.", "Insert Name", JOptionPane.INFORMATION_MESSAGE);
+        }
+        if (playerName.isPresent()) {
+            this.grid = Grid.create(Settings.create(schema, difficulty));
+            if (room.isEmpty()) {
+                this.player.computeToCreateRoom(this.discovery.countExchangesWithoutDefault() + "",
+                        this.discovery.countQueues() + "", playerName.get());
+                this.connector.createRoomWithPlayer(this.player);
+            } else {
+                this.player.computeAndConvertRoomID(room.get());
+//                this.player.computeQueue();
+//                this.player.computeName(playerName.get());
+                this.connector.joinRoom(this.player);
+            }
+
+            this.ui.buildGrid(this.grid);
+            this.ui.showGridPage();
+        }
+    }
+
+    @Override
+    public void onExit() {
+        this.ui.close();
+
+        final int totalPlayer = this.player.room().map(this.discovery::countExchangeBinds).orElse(0);
+        if (totalPlayer == 1) this.player.room().ifPresent(this.connector::deleteRoom);
+        this.player.queue().ifPresent(this.connector::deletePlayerQueue);
+        System.exit(0);
+    }
+
+    @Override
+    public boolean onModifyCell(final Coordinate coordinate, final int value) {
+        return false;
+    }
 
     @Override
     public void onUndo() {
@@ -41,21 +82,6 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     @Override
     public void onReset() {
-
-    }
-
-    @Override
-    public boolean onModifyCell(final Coordinate coordinate, final int value) {
-        return false;
-    }
-
-    @Override
-    public void onStart(final Optional<String> room, final Optional<String> playerName,
-                        final Settings.Schema schema, final Settings.Difficulty difficulty) {
-    }
-
-    @Override
-    public void onExit() {
 
     }
 }

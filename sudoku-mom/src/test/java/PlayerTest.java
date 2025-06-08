@@ -28,15 +28,9 @@ public class PlayerTest {
         assertEquals(Optional.empty(), this.player.name());
     }
 
-    private void computePlayer() {
-        this.player.computeRoom(COUNT_ROOM);
-        this.player.computeQueue(COUNT_ROOM, COUNT_QUEUE, NAME);
-        this.player.computeName(NAME);
-    }
-
     @Test
     public void computePlayerData() {
-        this.computePlayer();
+        this.player.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, NAME);
         final String room = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM));
         final String queue = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM, QUEUE, COUNT_QUEUE, PLAYER, NAME));
 
@@ -47,23 +41,25 @@ public class PlayerTest {
 
     @Test
     public void computeRoomID() {
-        this.computePlayer();
+        this.player.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, NAME);
+
         final Optional<String> roomID = this.player.computeRoomID();
         assertEquals(Optional.of("room1"), roomID);
     }
 
     @Test
-    public void convertRoomID() {
-        this.computePlayer();
+    public void computeAndConvertRoomID() {
+        this.player.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, NAME);
         final String expectedRoom = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM));
         final Optional<String> roomID = this.player.computeRoomID();
-        final Optional<String> convertedRoom = roomID.map(id -> this.player.convertRoomID(id));
+        final Optional<String> convertedRoom = roomID.map(id -> this.player.computeAndConvertRoomID(id));
+        assertEquals(Optional.of(expectedRoom), this.player.room());
         assertEquals(Optional.of(expectedRoom), convertedRoom);
     }
     
     @Test
-    public void computeData() {
-        this.player.computeData(COUNT_ROOM, COUNT_QUEUE, NAME);
+    public void computeToCreateRoom() {
+        this.player.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, NAME);
         final String room = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM));
         final String queue = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM, QUEUE, COUNT_QUEUE, PLAYER, NAME));
 

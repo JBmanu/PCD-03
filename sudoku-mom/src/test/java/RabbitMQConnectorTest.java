@@ -30,7 +30,7 @@ public class RabbitMQConnectorTest {
                     this.connector = RabbitMQConnector.create();
                     this.discovery = RabbitMQDiscovery.create();
                     this.player1 = Player.create();
-                    this.player1.computeData(COUNT_ROOM, COUNT_QUEUE, PLAYER_1_NAME);
+                    this.player1.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, PLAYER_1_NAME);
                     return this.connector != null;
                 });
         assertNotNull(this.connector);
@@ -91,7 +91,7 @@ public class RabbitMQConnectorTest {
 
     private Player computePlayer2(final String countQueue, final String name) {
         final Player player2 = Player.create();
-        player2.computeData(COUNT_ROOM, countQueue, name);
+        player2.computeToCreateRoom(COUNT_ROOM, countQueue, name);
         return player2;
     }
 
@@ -103,7 +103,7 @@ public class RabbitMQConnectorTest {
 
     @Test
     public void connectTwoPlayers() {
-        final Player player2 = this.computePlayer2("2", "lu");
+        final Player player2 = this.computePlayer2(COUNT_QUEUE + 1, "lu");
         this.createRoomWithTwoPlayers(player2);
 
         assertEquals(2, this.discovery.countQueues());
@@ -115,7 +115,7 @@ public class RabbitMQConnectorTest {
 
     @Test
     public void sendMove() {
-        final Player player2 = this.computePlayer2("2", "lu");
+        final Player player2 = this.computePlayer2(COUNT_QUEUE + 1, "lu");
         this.createRoomWithTwoPlayers(player2);
 
         this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
@@ -133,7 +133,7 @@ public class RabbitMQConnectorTest {
     public void receiveMove() {
         final Coordinate coordinate = Coordinate.create(0, 0);
         final int cellValue = 1;
-        final Player player2 = this.computePlayer2("2", "lu");
+        final Player player2 = this.computePlayer2(COUNT_QUEUE + 1, "lu");
         this.createRoomWithTwoPlayers(player2);
 
         this.connector.sendMove(this.discovery, this.player1, coordinate, cellValue);

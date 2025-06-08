@@ -23,17 +23,13 @@ public interface Player {
 
     Optional<String> name();
 
-    void computeRoom(String countRoom);
+    void computeToCreateRoom(String countRoom, String countQueue, String playerName);
 
-    void computeQueue(String countRoom, String countQueue, String playerName);
-
-    void computeName(String name);
-
-    void computeData(String countRoom, String countQueue, String playerName);
+    void computeToJoinRoom(String roomId, String countQueue, String playerName);
 
     Optional<String> computeRoomID();
 
-    String convertRoomID(String roomId);
+    String computeAndConvertRoomID(String roomId);
 
     void callActionOnData(PlayerData action);
 
@@ -65,27 +61,17 @@ public interface Player {
         }
 
         @Override
-        public void computeRoom(final String countRoom) {
+        public void computeToCreateRoom(final String countRoom, final String countQueue, final String playerName) {
             final String roomName = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom));
+            final String queueName = String.join(DIVISOR, List.of(roomName, QUEUE, countQueue, PLAYER, playerName));
             this.room = Optional.of(roomName);
-        }
-
-        @Override
-        public void computeQueue(final String countRoom, final String countQueue, final String playerName) {
-            final String queueName = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom, QUEUE, countQueue, PLAYER, playerName));
             this.queue = Optional.of(queueName);
+            this.name = Optional.of(playerName);
         }
 
         @Override
-        public void computeName(final String name) {
-            this.name = Optional.of(name);
-        }
+        public void computeToJoinRoom(final String roomId, final String countQueue, final String playerName) {
 
-        @Override
-        public void computeData(final String countRoom, final String countQueue, final String playerName) {
-            this.computeRoom(countRoom);
-            this.computeQueue(countRoom, countQueue, playerName);
-            this.computeName(playerName);
         }
 
         @Override
@@ -95,9 +81,11 @@ public interface Player {
         }
 
         @Override
-        public String convertRoomID(final String roomId) {
-            return String.join(DIVISOR,
+        public String computeAndConvertRoomID(final String roomId) {
+            final String roomName = String.join(DIVISOR,
                     List.of(DOMAIN, ROOM, roomId.replaceAll(ROOM, "")));
+            this.room = Optional.of(roomName);
+            return roomName;
         }
 
         @Override
