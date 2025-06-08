@@ -89,14 +89,34 @@ public class RabbitMQConnectorTest {
                 .map(this.discovery::countQueueBinds).orElse(0));
     }
 
-    @Test
-    public void sendMove() {
+    private Player computePlayer2(final String countQueue, final String name) {
         final Player player2 = Player.create();
-        player2.computeData(COUNT_ROOM, "2", "lu");
+        player2.computeData(COUNT_ROOM, countQueue, name);
+        return player2;
+    }
 
+    private void createRoomWithTwoPlayers(final Player player2) {
         this.connector.createRoomWithPlayer(this.player1);
         player2.queue().ifPresent(this.connector::createPlayerQueue);
         this.connector.joinRoom(player2);
+    }
+
+    @Test
+    public void connectTwoPlayers() {
+        final Player player2 = this.computePlayer2("2", "lu");
+        this.createRoomWithTwoPlayers(player2);
+
+        assertEquals(2, this.discovery.countQueues());
+        assertEquals(2, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
+        assertEquals(2, player2.room().map(this.discovery::countExchangeBinds).orElse(0));
+
+        player2.queue().ifPresent(this.connector::deletePlayerQueue);
+    }
+
+    @Test
+    public void sendMove() {
+        final Player player2 = this.computePlayer2("2", "lu");
+        this.createRoomWithTwoPlayers(player2);
         assertEquals(2, this.discovery.countQueues());
 
         this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
@@ -112,12 +132,8 @@ public class RabbitMQConnectorTest {
 
     @Test
     public void receiveMove() {
-        final Player player2 = Player.create();
-        player2.computeData(COUNT_ROOM, "2", "lu");
-
-        this.connector.createRoomWithPlayer(this.player1);
-        player2.queue().ifPresent(this.connector::createPlayerQueue);
-        this.connector.joinRoom(player2);
+        final Player player2 = this.computePlayer2("2", "lu");
+        this.createRoomWithTwoPlayers(player2);
 
         this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
         player2.queue().ifPresent(queue -> this.connector.receiveMove(queue, (player, coordinate, value) -> {
