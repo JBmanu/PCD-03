@@ -7,6 +7,8 @@ import controller.RabbitMQDiscovery;
 import controller.RabbitMQConnector;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
@@ -91,6 +93,24 @@ public class RabbitMQConnectorTest {
         assertEquals(COUNT_DEFAULT_QUEUE_BINDS + 1, this.player1.queue()
                 .map(this.discovery::countQueueBinds).orElse(0));
     }
+    
+    @Test
+    public void createNPlayerAndJoinInSameRoom() {
+        this.player1.room().ifPresent(this.connector::createRoom);
+        final List<Player> players = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            final Player player = this.computePlayer2(i + "", "player" + i);
+            players.add(player);
+            this.connector.createPlayerAndJoin(player);
+            assertEquals(i, this.discovery.countQueues());
+            assertEquals(i, player.room().map(this.discovery::countExchangeBinds).orElse(0));
+        }
+
+        players.stream().map(Player::queue)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(this.connector::deletePlayerQueue);
+   }
 
     @Test
     public void createRoomPlayerAndJoin() {
@@ -108,13 +128,13 @@ public class RabbitMQConnectorTest {
 
     private void createRoomWithTwoPlayers(final Player player2) {
         this.connector.createRoomPlayerAndJoin(this.player1);
-        player2.queue().ifPresent(this.connector::createPlayerQueue);
+//        player2.queue().ifPresent(this.connector::createPlayerQueue);
         this.connector.createPlayerAndJoin(player2);
     }
 
     @Test
     public void connectTwoPlayers() {
-        final Player player2 = this.computePlayer2(COUNT_QUEUE + 1, "lu");
+        final Player player2 = this.computePlayer2("2", "lu");
         this.createRoomWithTwoPlayers(player2);
 
         assertEquals(2, this.discovery.countQueues());
@@ -126,7 +146,7 @@ public class RabbitMQConnectorTest {
 
     @Test
     public void sendMove() {
-        final Player player2 = this.computePlayer2(COUNT_QUEUE + 1, "lu");
+        final Player player2 = this.computePlayer2("2", "lu");
         this.createRoomWithTwoPlayers(player2);
 
         this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
@@ -144,7 +164,7 @@ public class RabbitMQConnectorTest {
     public void receiveMove() {
         final Coordinate coordinate = Coordinate.create(0, 0);
         final int cellValue = 1;
-        final Player player2 = this.computePlayer2(COUNT_QUEUE + 1, "lu");
+        final Player player2 = this.computePlayer2("2", "lu");
         this.createRoomWithTwoPlayers(player2);
 
         this.connector.sendMove(this.discovery, this.player1, coordinate, cellValue);
