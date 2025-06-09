@@ -51,12 +51,6 @@ public class PlayerTest {
     }
 
     @Test
-    public void computeRoomNameFromId() {
-        final String roomName = this.player.computeRoomNameFrom("room1");
-        assertEquals(ROOM_NAME, roomName);
-    }
-
-    @Test
     public void computeToJoinRoom() {
         final String roomId = "room1";
         this.player.computeToJoinRoom(roomId, COUNT_QUEUE, NAME);

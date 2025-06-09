@@ -1,11 +1,9 @@
 package model;
 
 import utils.GameConsumers.PlayerData;
+import utils.Namespace;
 
-import java.util.List;
 import java.util.Optional;
-
-import static utils.Namespace.*;
 
 public interface Player {
 
@@ -13,6 +11,8 @@ public interface Player {
         return new PlayerImpl();
     }
 
+    Optional<String> computeRoomID();
+    
     Optional<String> room();
 
     Optional<String> queue();
@@ -23,9 +23,6 @@ public interface Player {
 
     void computeToJoinRoom(String roomId, String countQueue, String playerName);
 
-    Optional<String> computeRoomID();
-
-    String computeRoomNameFrom(String roomId);
 
     void callActionOnData(PlayerData action);
 
@@ -41,6 +38,11 @@ public interface Player {
             this.name = Optional.empty();
         }
 
+        @Override
+        public Optional<String> computeRoomID() {
+            return Namespace.computeRoomIDFrom(this);
+        }
+        
         @Override
         public Optional<String> room() {
             return this.room;
@@ -58,32 +60,16 @@ public interface Player {
 
         @Override
         public void computeToCreateRoom(final String countRoom, final String countQueue, final String playerName) {
-            final String roomName = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom));
-            final String queueName = String.join(DIVISOR, List.of(roomName, QUEUE, countQueue, PLAYER, playerName));
-            this.room = Optional.of(roomName);
-            this.queue = Optional.of(queueName);
+            this.room = Optional.of(Namespace.computeRoomName(countRoom));
+            this.queue = Optional.of(Namespace.computePlayerQueueName(countRoom, countQueue, playerName));
             this.name = Optional.of(playerName);
         }
 
         @Override
         public void computeToJoinRoom(final String roomId, final String countQueue, final String playerName) {
-            final String roomName = this.computeRoomNameFrom(roomId);
-            final String queueName = String.join(DIVISOR, List.of(roomName, QUEUE, countQueue, PLAYER, playerName));
-            this.room = Optional.of(roomName);
-            this.queue = Optional.of(queueName);
+            this.room = Optional.of(Namespace.computeRoomNameFrom(roomId));
+            this.queue = Optional.of(Namespace.computePlayerQueueNameFrom(roomId, countQueue, playerName));
             this.name = Optional.of(playerName);
-        }
-        
-        @Override
-        public Optional<String> computeRoomID() {
-            return this.room.map(name -> name.replaceAll(DOMAIN + "\\" + DIVISOR, "")
-                    .replaceAll("\\" + DIVISOR, ""));
-        }
-
-        @Override
-        public String computeRoomNameFrom(final String roomId) {
-            return String.join(DIVISOR,
-                    List.of(DOMAIN, ROOM, roomId.replaceAll(ROOM, "")));
         }
 
         @Override

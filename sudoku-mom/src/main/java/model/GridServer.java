@@ -2,14 +2,9 @@ package model;
 
 import grid.Grid;
 import grid.Settings;
+import utils.Namespace;
 
-import java.util.List;
 import java.util.Optional;
-
-import static utils.Namespace.*;
-import static utils.Namespace.PLAYER;
-import static utils.Namespace.QUEUE;
-import static utils.Namespace.SERVER;
 
 public interface GridServer {
     static GridServer create() {
@@ -18,19 +13,25 @@ public interface GridServer {
 
     void createGrid(Settings settings);
 
-    Optional<String> computeQueue(String countRoom);
+    void createGameData(String countRoom, String countQueue);
     
     Optional<byte[][]> solution();
 
     Optional<byte[][]> grid();
 
+    Optional<String> room();
 
 
     class GridServerImpl implements GridServer {
         private Optional<Grid> grid;
+        private Optional<String> room;
+        private Optional<String> queue;
+        
 
         public GridServerImpl() {
             this.grid = Optional.empty();
+            this.room = Optional.empty();
+            this.queue = Optional.empty();
         }
 
         @Override
@@ -39,9 +40,9 @@ public interface GridServer {
         }
 
         @Override
-        public Optional<String> computeQueue(final String countRoom) {
-            return this.grid.map(_ -> 
-                    String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom, QUEUE, SERVER)));
+        public void createGameData(final String countRoom, final String countQueue) {
+            this.room = this.grid.map(_ -> Namespace.computeRoomName(countRoom));
+            this.queue = this.grid.map(_ -> Namespace.computeServerQueueName(countQueue));
         }
         
         @Override
@@ -52,6 +53,11 @@ public interface GridServer {
         @Override
         public Optional<byte[][]> grid() {
             return this.grid.map(Grid::cellsArray);
+        }
+
+        @Override
+        public Optional<String> room() {
+            return this.room;
         }
 
 
