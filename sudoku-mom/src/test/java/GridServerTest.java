@@ -1,6 +1,8 @@
+import grid.Coordinate;
 import grid.Settings;
 import model.GridServer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Test;
 import utils.Namespace;
 
@@ -32,7 +34,7 @@ public class GridServerTest {
             assertTrue(this.server.grid().isPresent());
         });
     }
-    
+
     @Test
     public void createGameData() {
         final String countRoom = "1";
@@ -41,9 +43,23 @@ public class GridServerTest {
         SETTINGS.forEach(settings -> {
             this.server.createGrid(settings);
             this.server.createGameData(countRoom, countQueue);
-            
+
             assertEquals(Optional.of(Namespace.computeRoomName(countRoom)), this.server.room());
             assertEquals(Optional.of(Namespace.computeServerQueueName(countQueue)), this.server.queue());
+        });
+    }
+
+    @Test
+    public void updateGrid() {
+        final String countRoom = "1";
+        final String countQueue = "1";
+        final Coordinate coordinate = Coordinate.create(0, 0);
+        final int value = 1;
+        SETTINGS.forEach(settings -> {
+            this.server.createGrid(settings);
+            this.server.createGameData(countRoom, countQueue);
+            this.server.updateGrid(coordinate, value);
+            assertEquals(Optional.of(value), this.server.value(coordinate));
         });
     }
 
