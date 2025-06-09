@@ -190,5 +190,17 @@ public class GridTest {
                             assertEquals(correctCoordinates.get(index), currentCoordinates.get(index)));
         });
     }
+    
+    @Test
+    public void solutionArray() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            final Map<Coordinate, Integer> solution = grid.solution();
+            final byte[][] solutionData = grid.solutionArray();
+            
+            solution.forEach((coordinate, count) -> 
+                    assertEquals(count, solutionData[coordinate.row()][coordinate.col()]));
+        });
+    }
 
 }

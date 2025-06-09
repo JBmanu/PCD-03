@@ -29,6 +29,8 @@ public interface Grid {
 
 
     Map<Coordinate, Integer> solution();
+    
+    byte[][] solutionArray();
 
     Map<Coordinate, Integer> cells();
 
@@ -66,11 +68,11 @@ public interface Grid {
         }
 
         private void setValue(final Coordinate coordinate, final int value) {
-            this.grid.set(coordinate.row(), coordinate.column(), (byte) value);
+            this.grid.set(coordinate.row(), coordinate.col(), (byte) value);
         }
 
         private int solutionValue(final Coordinate coordinate) {
-            return this.solution.get(coordinate.row(), coordinate.column());
+            return this.solution.get(coordinate.row(), coordinate.col());
         }
 
         @Override
@@ -123,13 +125,18 @@ public interface Grid {
             final Stream<Coordinate> coordinates = rangeSize.stream().flatMap(row -> rangeSize.stream()
                     .map(column -> Coordinate.create(row, column)));
 
-            return coordinates.map(coord -> Map.entry(coord, matrix.get(coord.row(), coord.column())))
+            return coordinates.map(coord -> Map.entry(coord, matrix.get(coord.row(), coord.col())))
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingInt(Map.Entry::getValue)));
         }
 
         @Override
         public Map<Coordinate, Integer> solution() {
             return this.convertToMap(this.solution);
+        }
+
+        @Override
+        public byte[][] solutionArray() {
+            return this.solution.getArray();
         }
 
         @Override
@@ -141,7 +148,7 @@ public interface Grid {
         public List<Map.Entry<Coordinate, Integer>> orderedCells() {
             return this.cells().entrySet().stream()
                     .sorted(Comparator.comparing((Map.Entry<Coordinate, Integer> e) -> e.getKey().row())
-                            .thenComparing(e -> e.getKey().column()))
+                            .thenComparing(e -> e.getKey().col()))
                     .collect(Collectors.toList());
         }
 
@@ -158,7 +165,7 @@ public interface Grid {
 
         @Override
         public int valueFrom(final Coordinate coordinate) {
-            return this.grid.get(coordinate.row(), coordinate.column());
+            return this.grid.get(coordinate.row(), coordinate.col());
         }
 
         @Override

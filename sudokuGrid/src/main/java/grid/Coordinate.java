@@ -9,14 +9,14 @@ public interface Coordinate {
 
     int row();
 
-    int column();
+    int col();
     
 
-    record CoordinateImpl(int row, int column) implements Coordinate {
+    record CoordinateImpl(int row, int col) implements Coordinate {
 
         @Override
         public String toString() {
-            return "POS: row[" + this.row + "] column[" + this.column + "]";
+            return "POS: row[" + this.row + "] column[" + this.col + "]";
         }
     }
 }

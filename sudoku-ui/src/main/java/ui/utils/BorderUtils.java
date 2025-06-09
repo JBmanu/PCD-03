@@ -30,7 +30,7 @@ public final class BorderUtils {
     public static Border create(final SNumberCell cell, final int gridSize,
                                 final int thin, final int thick, final Color color) {
         final int row = cell.coordinate().row();
-        final int col = cell.coordinate().column();
+        final int col = cell.coordinate().col();
         
         return create(row, col, gridSize, thin, thick, color);
     }

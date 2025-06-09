@@ -10,7 +10,7 @@ public final class GridUtils {
 
     public static List<Coordinate> computeQuadrant(final Coordinate coordinate, final int size) {
         final int row = coordinate.row();
-        final int col = coordinate.column();
+        final int col = coordinate.col();
         final List<Coordinate> coordinates = new ArrayList<>();
 
         final int sizeQuadrant = (int) Math.sqrt(size);
@@ -26,7 +26,7 @@ public final class GridUtils {
 
     public static List<Coordinate> createRowAndColFrom(final Coordinate coordinate, final int size) {
         final int row = coordinate.row();
-        final int col = coordinate.column();
+        final int col = coordinate.col();
 
         return new java.util.ArrayList<>(IntStream.range(0, size)
                 .mapToObj(i -> List.of(Coordinate.create(row, i), Coordinate.create(i, col)))

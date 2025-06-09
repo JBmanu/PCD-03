@@ -138,7 +138,7 @@ public interface RabbitMQConnector {
                     final String json = gson.toJson(
                             Map.of(
                                     "player", player.name().orElse("Unknown"),
-                                    "coordinate", Map.of("row", coordinate.row(), "column", coordinate.column()),
+                                    "coordinate", Map.of("row", coordinate.row(), "column", coordinate.col()),
                                     "value", value
                             )
                     );
