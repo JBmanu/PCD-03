@@ -20,19 +20,15 @@ public interface RabbitMQConnector {
         return new RabbitMQConnectorImpl();
     }
 
-    void createPlayerQueue(String queueName);
+    void createRoom(Player player);
 
-    void deletePlayerQueue(String queueName);
+    void deleteRoom(Player player);
 
-    void createRoom(String roomName);
+    void deleteQueue(Player player);
 
-    void deleteRoom(String roomName);
+    void createRoomAndJoin(Player player);
 
     void joinRoom(Player player);
-
-    void createPlayerAndJoin(Player player);
-
-    void createRoomPlayerAndJoin(Player player);
 
     void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
 
@@ -57,46 +53,10 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void createPlayerQueue(final String queueName) {
-            try {
-                this.channel.queueDeclare(queueName, true, false, false, null);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        public void deletePlayerQueue(final String queueName) {
-            try {
-                this.channel.queueDelete(queueName);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        public void createRoom(final String roomName) {
-            try {
-                this.channel.exchangeDeclare(roomName, EXCHANGE_TYPE, true);
-            } catch (final Exception e) {
-                throw new RuntimeException("Failed to create room: " + e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public void deleteRoom(final String roomName) {
-            try {
-                this.channel.exchangeDelete(roomName);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        public void joinRoom(final Player player) {
-            player.callActionOnData((room, queue, name) -> {
+        public void createRoom(final Player player) {
+            player.callActionOnData((room, _, _) -> {
                 try {
-                    this.channel.queueBind(queue, room, name);
+                    this.channel.exchangeDeclare(room, EXCHANGE_TYPE, true);
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -104,19 +64,42 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void createPlayerAndJoin(final Player player) {
-            player.callActionOnData((_, queue, _) -> {
-                this.createPlayerQueue(queue);
-                this.joinRoom(player);
+        public void deleteRoom(final Player player) {
+            player.room().ifPresent(room -> {
+                try {
+                    this.channel.exchangeDelete(room);
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
             });
         }
 
         @Override
-        public void createRoomPlayerAndJoin(final Player player) {
-            player.callActionOnData((room, queue, _) -> {
-                this.createRoom(room);
-                this.createPlayerQueue(queue);
-                this.createPlayerAndJoin(player);
+        public void deleteQueue(final Player player) {
+            player.queue().ifPresent(queue -> {
+                try {
+                    this.channel.queueDelete(queue);
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+        @Override
+        public void createRoomAndJoin(final Player player) {
+            this.createRoom(player);
+            this.joinRoom(player);
+        }
+
+        @Override
+        public void joinRoom(final Player player) {
+            player.callActionOnData((room, queue, name) -> {
+                try {
+                    this.channel.queueDeclare(queue, true, false, false, null);
+                    this.channel.queueBind(queue, room, name);
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
             });
         }
 
@@ -179,6 +162,4 @@ public interface RabbitMQConnector {
         }
 
     }
-
-
 }

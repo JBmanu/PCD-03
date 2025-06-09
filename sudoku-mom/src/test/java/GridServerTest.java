@@ -2,7 +2,6 @@ import grid.Coordinate;
 import grid.Settings;
 import model.GridServer;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Test;
 import utils.Namespace;
 

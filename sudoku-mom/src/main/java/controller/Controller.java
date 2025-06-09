@@ -40,17 +40,17 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
         }
         if (playerName.isPresent()) {
             this.grid = Grid.create(Settings.create(schema, difficulty));
-            this.connector.createPlayerQueue(playerName.get());
+//            this.connector.createPlayerQueue(playerName.get());
             if (room.isEmpty()) {
                 final String countRoom = this.discovery.countExchangesWithoutDefault() + 1 + "";
                 final String countQueues = 1 + "";
                 this.player.computeToCreateRoom(countRoom, countQueues, playerName.get());
-                this.connector.createRoomPlayerAndJoin(this.player);
+                this.connector.createRoomAndJoin(this.player);
             } else {
                 final String roomName = Namespace.computeRoomNameFrom(room.get());
                 final String countQueues = this.discovery.countExchangeBinds(roomName) + 1 + "";
                 this.player.computeToJoinRoom(room.get(), countQueues, playerName.get());
-                this.connector.createPlayerAndJoin(this.player);
+//                this.connector.createPlayerAndJoin(this.player);
             }
             this.ui.buildGrid(this.grid);
             this.ui.showGridPage();
@@ -61,9 +61,9 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
     public void onExit() {
         this.ui.close();
 
-        final int totalPlayer = this.player.room().map(this.discovery::countExchangeBinds).orElse(0);
-        if (totalPlayer == 1) this.player.room().ifPresent(this.connector::deleteRoom);
-        this.player.queue().ifPresent(this.connector::deletePlayerQueue);
+//        final int totalPlayer = this.player.room().map(this.discovery::countExchangeBinds).orElse(0);
+//        if (totalPlayer == 1) this.player.room().ifPresent(this.connector::deleteRoom);
+//        this.player.queue().ifPresent(this.connector::deletePlayerQueue);
         System.exit(0);
     }
 
