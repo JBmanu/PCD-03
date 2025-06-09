@@ -5,13 +5,9 @@ import utils.GameConsumers.PlayerData;
 import java.util.List;
 import java.util.Optional;
 
-public interface Player {
-    String QUEUE = "queue";
-    String DIVISOR = ".";
+import static utils.Namespace.*;
 
-    String DOMAIN = "sudoku";
-    String ROOM = "room";
-    String PLAYER = "player";
+public interface Player {
 
     static Player create() {
         return new PlayerImpl();

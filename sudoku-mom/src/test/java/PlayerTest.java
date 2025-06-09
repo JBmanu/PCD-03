@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static model.Player.*;
+import static utils.Namespace.*;
 
 public class PlayerTest {
     public static final String COUNT_ROOM = "1";
