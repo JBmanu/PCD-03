@@ -1,6 +1,7 @@
+import model.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import model.Player;
+import utils.Namespace;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +16,8 @@ public class PlayerTest {
     public static final String NAME = "Manu";
     public static final String ROOM_NAME = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM));
     public static final String QUEUE_NAME = String.join(DIVISOR, List.of(ROOM_NAME, QUEUE, COUNT_QUEUE, PLAYER, NAME));
-    
-    
+
+
     private Player player;
 
     @BeforeEach
@@ -34,12 +35,10 @@ public class PlayerTest {
 
     @Test
     public void computeToCreateRoom() {
-        final String room = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM));
-        final String queue = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM, QUEUE, COUNT_QUEUE, PLAYER, NAME));
         this.player.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, NAME);
 
-        assertEquals(Optional.of(room), this.player.room());
-        assertEquals(Optional.of(queue), this.player.queue());
+        assertEquals(Optional.of(Namespace.computeRoomName(COUNT_ROOM)), this.player.room());
+        assertEquals(Optional.of(Namespace.computePlayerQueueName(COUNT_ROOM, COUNT_QUEUE, NAME)), this.player.queue());
         assertEquals(Optional.of(NAME), this.player.name());
     }
 
@@ -47,7 +46,7 @@ public class PlayerTest {
     public void computeRoomID() {
         this.player.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, NAME);
         final Optional<String> roomID = this.player.computeRoomID();
-        assertEquals(Optional.of("room1"), roomID);
+        assertEquals(Namespace.computeRoomIDFrom(this.player), roomID);
     }
 
     @Test
