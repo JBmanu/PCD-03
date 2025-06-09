@@ -196,10 +196,22 @@ public class GridTest {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
             final Map<Coordinate, Integer> solution = grid.solution();
-            final byte[][] solutionData = grid.solutionArray();
+            final byte[][] solutionArray = grid.solutionArray();
             
             solution.forEach((coordinate, count) -> 
-                    assertEquals(count, solutionData[coordinate.row()][coordinate.col()]));
+                    assertEquals(count, solutionArray[coordinate.row()][coordinate.col()]));
+        });
+    }
+    
+    @Test
+    public void cellsArray() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            final Map<Coordinate, Integer> solution = grid.cells();
+            final byte[][] cellsArray = grid.cellsArray();
+            
+            solution.forEach((coordinate, count) -> 
+                    assertEquals(count, cellsArray[coordinate.row()][coordinate.col()]));
         });
     }
 

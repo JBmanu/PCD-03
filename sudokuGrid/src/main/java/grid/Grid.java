@@ -34,6 +34,8 @@ public interface Grid {
 
     Map<Coordinate, Integer> cells();
 
+    byte[][] cellsArray();
+
     List<Map.Entry<Coordinate, Integer>> orderedCells();
 
     List<Map.Entry<Coordinate, Integer>> emptyCells();
@@ -142,6 +144,11 @@ public interface Grid {
         @Override
         public Map<Coordinate, Integer> cells() {
             return this.convertToMap(this.grid);
+        }
+
+        @Override
+        public byte[][] cellsArray() {
+            return this.grid.getArray();
         }
 
         @Override
