@@ -2,13 +2,13 @@ import grid.Settings;
 import model.GridServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import utils.Namespace;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static utils.Namespace.*;
 
 public class GridServerTest {
     private static final List<Settings> SETTINGS = List.of(
@@ -34,15 +34,16 @@ public class GridServerTest {
     }
     
     @Test
-    public void queueName() {
+    public void createGameData() {
         final String countRoom = "1";
-        final String queue = String.join(DIVISOR, List.of(DOMAIN, ROOM, countRoom, QUEUE, SERVER));
+        final String countQueue = "1";
 
         SETTINGS.forEach(settings -> {
             this.server.createGrid(settings);
-//            final Optional<String> queueName = this.server.computeData(countRoom);
-//            assertTrue(queueName.isPresent());
-//            assertEquals(Optional.of(queue), queueName);
+            this.server.createGameData(countRoom, countQueue);
+            
+            assertEquals(Optional.of(Namespace.computeRoomName(countRoom)), this.server.room());
+            assertEquals(Optional.of(Namespace.computeServerQueueName(countQueue)), this.server.queue());
         });
     }
 

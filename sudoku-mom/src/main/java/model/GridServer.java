@@ -21,6 +21,8 @@ public interface GridServer {
 
     Optional<String> room();
 
+    Optional<String> queue();
+
 
     class GridServerImpl implements GridServer {
         private Optional<Grid> grid;
@@ -60,6 +62,9 @@ public interface GridServer {
             return this.room;
         }
 
-
+        @Override
+        public Optional<String> queue() {
+            return this.queue;
+        }
     }
 }
