@@ -78,6 +78,12 @@ public class RabbitMQDiscoveryTest {
     }
     
     @Test
+    public void routingKeysFromBindsQueueWithoutQueue() {
+        final List<String> queues = this.discovery.routingKeysFromBindsExchange("amq", "");
+        assertEquals(0, queues.size());
+    }
+    
+    @Test
     public void countMessageOnQueue() {
         assertEquals(0, this.discovery.countMessageOnQueue("amq"));
     }

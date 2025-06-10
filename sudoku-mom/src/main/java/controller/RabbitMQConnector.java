@@ -143,10 +143,7 @@ public interface RabbitMQConnector {
         public void sendMove(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate,
                              final int value) {
             player.callActionOnData((room, _, name) -> {
-                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room).stream()
-                        .filter(routingKey -> !routingKey.equals(name))
-                        .toList();
-
+                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
                 routingKeys.forEach(routingKey -> {
                     final String message = Messages.ToSend.move(name, coordinate, value);
                     this.sendMessage(room, routingKey, message);
@@ -163,10 +160,7 @@ public interface RabbitMQConnector {
         @Override
         public void requestGrid(final RabbitMQDiscovery discovery, final Player player) {
             player.callActionOnData((room, _, name) -> {
-                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room).stream()
-                        .filter(routingKey -> !routingKey.equals(name))
-                        .toList();
-
+                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
                 routingKeys.stream().findFirst().ifPresent(routingKey ->
                         this.sendMessage(room, routingKey, Messages.ToSend.requestGrid(name)));
             });

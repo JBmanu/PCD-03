@@ -37,8 +37,8 @@ public interface RabbitMQDiscovery {
     int countQueueBinds(String queueName);
 
     List<String> routingKeysFromBindsExchange(String roomName);
-    
-//    List<String> routingKeysFromBindsExchange(String roomName, String withoutQueue);
+
+    List<String> routingKeysFromBindsExchange(String roomName, String withoutQueue);
 
     int countMessageOnQueue(String queueName);
 
@@ -123,6 +123,13 @@ public interface RabbitMQDiscovery {
         public List<String> routingKeysFromBindsExchange(final String roomName) {
             return this.client.getBindingsBySource(USERNAME, roomName).stream()
                     .map(BindingInfo::getRoutingKey)
+                    .toList();
+        }
+
+        @Override
+        public List<String> routingKeysFromBindsExchange(final String roomName, final String withoutQueue) {
+            return this.routingKeysFromBindsExchange(roomName).stream()
+                    .filter(routingKey -> !routingKey.equals(withoutQueue))
                     .toList();
         }
 
