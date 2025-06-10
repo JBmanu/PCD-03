@@ -5,7 +5,7 @@ import grid.Grid;
 import grid.Settings;
 import model.Player;
 import ui.color.Palette;
-import utils.Namespace;
+import utils.Topics;
 import view.GameMultiplayerListener;
 import view.UIMultiplayer;
 import view.ViewMultiPlayer;
@@ -47,7 +47,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                 this.player.computeToCreateRoom(countRoom, countQueues, playerName.get());
                 this.connector.createRoomAndJoin(this.player);
             } else {
-                final String roomName = Namespace.computeRoomNameFrom(room.get());
+                final String roomName = Topics.computeRoomNameFrom(room.get());
                 final String countQueues = this.discovery.countExchangeBinds(roomName) + 1 + "";
                 this.player.computeToJoinRoom(room.get(), countQueues, playerName.get());
 //                this.connector.createPlayerAndJoin(this.player);

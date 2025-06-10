@@ -3,7 +3,7 @@ import grid.Settings;
 import model.GridServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import utils.Namespace;
+import utils.Topics;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,8 +43,8 @@ public class GridServerTest {
             this.server.createGrid(settings);
             this.server.createGameData(countRoom, countQueue);
 
-            assertEquals(Optional.of(Namespace.computeRoomName(countRoom)), this.server.room());
-            assertEquals(Optional.of(Namespace.computeServerQueueName(countQueue)), this.server.queue());
+            assertEquals(Optional.of(Topics.computeRoomName(countRoom)), this.server.room());
+            assertEquals(Optional.of(Topics.computeServerQueueName(countQueue)), this.server.queue());
         });
     }
 

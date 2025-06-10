@@ -7,12 +7,15 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import grid.Coordinate;
 import model.Player;
+import utils.GameConsumers.GridData;
 import utils.GameConsumers.PlayerAction;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+
+import static utils.Topics.REQUEST_GRID;
 
 public interface RabbitMQConnector {
 
@@ -34,6 +37,9 @@ public interface RabbitMQConnector {
 
     void receiveMove(String queue, PlayerAction action);
 
+    void requestGrid(RabbitMQDiscovery discovery, Player player, GridData gridData);
+
+    // manca togliere il bind quando il giocatore esce
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
         private static final String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
@@ -85,6 +91,17 @@ public interface RabbitMQConnector {
             });
         }
 
+//        private void joinRoom(final Player player) {
+//            player.callActionOnData((room, queue, name) -> {
+//                try {
+//                    this.channel.queueDeclare(queue, true, false, false, null);
+//                    this.channel.queueBind(queue, room, name);
+//                } catch (final IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            });
+//        }
+
         @Override
         public void createRoomAndJoin(final Player player) {
             this.createRoom(player);
@@ -104,7 +121,8 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void sendMove(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate, final int value) {
+        public void sendMove(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate,
+                             final int value) {
             player.callActionOnData((room, _, name) -> {
                 final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room).stream()
                         .filter(routingKey -> !routingKey.equals(name))
@@ -159,6 +177,24 @@ public interface RabbitMQConnector {
             } catch (final IOException e) {
                 throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
             }
+        }
+
+        @Override
+        public void requestGrid(final RabbitMQDiscovery discovery, final Player player, final GridData gridData) {
+            player.callActionOnData((room, _, name) -> {
+                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room).stream()
+                        .filter(routingKey -> !routingKey.equals(name))
+                        .toList();
+
+                routingKeys.stream().findFirst().ifPresent(routingKey -> {
+                    try {
+                        final byte[] request = REQUEST_GRID.getBytes(StandardCharsets.UTF_8);
+                        this.channel.basicPublish(room, routingKey, null, request);
+                    } catch (final IOException e) {
+                        throw new RuntimeException("Failed to consume messages from routing key: " + e.getMessage(), e);
+                    }
+                });
+            });
         }
 
     }

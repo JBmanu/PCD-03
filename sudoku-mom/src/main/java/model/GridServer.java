@@ -3,7 +3,7 @@ package model;
 import grid.Coordinate;
 import grid.Grid;
 import grid.Settings;
-import utils.Namespace;
+import utils.Topics;
 
 import java.util.Optional;
 
@@ -48,8 +48,8 @@ public interface GridServer {
 
         @Override
         public void createGameData(final String countRoom, final String countQueue) {
-            this.room = this.grid.map(_ -> Namespace.computeRoomName(countRoom));
-            this.queue = this.grid.map(_ -> Namespace.computeServerQueueName(countQueue));
+            this.room = this.grid.map(_ -> Topics.computeRoomName(countRoom));
+            this.queue = this.grid.map(_ -> Topics.computeServerQueueName(countQueue));
         }
 
         @Override

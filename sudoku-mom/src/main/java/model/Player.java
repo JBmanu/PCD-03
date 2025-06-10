@@ -1,7 +1,7 @@
 package model;
 
 import utils.GameConsumers.PlayerData;
-import utils.Namespace;
+import utils.Topics;
 
 import java.util.Optional;
 
@@ -40,7 +40,7 @@ public interface Player {
 
         @Override
         public Optional<String> computeRoomID() {
-            return Namespace.computeRoomIDFrom(this);
+            return Topics.computeRoomIDFrom(this);
         }
         
         @Override
@@ -60,15 +60,15 @@ public interface Player {
 
         @Override
         public void computeToCreateRoom(final String countRoom, final String countQueue, final String playerName) {
-            this.room = Optional.of(Namespace.computeRoomName(countRoom));
-            this.queue = Optional.of(Namespace.computePlayerQueueName(countRoom, countQueue, playerName));
+            this.room = Optional.of(Topics.computeRoomName(countRoom));
+            this.queue = Optional.of(Topics.computePlayerQueueName(countRoom, countQueue, playerName));
             this.name = Optional.of(playerName);
         }
 
         @Override
         public void computeToJoinRoom(final String roomId, final String countQueue, final String playerName) {
-            this.room = Optional.of(Namespace.computeRoomNameFrom(roomId));
-            this.queue = Optional.of(Namespace.computePlayerQueueNameFrom(roomId, countQueue, playerName));
+            this.room = Optional.of(Topics.computeRoomNameFrom(roomId));
+            this.queue = Optional.of(Topics.computePlayerQueueNameFrom(roomId, countQueue, playerName));
             this.name = Optional.of(playerName);
         }
 

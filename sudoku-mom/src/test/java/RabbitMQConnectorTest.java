@@ -69,7 +69,7 @@ public class RabbitMQConnectorTest {
     }
 
     @Test
-    public void joinOnRoom() {
+    public void joinRoom() {
         this.connector.createRoom(this.player1);
         this.connector.joinRoom(this.player1);
 
@@ -157,6 +157,23 @@ public class RabbitMQConnectorTest {
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
         assertEquals(0, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
         
+        this.connector.deleteQueue(player2);
+    }
+    
+    @Test
+    public void requestGrid() {
+        final Player player2 = this.computeNewPlayer("2", "lu");
+        this.connector.createRoomAndJoin(this.player1);
+        
+        this.connector.requestGrid(this.discovery, player2, (_, _) -> {});
+
+        await().atMost(Duration.ofSeconds(10))
+                .until(() -> this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
+
+        
+        assertEquals(1, this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(0));
+        assertEquals(0, player2.queue().map(this.discovery::countMessageOnQueue).orElse(1));
+
         this.connector.deleteQueue(player2);
     }
 

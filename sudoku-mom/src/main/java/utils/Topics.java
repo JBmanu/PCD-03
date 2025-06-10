@@ -6,7 +6,7 @@ import model.Player;
 import java.util.List;
 import java.util.Optional;
 
-public final class Namespace {
+public final class Topics {
     public static final String DIVISOR = ".";
 
     public static final String DOMAIN = "sudoku";
@@ -15,6 +15,8 @@ public final class Namespace {
 
     public static final String SERVER = "server";
     public static final String PLAYER = "player";
+    
+    public static final String REQUEST_GRID = "grid";
 
 
     public static String computeRoomName(final String countRoom) {
@@ -25,12 +27,12 @@ public final class Namespace {
         return String.join(DIVISOR,
                 List.of(computeRoomName(countRoom), QUEUE, countQueue, PLAYER, playerName));
     }
-    
+
     public static String computePlayerQueueNameFrom(final String roomId, final String countQueue, final String playerName) {
         return String.join(DIVISOR,
                 List.of(computeRoomNameFrom(roomId), QUEUE, countQueue, PLAYER, playerName));
     }
-    
+
     public static String computeServerQueueName(final String countRoom) {
         return String.join(DIVISOR, List.of(computeRoomName(countRoom), QUEUE, SERVER));
     }
