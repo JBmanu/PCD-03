@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static controller.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
 import static controller.RabbitMQDiscovery.COUNT_DEFAULT_QUEUE_BINDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -77,6 +78,26 @@ public class RabbitMQConnectorTest {
 
         assertEquals(1, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
         assertEquals(COUNT_DEFAULT_QUEUE_BINDS + 1, this.player1.queue().map(this.discovery::countQueueBinds).orElse(0));
+    }
+    
+    @Test
+    public void onePlayerLeaveRoom() {
+        this.connector.createRoomAndJoin(this.player1);
+        this.connector.leaveRoom(this.discovery, this.player1);
+
+        assertEquals(COUNT_DEFAULT_EXCHANGE, this.discovery.countExchanges());
+        assertEquals(1, this.discovery.countQueues());
+    }
+
+    @Test
+    public void twoPlayerLeaveRoom() {
+        final Player player2 = this.computeNewPlayer("2", "lu");
+        this.createRoomWithTwoPlayer(player2);
+        this.connector.leaveRoom(this.discovery, player2);
+
+        assertEquals(COUNT_DEFAULT_EXCHANGE + 1, this.discovery.countExchanges());
+        assertEquals(2, this.discovery.countQueues());
+        assertEquals(1, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
     }
 
     @Test

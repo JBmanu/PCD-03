@@ -32,6 +32,8 @@ public interface RabbitMQConnector {
     void createRoomAndJoin(Player player);
 
     void joinRoom(Player player);
+    
+    void leaveRoom(RabbitMQDiscovery discovery, Player player);
 
     void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
 
@@ -113,10 +115,23 @@ public interface RabbitMQConnector {
             });
         }
 
+        @Override
+        public void leaveRoom(final RabbitMQDiscovery discovery, final Player player) {
+            player.callActionOnData((room, queue, name) -> {
+                try {
+                    this.channel.queueUnbind(queue, room, name);
+                    if (discovery.countExchangeBinds(room) == 0) this.channel.exchangeDelete(room);
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
         private void sendMessage(final String room, final String routingKey, final String message) {
             try {
                 final byte[] body = message.getBytes(StandardCharsets.UTF_8);
                 this.channel.basicPublish(room, routingKey, JSON_PROPERTIES, body);
+                //request response
             } catch (final IOException e) {
                 throw new RuntimeException("Failed to send message: " + e.getMessage(), e);
             }
