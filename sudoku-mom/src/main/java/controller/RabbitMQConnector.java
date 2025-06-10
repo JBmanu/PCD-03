@@ -1,22 +1,21 @@
 package controller;
 
-import com.google.gson.Gson;
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import grid.Coordinate;
 import grid.Grid;
 import model.Player;
-import utils.GameConsumers.*;
+import utils.GameConsumers.DeliveryAction;
+import utils.GameConsumers.GridData;
+import utils.GameConsumers.PlayerAction;
+import utils.Messages;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
-import static utils.Topics.REQUEST;
-import static utils.Topics.REQUEST_GRID;
+import static utils.Messages.JSON_PROPERTIES;
 
 public interface RabbitMQConnector {
 
@@ -114,6 +113,32 @@ public interface RabbitMQConnector {
             });
         }
 
+        private void sendMessage(final String room, final String routingKey, final String message) {
+            try {
+                final byte[] body = message.getBytes(StandardCharsets.UTF_8);
+                this.channel.basicPublish(room, routingKey, JSON_PROPERTIES, body);
+            } catch (final IOException e) {
+                throw new RuntimeException("Failed to send message: " + e.getMessage(), e);
+            }
+        }
+
+        private void receiveMessage(final String queue, final DeliveryAction action) {
+            try {
+                this.channel.basicConsume(queue, false, (_, delivery) -> {
+                    try {
+                        action.accept(delivery);
+                        this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                    } catch (final IOException e) {
+                        this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                        throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
+                    }
+                }, _ -> {
+                });
+            } catch (final IOException e) {
+                throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
+            }
+        }
+
         @Override
         public void sendMove(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate,
                              final int value) {
@@ -123,56 +148,16 @@ public interface RabbitMQConnector {
                         .toList();
 
                 routingKeys.forEach(routingKey -> {
-                    // create json message with player name, coordinate, and value
-                    // For example: {"player": "Player1", "coordinate": {"x": 0, "y": 0}, "value": 1}
-                    final AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder()
-                            .contentType("application/json")
-                            .build();
-                    // Convert the message to JSON format using gson library
-                    final Gson gson = new Gson();
-                    final String json = gson.toJson(
-                            Map.of(
-                                    "player", player.name().orElse("Unknown"),
-                                    "coordinate", Map.of("row", coordinate.row(), "column", coordinate.col()),
-                                    "value", value
-                            )
-                    );
-                    try {
-                        this.channel.basicPublish(room, routingKey, properties, json.getBytes(StandardCharsets.UTF_8));
-                    } catch (final IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    final String message = Messages.ToSend.move(name, coordinate, value);
+                    this.sendMessage(room, routingKey, message);
                 });
             });
         }
 
+        @Override
         public void receiveMove(final Player player, final PlayerAction action) {
-            player.callActionOnData((_, queue, _) -> {
-                try {
-                    this.channel.basicConsume(queue, false, (_, delivery) -> {
-                        try {
-
-                            final String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-                            final Gson gson = new Gson();
-                            final Map<String, Object> data = gson.fromJson(message, Map.class);
-                            final String playerName = (String) data.get("player");
-                            final Map<String, Object> coordinate = (Map<String, Object>) data.get("coordinate");
-                            final int row = (int) ((double) coordinate.get("row"));
-                            final int column = (int) ((double) coordinate.get("column"));
-                            final int value = (int) ((double) data.get("value"));
-                            action.accept(playerName, Coordinate.create(row, column), value);
-
-                            this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                        } catch (final IOException e) {
-                            this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                            throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
-                        }
-                    }, _ -> {
-                    });
-                } catch (final IOException e) {
-                    throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
-                }
-            });
+            player.callActionOnData((_, queue, _) ->
+                    this.receiveMessage(queue, delivery -> Messages.ToReceive.acceptMove(delivery, action)));
         }
 
         @Override
@@ -182,85 +167,24 @@ public interface RabbitMQConnector {
                         .filter(routingKey -> !routingKey.equals(name))
                         .toList();
 
-                routingKeys.stream().findFirst().ifPresent(routingKey -> {
-                    try {
-                        // create json message with request for grid and name of the player
-                        final AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder()
-                                .contentType("application/json")
-                                .build();
-                        final String json = new Gson().toJson(Map.of(REQUEST, REQUEST_GRID, "player", name));
-
-                        this.channel.basicPublish(room, routingKey, properties, json.getBytes(StandardCharsets.UTF_8));
-                    } catch (final IOException e) {
-                        throw new RuntimeException("Failed to consume messages from routing key: " + e.getMessage(), e);
-                    }
-                });
+                routingKeys.stream().findFirst().ifPresent(routingKey ->
+                        this.sendMessage(room, routingKey, Messages.ToSend.requestGrid(name)));
             });
         }
 
         @Override
         public void receiveRequestAndSendGrid(final Player player, final Grid grid) {
-            player.callActionOnData((room, queue, name) -> {
-                try {
-                    this.channel.basicConsume(queue, false, (_, delivery) -> {
-                        try {
-                            final byte[][] solution = grid.solutionArray();
-                            final byte[][] gridArray = grid.cellsArray();
-
-                            final Gson gson = new Gson();
-                            final String json = gson
-                                    .toJson(Map.of("solution", solution, "grid", gridArray));
-
-                            final AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder()
-                                    .contentType("application/json")
-                                    .build();
-
-                            final String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-                            final Map<String, Object> data = gson.fromJson(message, Map.class);
-                            final String request = (String) data.get(REQUEST);
-                            if (!REQUEST_GRID.equals(request)) {
-                                throw new RuntimeException("Received unexpected request: " + request);
-                            }
-                            final String playerName = (String) data.get("player");
-                            
-                            this.channel.basicPublish(room, playerName, properties, json.getBytes(StandardCharsets.UTF_8));
-                            this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                        } catch (final IOException e) {
-                            this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                            throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
-                        }
-                    }, _ -> {
-                    });
-                } catch (final IOException e) {
-                    throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
-                }
-            });
+            player.callActionOnData((room, queue, _) ->
+                    this.receiveMessage(queue, delivery ->
+                            Messages.ToReceive.acceptGridRequest(delivery, playerName ->
+                                    this.sendMessage(room, playerName, Messages.ToSend.grid(grid)))));
         }
 
         @Override
         public void receiveGrid(final Player player, final GridData gridData) {
-            player.callActionOnData((_, queue, _) -> {
-                try {
-                    this.channel.basicConsume(queue, false, (_, delivery) -> {
-                        try {
-
-                            final String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-                            final Gson gson = new Gson();
-                            final Map<String, Object> data = gson.fromJson(message, Map.class);
-                            final byte[][] gridArray = gson.fromJson(data.get("grid").toString(), byte[][].class);
-                            final byte[][] solutionArray = gson.fromJson(data.get("solution").toString(), byte[][].class);
-                            gridData.accept(solutionArray, gridArray);
-                            this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                        } catch (final IOException e) {
-                            this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                            throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
-                        }
-                    }, _ -> {
-                    });
-                } catch (final IOException e) {
-                    throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
-                }
-            });
+            player.callActionOnData((_, queue, _) ->
+                    this.receiveMessage(queue, delivery ->
+                            Messages.ToReceive.acceptGrid(delivery, gridData)));
         }
 
     }

@@ -169,6 +169,7 @@ public class RabbitMQConnectorTest {
     public void requestGrid() {
         final Player player2 = this.computeNewPlayer("2", "lu");
         this.createRoomWithTwoPlayer(player2);
+        this.connector.requestGrid(this.discovery, player2);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);

@@ -37,6 +37,8 @@ public interface RabbitMQDiscovery {
     int countQueueBinds(String queueName);
 
     List<String> routingKeysFromBindsExchange(String roomName);
+    
+//    List<String> routingKeysFromBindsExchange(String roomName, String withoutQueue);
 
     int countMessageOnQueue(String queueName);
 
