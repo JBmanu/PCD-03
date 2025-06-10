@@ -8,7 +8,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import grid.Coordinate;
 import grid.Grid;
 import model.Player;
-import utils.GameConsumers.PlayerAction;
+import utils.GameConsumers.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -40,7 +40,9 @@ public interface RabbitMQConnector {
 
     void requestGrid(RabbitMQDiscovery discovery, Player player);
 
-    void receiveAndSendGrid(Player player, Grid grid);
+    void receiveRequestAndSendGrid(Player player, Grid grid);
+
+    void receiveGrid(Player player, GridData gridData);
 
     // manca togliere il bind quando il giocatore esce
 
@@ -145,7 +147,7 @@ public interface RabbitMQConnector {
         }
 
         public void receiveMove(final Player player, final PlayerAction action) {
-            player.callActionOnData((room, queue, name) -> {
+            player.callActionOnData((_, queue, _) -> {
                 try {
                     this.channel.basicConsume(queue, false, (_, delivery) -> {
                         try {
@@ -197,7 +199,7 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void receiveAndSendGrid(final Player player, final Grid grid) {
+        public void receiveRequestAndSendGrid(final Player player, final Grid grid) {
             player.callActionOnData((room, queue, name) -> {
                 try {
                     this.channel.basicConsume(queue, false, (_, delivery) -> {
@@ -220,10 +222,34 @@ public interface RabbitMQConnector {
                                 throw new RuntimeException("Received unexpected request: " + request);
                             }
                             final String playerName = (String) data.get("player");
-                            // Publish the grid data to the room with the player's name as the routing key
-                            // Note: The routing key is the player's name, so the message will be sent to the player's queue
-
+                            
                             this.channel.basicPublish(room, playerName, properties, json.getBytes(StandardCharsets.UTF_8));
+                            this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                        } catch (final IOException e) {
+                            this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                            throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
+                        }
+                    }, _ -> {
+                    });
+                } catch (final IOException e) {
+                    throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
+                }
+            });
+        }
+
+        @Override
+        public void receiveGrid(final Player player, final GridData gridData) {
+            player.callActionOnData((_, queue, _) -> {
+                try {
+                    this.channel.basicConsume(queue, false, (_, delivery) -> {
+                        try {
+
+                            final String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+                            final Gson gson = new Gson();
+                            final Map<String, Object> data = gson.fromJson(message, Map.class);
+                            final byte[][] gridArray = gson.fromJson(data.get("grid").toString(), byte[][].class);
+                            final byte[][] solutionArray = gson.fromJson(data.get("solution").toString(), byte[][].class);
+                            gridData.accept(solutionArray, gridArray);
                             this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                         } catch (final IOException e) {
                             this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
