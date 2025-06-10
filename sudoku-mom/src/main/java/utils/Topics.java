@@ -16,6 +16,7 @@ public final class Topics {
     public static final String SERVER = "server";
     public static final String PLAYER = "player";
     
+    public static final String REQUEST = "request";
     public static final String REQUEST_GRID = "grid";
 
 

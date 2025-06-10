@@ -1,6 +1,8 @@
 import controller.RabbitMQConnector;
 import controller.RabbitMQDiscovery;
 import grid.Coordinate;
+import grid.Grid;
+import grid.Settings;
 import model.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,13 +92,20 @@ public class RabbitMQConnectorTest {
         player2.computeToCreateRoom(COUNT_ROOM, countQueue, name);
         return player2;
     }
+    
+    private void createRoomWithTwoPlayer(final Player player2) {
+        this.connector.createRoomAndJoin(this.player1);
+        this.connector.joinRoom(player2);
+        assertEquals(2, this.discovery.countQueues());
+        assertEquals(2, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
+        assertEquals(2, player2.room().map(this.discovery::countExchangeBinds).orElse(0));
+    }
 
     @Test
     public void connectTwoPlayers() {
         final Player player2 = this.computeNewPlayer("2", "lu");
-        this.connector.createRoomAndJoin(this.player1);
-        this.connector.joinRoom(player2);
-
+        this.createRoomWithTwoPlayer(player2);
+        
         assertEquals(2, this.discovery.countQueues());
         assertEquals(2, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
         assertEquals(2, player2.room().map(this.discovery::countExchangeBinds).orElse(0));
@@ -123,8 +132,7 @@ public class RabbitMQConnectorTest {
     @Test
     public void sendMove() {
         final Player player2 = this.computeNewPlayer("2", "lu");
-        this.connector.createRoomAndJoin(this.player1);
-        this.connector.joinRoom(player2);
+        this.createRoomWithTwoPlayer(player2);
 
         this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
 
@@ -147,11 +155,11 @@ public class RabbitMQConnectorTest {
         this.connector.joinRoom(player2);
 
         this.connector.sendMove(this.discovery, this.player1, coordinate, cellValue);
-        player2.queue().ifPresent(queue -> this.connector.receiveMove(queue, (player, position, value) -> {
+        this.connector.receiveMove(player2, (player, position, value) -> {
             assertEquals(this.player1.name(), Optional.of(player));
             assertEquals(coordinate, position);
             assertEquals(cellValue, value);
-        }));
+        });
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
@@ -163,17 +171,36 @@ public class RabbitMQConnectorTest {
     @Test
     public void requestGrid() {
         final Player player2 = this.computeNewPlayer("2", "lu");
-        this.connector.createRoomAndJoin(this.player1);
-        
-        this.connector.requestGrid(this.discovery, player2, (_, _) -> {});
+        this.createRoomWithTwoPlayer(player2);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
-
         
         assertEquals(1, this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(0));
         assertEquals(0, player2.queue().map(this.discovery::countMessageOnQueue).orElse(1));
 
+        this.connector.deleteQueue(player2);
+    }
+    
+    @Test
+    public void receiveAndSendGrid() {
+        final Grid grid = Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.MEDIUM));
+        final Player player2 = this.computeNewPlayer("2", "lu");
+        this.createRoomWithTwoPlayer(player2);
+
+        this.connector.requestGrid(this.discovery, player2);
+        this.connector.receiveAndSendGrid(this.player1, grid);
+
+        await().atMost(Duration.ofSeconds(10))
+                .until(() -> this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
+
+        assertEquals(0, this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(1));
+
+        await().atMost(Duration.ofSeconds(10))
+                .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
+
+        assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
+        
         this.connector.deleteQueue(player2);
     }
 
