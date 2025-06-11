@@ -2,8 +2,7 @@ import scala.language.postfixOps
 
 ThisBuild / scalaVersion := "3.3.4"
 
-//libraryDependencies += "com.github.User" % "Repo" % "Tag"
-//libraryDependencies += "com.github.USERNAME" %% "REPO" % "TAG"
+enablePlugins(AssemblyPlugin)
 
 lazy val root = (project in file("."))
   .aggregate(sudokuGrid, sudokuUI, sudokuLocal, sudokuMOM)
@@ -12,8 +11,13 @@ lazy val root = (project in file("."))
     )
 
 lazy val commonSettings = Seq(
+  assembly / assemblyMergeStrategy := {
+    case PathList("META-INF", _*) => MergeStrategy.discard
+    case _                        => MergeStrategy.first
+  },
   resolvers += "jitpack" at "https://jitpack.io",
   libraryDependencies ++= Seq(
+    "org.slf4j" % "slf4j-simple" % "2.0.17",
     "org.junit.jupiter" % "junit-jupiter-api" % "5.13.1" % Test,
     )
   )
@@ -24,7 +28,6 @@ lazy val sudokuGrid = (project in file("sudokuGrid"))
     name := "sudoku-grid",
     libraryDependencies ++= Seq(
       "de.sfuhrm" % "sudoku-client" % "5.0.3",
-//      "de.sfuhrm" % "sudoku-parent" % "5.0.3"
       )
     )
 
@@ -60,6 +63,5 @@ lazy val sudokuMOM = (project in file("sudoku-mom"))
       "org.awaitility" % "awaitility" % "4.3.0",
       "com.google.code.gson" % "gson" % "2.13.1",
       "com.github.rabbitmq" % "hop" % "5.3.0",
-      "org.slf4j" % "slf4j-simple" % "2.0.17",
       )
     )
