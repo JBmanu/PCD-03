@@ -16,8 +16,7 @@ public class PlayerTest {
     public static final String NAME = "Manu";
     public static final String ROOM_NAME = String.join(DIVISOR, List.of(DOMAIN, ROOM, COUNT_ROOM));
     public static final String QUEUE_NAME = String.join(DIVISOR, List.of(ROOM_NAME, QUEUE, COUNT_QUEUE, PLAYER, NAME));
-
-
+    
     private Player player;
 
     @BeforeEach
@@ -67,5 +66,4 @@ public class PlayerTest {
             assertEquals(name, this.player.name().orElse(""));
         });
     }
-
 }

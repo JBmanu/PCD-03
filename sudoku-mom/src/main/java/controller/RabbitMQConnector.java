@@ -6,16 +6,17 @@ import com.rabbitmq.client.ConnectionFactory;
 import grid.Coordinate;
 import grid.Grid;
 import model.Player;
-import utils.GameConsumers.DeliveryAction;
 import utils.GameConsumers.GridData;
-import utils.GameConsumers.PlayerAction;
+import utils.GameConsumers.PlayerMoveAction;
 import utils.Messages;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import static utils.Messages.JSON_PROPERTIES;
+import static utils.Messages.TYPE_MESSAGE_KEY;
 
 public interface RabbitMQConnector {
 
@@ -32,20 +33,15 @@ public interface RabbitMQConnector {
     void createRoomAndJoin(Player player);
 
     void joinRoom(Player player);
-    
+
     void leaveRoom(RabbitMQDiscovery discovery, Player player);
 
+    void sendGridRequest(RabbitMQDiscovery discovery, Player player);
+
     void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
-
-    void receiveMove(Player player, PlayerAction action);
-
-    void requestGrid(RabbitMQDiscovery discovery, Player player);
-
-    void receiveRequestAndSendGrid(Player player, Grid grid);
-
-    void receiveGrid(Player player, GridData gridData);
-
-    // manca togliere il bind quando il giocatore esce
+    
+    void activeCallbackReceiveMessage(Player player, Grid grid, PlayerMoveAction moveAction, GridData gridData);
+    
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
         private static final String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
@@ -137,21 +133,13 @@ public interface RabbitMQConnector {
             }
         }
 
-        private void receiveMessage(final String queue, final DeliveryAction action) {
-            try {
-                this.channel.basicConsume(queue, false, (_, delivery) -> {
-                    try {
-                        action.accept(delivery);
-                        this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                    } catch (final IOException e) {
-                        this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-                        throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
-                    }
-                }, _ -> {
-                });
-            } catch (final IOException e) {
-                throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
-            }
+        @Override
+        public void sendGridRequest(final RabbitMQDiscovery discovery, final Player player) {
+            player.callActionOnData((room, _, name) -> {
+                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
+                routingKeys.stream().findFirst().ifPresent(routingKey ->
+                        this.sendMessage(room, routingKey, Messages.ToSend.gridRequest(name)));
+            });
         }
 
         @Override
@@ -167,33 +155,32 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void receiveMove(final Player player, final PlayerAction action) {
-            player.callActionOnData((_, queue, _) ->
-                    this.receiveMessage(queue, delivery -> Messages.ToReceive.acceptMove(delivery, action)));
-        }
+        public void activeCallbackReceiveMessage(final Player player, final Grid grid,
+                                                 final PlayerMoveAction moveAction, final GridData gridData) {
+            player.callActionOnData((room, queue, _) -> {
+                try {
+                    this.channel.basicConsume(queue, false, (_, delivery) -> {
+                        try {
+                            final Map<String, Object> message = Messages.ToReceive.createMessage(delivery);
 
-        @Override
-        public void requestGrid(final RabbitMQDiscovery discovery, final Player player) {
-            player.callActionOnData((room, _, name) -> {
-                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
-                routingKeys.stream().findFirst().ifPresent(routingKey ->
-                        this.sendMessage(room, routingKey, Messages.ToSend.requestGrid(name)));
+                            switch (message.get(TYPE_MESSAGE_KEY).toString()) {
+                                case Messages.TYPE_GRID_REQUEST ->
+                                        Messages.ToReceive.acceptGridRequest(delivery, playerName ->
+                                                this.sendMessage(room, playerName, Messages.ToSend.grid(grid)));
+                                case Messages.TYPE_GRID -> Messages.ToReceive.acceptGrid(delivery, gridData);
+                                case Messages.TYPE_MOVE -> Messages.ToReceive.acceptMove(delivery, moveAction);
+                            }
+                            this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                        } catch (final IOException e) {
+                            this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                            throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
+                        }
+                    }, _ -> {
+                    });
+                } catch (final IOException e) {
+                    throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
+                }
             });
-        }
-
-        @Override
-        public void receiveRequestAndSendGrid(final Player player, final Grid grid) {
-            player.callActionOnData((room, queue, _) ->
-                    this.receiveMessage(queue, delivery ->
-                            Messages.ToReceive.acceptGridRequest(delivery, playerName ->
-                                    this.sendMessage(room, playerName, Messages.ToSend.grid(grid)))));
-        }
-
-        @Override
-        public void receiveGrid(final Player player, final GridData gridData) {
-            player.callActionOnData((_, queue, _) ->
-                    this.receiveMessage(queue, delivery ->
-                            Messages.ToReceive.acceptGrid(delivery, gridData)));
         }
 
     }
