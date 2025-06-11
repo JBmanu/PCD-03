@@ -1,5 +1,4 @@
 import grid.Settings;
-import model.GridServer;
 import model.Player;
 import org.junit.jupiter.api.Test;
 import utils.Topics;
@@ -47,15 +46,6 @@ public class TopicsTest {
         player.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, PLAYER);
         
         assertEquals(Optional.of(roomId), Topics.computeRoomIDFrom(player));
-    }
-    
-    @Test
-    public void computeRoomIDFromServer() {
-        final GridServer server = GridServer.create();
-        final String roomId = ROOM + COUNT_ROOM;
-        server.createGrid(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.EASY));
-        server.createGameData(COUNT_ROOM, COUNT_QUEUE);
-        assertEquals(Optional.of(roomId), Topics.computeRoomIDFrom(server));
     }
     
     @Test

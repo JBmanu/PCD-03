@@ -31,6 +31,8 @@ public interface Grid {
     Map<Coordinate, Integer> solution();
     
     byte[][] solutionArray();
+    
+    void loadSolution(byte[][] solution);
 
     Map<Coordinate, Integer> cells();
 
@@ -139,6 +141,11 @@ public interface Grid {
         @Override
         public byte[][] solutionArray() {
             return this.solution.getArray();
+        }
+
+        @Override
+        public void loadSolution(final byte[][] solution) {
+            this.solution.setAll(solution);
         }
 
         @Override

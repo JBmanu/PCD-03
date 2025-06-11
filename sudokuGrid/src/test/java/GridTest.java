@@ -214,5 +214,21 @@ public class GridTest {
                     assertEquals(count, cellsArray[coordinate.row()][coordinate.col()]));
         });
     }
+    
+    @Test
+    public void loadSolution() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            // create solution with all values set to 0
+            final byte[][] solutionArray = new byte[settings.size()][settings.size()];
+            grid.loadSolution(solutionArray);
+            
+            // check that all values are set to 0
+            grid.solution().forEach((coordinate, value) -> {
+                assertEquals(grid.emptyValue(), value);
+                assertEquals(grid.emptyValue(), grid.solutionArray()[coordinate.row()][coordinate.col()]);
+            });
+        });
+    }
 
 }

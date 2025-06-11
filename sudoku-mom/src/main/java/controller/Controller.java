@@ -50,6 +50,12 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                 this.player.computeToJoinRoom(room.get(), countQueues, playerName.get());
                 this.connector.joinRoom(this.player);
             }
+            this.connector.activeCallbackReceiveMessage(this.player, this.grid, (name, coordinate, value) -> {
+
+                    },
+                    (solution, cells) -> {
+                    });
+
             this.ui.buildGrid(this.grid);
             this.ui.showGridPage();
         }

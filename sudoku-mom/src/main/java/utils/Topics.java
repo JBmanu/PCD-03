@@ -1,6 +1,5 @@
 package utils;
 
-import model.GridServer;
 import model.Player;
 
 import java.util.List;
@@ -37,11 +36,6 @@ public final class Topics {
 
     public static Optional<String> computeRoomIDFrom(final Player player) {
         return player.room().map(name -> name.replaceAll(DOMAIN + "\\" + DIVISOR, "")
-                .replaceAll("\\" + DIVISOR, ""));
-    }
-
-    public static Optional<String> computeRoomIDFrom(final GridServer server) {
-        return server.room().map(name -> name.replaceAll(DOMAIN + "\\" + DIVISOR, "")
                 .replaceAll("\\" + DIVISOR, ""));
     }
 
