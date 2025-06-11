@@ -11,6 +11,7 @@ import view.UIMultiplayer;
 import view.ViewMultiPlayer;
 
 import javax.swing.*;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class Controller implements GameMultiplayerListener.PlayerListener {
@@ -44,20 +45,24 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                 final String countRoom = this.discovery.countExchangesWithoutDefault() + 1 + "";
                 this.player.computeToCreateRoom(countRoom, "1", playerName.get());
                 this.connector.createRoomAndJoin(this.player);
+                this.ui.buildGrid(this.grid);
+                this.ui.showGridPage();
             } else {
                 final String roomName = Topics.computeRoomNameFrom(room.get());
                 final String countQueues = this.discovery.countExchangeBinds(roomName) + 1 + "";
                 this.player.computeToJoinRoom(room.get(), countQueues, playerName.get());
                 this.connector.joinRoom(this.player);
+                this.connector.sendGridRequest(this.discovery, this.player);
             }
             this.connector.activeCallbackReceiveMessage(this.player, this.grid, (name, coordinate, value) -> {
 
                     },
                     (solution, cells) -> {
+                        this.grid.loadSolution(solution);
+                        this.grid.loadCells(cells);
+                        this.ui.buildGrid(this.grid);
+                        this.ui.showGridPage();
                     });
-
-            this.ui.buildGrid(this.grid);
-            this.ui.showGridPage();
         }
     }
 
