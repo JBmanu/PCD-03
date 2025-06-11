@@ -3,7 +3,6 @@ package view;
 import grid.Coordinate;
 import grid.Grid;
 import ui.components.ColorComponent;
-import ui.listener.GameListener;
 
 import java.util.Map;
 
@@ -27,7 +26,7 @@ public interface UIMultiplayer extends ColorComponent {
     
     void reset(Map<Coordinate, Integer> resetGrid);
     
-    void writeValue(Coordinate coordinate, Integer value);
+    void writeValueWithoutCheck(Coordinate coordinate, Integer value);
 
 
     void win(final String message);

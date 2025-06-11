@@ -128,6 +128,22 @@ public class SNumberCell extends JTextField {
     public void setValue(final int value) {
         this.setText(value == 0 ? EMPTY : String.valueOf(value));
     }
+    
+    private void removeAllDocumentListeners(){
+        ((AbstractDocument) this.getDocument()).setDocumentFilter(null);
+        this.getDocument().removeDocumentListener(this.documentEvent);
+    }
+    
+    private void restoAllDocumentListeners() {
+        this.getDocument().addDocumentListener(this.documentEvent);
+        ((AbstractDocument) this.getDocument()).setDocumentFilter(this.numberFilter);
+    }
+    
+    public void setValueWithoutCheck(final int value) {
+        this.removeAllDocumentListeners();
+        this.setValue(value);
+        this.restoAllDocumentListeners();
+    }
 
     public void setSuggest(final int value) {
         if (value != 0) this.setEditable(false);

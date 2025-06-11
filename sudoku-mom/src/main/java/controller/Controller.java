@@ -53,9 +53,10 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                 this.connector.joinRoom(this.player);
                 this.connector.sendGridRequest(this.discovery, this.player);
             }
-            this.connector.activeCallbackReceiveMessage(this.player, this.grid, (name, coordinate, value) -> {
+            this.connector.activeCallbackReceiveMessage(this.player, this.grid,
+                    (name, coordinate, value) -> {
                         this.grid.saveValue(coordinate, value);
-                        this.ui.writeValue(coordinate, value);
+                        this.ui.writeValueWithoutCheck(coordinate, value);
                     },
                     (solution, cells) -> {
                         this.grid.loadSolution(solution);
@@ -75,6 +76,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     @Override
     public boolean onModifyCell(final Coordinate coordinate, final int value) {
+        this.grid.saveValue(coordinate, value);
         this.connector.sendMove(this.discovery, this.player, coordinate, value);
         return true;
     }

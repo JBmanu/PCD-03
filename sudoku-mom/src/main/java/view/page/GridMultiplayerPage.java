@@ -115,11 +115,12 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
                 .toList();
     }
 
-    public void writeValue(final Coordinate coordinate, final Integer value) {
+    public void setValueWithoutCheck(final Coordinate coordinate, final Integer value) {
         SwingUtilities.invokeLater(() -> {
+            final int size = (int) Math.sqrt(this.cells.size());
             final SNumberCell cell = this.cells.get(coordinate);
-            cell.setValue(value);
-            this.requestFocusInWindow();
+            cell.setValueWithoutCheck(value);
+            this.numberInfoPanel.checkNumber(value, size, this.countValue(value));
         });
     }
 
