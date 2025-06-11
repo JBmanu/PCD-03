@@ -11,7 +11,6 @@ import view.UIMultiplayer;
 import view.ViewMultiPlayer;
 
 import javax.swing.*;
-import java.util.Arrays;
 import java.util.Optional;
 
 public class Controller implements GameMultiplayerListener.PlayerListener {
@@ -55,7 +54,8 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                 this.connector.sendGridRequest(this.discovery, this.player);
             }
             this.connector.activeCallbackReceiveMessage(this.player, this.grid, (name, coordinate, value) -> {
-
+                        this.grid.saveValue(coordinate, value);
+                        this.ui.writeValue(coordinate, value);
                     },
                     (solution, cells) -> {
                         this.grid.loadSolution(solution);
@@ -75,7 +75,8 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     @Override
     public boolean onModifyCell(final Coordinate coordinate, final int value) {
-        return false;
+        this.connector.sendMove(this.discovery, this.player, coordinate, value);
+        return true;
     }
 
     @Override

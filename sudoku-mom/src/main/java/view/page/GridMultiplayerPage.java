@@ -63,13 +63,13 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
 
 
     public void build(final Grid grid) {
+        SwingUtilities.invokeLater(() -> {
         this.cells.clear();
         this.gridPanel.removeAll();
         this.gridPanel.setLayout(new GridLayout(grid.size(), grid.size()));
 
-        grid.orderedCells().forEach(entry -> {
-            final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
-            SwingUtilities.invokeLater(() -> {
+            grid.orderedCells().forEach(entry -> {
+                final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
                 this.cells.put(entry.getKey(), cell);
                 cell.setColorable(this.optionPalette);
                 cell.addInsertListeners(this);
@@ -78,12 +78,13 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
                 this.gridPanel.add(cell);
                 cell.setBorder(BorderUtils.create(cell, grid.size(), CELL_BORDER, DIVISOR_BORDER, this.gridColor));
             });
-
-        });
+            this.gridPanel.revalidate();
+            
         this.numberInfoPanel.setup(grid.size());
         for (int i = 1; i <= grid.size();
              this.numberInfoPanel.checkNumber(i, grid.size(), this.countValue(i++)))
             ;
+        });
     }
 
     public void suggest(final Coordinate key, final Integer value) {
@@ -115,7 +116,11 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
     }
 
     public void writeValue(final Coordinate coordinate, final Integer value) {
-        this.cells.get(coordinate).setSuggest(value);
+        SwingUtilities.invokeLater(() -> {
+            final SNumberCell cell = this.cells.get(coordinate);
+            cell.setValue(value);
+            this.requestFocusInWindow();
+        });
     }
 
     @Override
@@ -162,5 +167,5 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         this.gridColor = palette.secondaryWithAlpha(alpha);
         this.optionPalette = Optional.of(palette);
     }
-    
+
 }

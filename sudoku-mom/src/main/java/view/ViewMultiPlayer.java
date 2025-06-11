@@ -13,6 +13,8 @@ import view.page.MenuMultiplayerPage;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Map;
 
 import static ui.utils.StyleUtils.FRAME_SIZE;
@@ -41,6 +43,14 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
         this.menuPage.addListener(this);
         this.gridPage.addActionListener(this);
 
+//        this.addWindowListener(new WindowAdapter() {
+//            @Override
+//            public void windowClosing(final WindowEvent e) {}
+//
+//            @Override
+//            public void windowClosed(final WindowEvent e) {}
+//        });
+        
         this.showMenuPage();
     }
 
@@ -101,7 +111,7 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
 
     @Override
     public void writeValue(final Coordinate coordinate, final Integer value) {
-        this.gridPage.writeValue(coordinate, value);
+        SwingUtilities.invokeLater(() -> this.gridPage.writeValue(coordinate, value));
     }
 
     @Override
