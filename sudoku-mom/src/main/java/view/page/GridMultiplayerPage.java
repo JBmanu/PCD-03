@@ -69,22 +69,21 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
 
         grid.orderedCells().forEach(entry -> {
             final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
-            this.cells.put(entry.getKey(), cell);
-            cell.setColorable(this.optionPalette);
-            cell.addInsertListeners(this);
-            cell.addSelectionListener(this);
-            this.cellListeners.forEach(cell::addCellListeners);
-            this.gridPanel.add(cell);
+            SwingUtilities.invokeLater(() -> {
+                this.cells.put(entry.getKey(), cell);
+                cell.setColorable(this.optionPalette);
+                cell.addInsertListeners(this);
+                cell.addSelectionListener(this);
+                this.cellListeners.forEach(cell::addCellListeners);
+                this.gridPanel.add(cell);
+                cell.setBorder(BorderUtils.create(cell, grid.size(), CELL_BORDER, DIVISOR_BORDER, this.gridColor));
+            });
 
-            cell.setBorder(BorderUtils.create(cell, grid.size(), CELL_BORDER, DIVISOR_BORDER, this.gridColor));
         });
-
         this.numberInfoPanel.setup(grid.size());
-
         for (int i = 1; i <= grid.size();
              this.numberInfoPanel.checkNumber(i, grid.size(), this.countValue(i++)))
             ;
-
     }
 
     public void suggest(final Coordinate key, final Integer value) {
