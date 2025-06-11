@@ -29,14 +29,16 @@ public interface Grid {
 
 
     Map<Coordinate, Integer> solution();
-    
+
     byte[][] solutionArray();
-    
+
     void loadSolution(byte[][] solution);
 
     Map<Coordinate, Integer> cells();
 
     byte[][] cellsArray();
+
+    void loadCells(byte[][] cellsArray);
 
     List<Map.Entry<Coordinate, Integer>> orderedCells();
 
@@ -44,7 +46,7 @@ public interface Grid {
 
 
     void saveValue(Coordinate coordinate, int value);
-    
+
     void resetValue(Coordinate coordinate);
 
     int valueFrom(Coordinate coordinate);
@@ -54,7 +56,6 @@ public interface Grid {
     Optional<Coordinate> undo();
 
     Map<Coordinate, Integer> reset();
-
 
 
     class GridImpl implements Grid {
@@ -156,6 +157,11 @@ public interface Grid {
         @Override
         public byte[][] cellsArray() {
             return this.grid.getArray();
+        }
+
+        @Override
+        public void loadCells(final byte[][] cellsArray) {
+            this.grid.setAll(cellsArray);
         }
 
         @Override

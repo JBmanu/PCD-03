@@ -215,18 +215,41 @@ public class GridTest {
         });
     }
     
+    private byte[][] arrayEmpty(final Grid grid) {
+        final int size = grid.size();
+        final byte[][] array = new byte[size][size];
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                array[row][col] = (byte)grid.emptyValue();
+            }
+        }
+        return array;
+    }
+    
     @Test
     public void loadSolution() {
         this.settingsList.forEach(settings -> {
             final Grid grid = Grid.create(settings);
-            // create solution with all values set to 0
-            final byte[][] solutionArray = new byte[settings.size()][settings.size()];
+            final byte[][] solutionArray = this.arrayEmpty(grid);
             grid.loadSolution(solutionArray);
             
-            // check that all values are set to 0
             grid.solution().forEach((coordinate, value) -> {
                 assertEquals(grid.emptyValue(), value);
                 assertEquals(grid.emptyValue(), grid.solutionArray()[coordinate.row()][coordinate.col()]);
+            });
+        });
+    }
+    
+    @Test
+    public void loadCells() {
+        this.settingsList.forEach(settings -> {
+            final Grid grid = Grid.create(settings);
+            final byte[][] cellsArray = this.arrayEmpty(grid);
+            grid.loadCells(cellsArray);
+            
+            grid.cells().forEach((coordinate, value) -> {
+                assertEquals(grid.emptyValue(), value);
+                assertEquals(grid.emptyValue(), grid.cellsArray()[coordinate.row()][coordinate.col()]);
             });
         });
     }
