@@ -114,6 +114,10 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
                 .toList();
     }
 
+    public void writeValue(final Coordinate coordinate, final Integer value) {
+        this.cells.get(coordinate).setSuggest(value);
+    }
+
     @Override
     public void onFocusGainedCell(final SNumberCell cell) {
         if (cell.value().isEmpty()) {
@@ -158,6 +162,5 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         this.gridColor = palette.secondaryWithAlpha(alpha);
         this.optionPalette = Optional.of(palette);
     }
-
-
+    
 }

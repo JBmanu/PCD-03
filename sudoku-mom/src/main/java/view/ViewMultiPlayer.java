@@ -100,6 +100,11 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     }
 
     @Override
+    public void writeValue(final Coordinate coordinate, final Integer value) {
+        this.gridPage.writeValue(coordinate, value);
+    }
+
+    @Override
     public void win(final String message) {
         JOptionPane.showMessageDialog(this, message, "Victory", JOptionPane.INFORMATION_MESSAGE);
         this.showMenuPage();

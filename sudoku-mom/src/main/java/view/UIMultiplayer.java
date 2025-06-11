@@ -26,6 +26,8 @@ public interface UIMultiplayer extends ColorComponent {
     void undo(Coordinate coordinate);
     
     void reset(Map<Coordinate, Integer> resetGrid);
+    
+    void writeValue(Coordinate coordinate, Integer value);
 
 
     void win(final String message);
