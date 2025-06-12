@@ -2,6 +2,7 @@ package view;
 
 import grid.Coordinate;
 import grid.Grid;
+import model.Player;
 import ui.components.ColorComponent;
 
 import java.util.Map;
@@ -16,9 +17,11 @@ public interface UIMultiplayer extends ColorComponent {
 
     
     void addPlayerListener(GameMultiplayerListener.PlayerListener listener);
-    
 
+    
     void buildGrid(Grid grid);
+    
+    void buildPlayer(Player player);
     
     void suggest(Coordinate key, Integer value);
 
@@ -30,4 +33,5 @@ public interface UIMultiplayer extends ColorComponent {
 
 
     void win(final String message);
+
 }

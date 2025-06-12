@@ -2,6 +2,7 @@ package view.page;
 
 import grid.Coordinate;
 import grid.Grid;
+import model.Player;
 import ui.color.Palette;
 import ui.components.ColorComponent;
 import ui.components.SNumberCell;
@@ -12,6 +13,7 @@ import ui.panel.NumberInfoPanel;
 import ui.utils.BorderUtils;
 import ui.utils.PanelUtils;
 import utils.GridUtils;
+import view.GameInfoPanel;
 import view.GameMultiplayerListener;
 
 import javax.swing.*;
@@ -26,6 +28,7 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
     private final JPanel gridPanel;
     private final Map<Coordinate, SNumberCell> cells;
 
+    private final GameInfoPanel gameInfoPanel;
     private final NumberInfoPanel numberInfoPanel;
     private final GridActionPanel gridActionPanel;
 
@@ -41,6 +44,7 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         this.gridPanel = PanelUtils.createTransparent();
         this.cells = new HashMap<>();
 
+        this.gameInfoPanel = new GameInfoPanel();
         this.numberInfoPanel = new NumberInfoPanel();
         this.gridActionPanel = new GridActionPanel();
         this.optionPalette = Optional.empty();
@@ -55,9 +59,9 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
 
         final int height = V_GAP * 4;
         this.add(Box.createVerticalStrut(height), BorderLayout.NORTH);
+        this.add(this.gameInfoPanel, BorderLayout.WEST);
         this.add(this.gridPanel, BorderLayout.CENTER);
         this.add(PanelUtils.createCenterWithGap(ZERO_GAP, height, interactionPanel), BorderLayout.SOUTH);
-        this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.WEST);
         this.add(Box.createHorizontalStrut(H_GAP + H_GAP), BorderLayout.EAST);
     }
 
@@ -85,6 +89,10 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
                  this.numberInfoPanel.checkNumber(i, grid.size(), this.countValue(i++)))
                 ;
         });
+    }
+
+    public void buildPlayer(final Player player) {
+        this.gameInfoPanel.build(player);
     }
 
     public void suggest(final Coordinate key, final Integer value) {
@@ -174,5 +182,6 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         this.gridColor = palette.secondaryWithAlpha(alpha);
         this.optionPalette = Optional.of(palette);
     }
+
 
 }

@@ -2,6 +2,7 @@ package view;
 
 import grid.Coordinate;
 import grid.Grid;
+import model.Player;
 import ui.color.Palette;
 import ui.listener.GameListener;
 import ui.listener.GridPageListener;
@@ -90,6 +91,11 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     @Override
     public void buildGrid(final Grid grid) {
         this.gridPage.build(grid);
+    }
+
+    @Override
+    public void buildPlayer(final Player player) {
+        this.gridPage.buildPlayer(player);
     }
 
     @Override
