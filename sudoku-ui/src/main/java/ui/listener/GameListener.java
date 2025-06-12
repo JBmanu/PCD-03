@@ -12,6 +12,8 @@ public interface GameListener {
     }
 
     interface ActionListener {
+        void onHome();
+        
         void onUndo();
 
         void onSuggest();

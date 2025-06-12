@@ -34,6 +34,11 @@ public class Controller implements GameListener.PlayerListener {
     }
 
     @Override
+    public void onHome() {
+        
+    }
+
+    @Override
     public void onUndo() {
         this.grid.undo().ifPresent(this.ui::undo);
     }

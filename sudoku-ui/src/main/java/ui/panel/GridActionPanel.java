@@ -47,6 +47,7 @@ public class GridActionPanel extends JPanel implements ColorComponent {
 
     private void onClickHome() {
         this.listeners.forEach(GridPageListener.ActionListener::onHome);
+        this.actionListeners.forEach(GameListener.ActionListener::onHome);
     }
 
     private void onClickUndo() {
