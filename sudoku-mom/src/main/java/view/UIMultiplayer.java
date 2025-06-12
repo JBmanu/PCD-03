@@ -5,6 +5,7 @@ import grid.Grid;
 import model.Player;
 import ui.components.ColorComponent;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UIMultiplayer extends ColorComponent {
@@ -24,6 +25,8 @@ public interface UIMultiplayer extends ColorComponent {
     void buildPlayer(Player player);
 
     void joinPlayer(String newPlayerName);
+
+    void appendPlayers(List<String> currentPlayers);
     
     void suggest(Coordinate key, Integer value);
 

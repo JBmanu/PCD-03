@@ -9,6 +9,8 @@ import java.awt.*;
 import java.util.List;
 
 public class GameInfoPanel extends JPanel {
+    public static final String ROOM_LABEL = "ROOM ID: ";
+    public static final String SELF = "You";
     final JLabel infoRoom;
     final JTextArea playerArea;
 
@@ -29,15 +31,28 @@ public class GameInfoPanel extends JPanel {
     }
 
     public void build(final Player player) {
-        player.computeRoomID().ifPresent(id -> this.infoRoom.setText("ROOM ID: " + id));
-        this.playerArea.append("Tu");
+        player.computeRoomID().ifPresent(id -> this.infoRoom.setText(ROOM_LABEL + id));
+        this.playerArea.append(SELF);
     }
 
     public void joinPlayer(final String playerName) {
         this.playerArea.append("\n" + playerName);
     }
 
-    public void refresh(final List<String> players) {
-        players.forEach(this.playerArea::append);
+    public void appendPlayers(final List<String> players) {
+        players.forEach(this::joinPlayer);
+    }
+    
+    public static void main(final String[] args) {
+        JFrame frame = new JFrame();
+        GameInfoPanel gameInfoPanel = new GameInfoPanel();
+        frame.getContentPane().add(gameInfoPanel, BorderLayout.CENTER);
+        
+        frame.setVisible(true);
+
+        Player player = Player.create();
+        player.computeToCreateRoom("1", "1", "testPlayer");
+        gameInfoPanel.build(player);
+        gameInfoPanel.appendPlayers(List.of("manu", "lu", "luca"));
     }
 }

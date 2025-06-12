@@ -99,6 +99,10 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         this.gameInfoPanel.joinPlayer(newPlayerName);
     }
 
+    public void appendPlayers(final List<String> currentPlayers) {
+        this.gameInfoPanel.appendPlayers(currentPlayers);
+    }
+
     public void suggest(final Coordinate key, final Integer value) {
         this.cells.get(key).setSuggest(value);
         this.cells.values().forEach(SNumberCell::unselectedColor);

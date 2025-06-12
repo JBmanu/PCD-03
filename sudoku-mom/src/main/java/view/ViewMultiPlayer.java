@@ -14,6 +14,7 @@ import view.page.MenuMultiplayerPage;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 import java.util.Map;
 
 import static ui.utils.StyleUtils.FRAME_SIZE;
@@ -101,6 +102,11 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     @Override
     public void joinPlayer(final String newPlayerName) {
         this.gridPage.joinPlayer(newPlayerName);
+    }
+
+    @Override
+    public void appendPlayers(final List<String> currentPlayers) {
+        this.gridPage.appendPlayers(currentPlayers);
     }
 
     @Override
