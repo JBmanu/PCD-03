@@ -99,6 +99,11 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     }
 
     @Override
+    public void joinPlayer(final String newPlayerName) {
+        this.gridPage.joinPlayer(newPlayerName);
+    }
+
+    @Override
     public void suggest(final Coordinate key, final Integer value) {
         this.gridPage.suggest(key, value);
     }

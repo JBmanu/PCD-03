@@ -22,6 +22,8 @@ public interface UIMultiplayer extends ColorComponent {
     void buildGrid(Grid grid);
     
     void buildPlayer(Player player);
+
+    void joinPlayer(String newPlayerName);
     
     void suggest(Coordinate key, Integer value);
 

@@ -95,6 +95,10 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         this.gameInfoPanel.build(player);
     }
 
+    public void joinPlayer(final String newPlayerName) {
+        this.gameInfoPanel.joinPlayer(newPlayerName);
+    }
+
     public void suggest(final Coordinate key, final Integer value) {
         this.cells.get(key).setSuggest(value);
         this.cells.values().forEach(SNumberCell::unselectedColor);
@@ -182,6 +186,7 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         this.gridColor = palette.secondaryWithAlpha(alpha);
         this.optionPalette = Optional.of(palette);
     }
+
 
 
 }
