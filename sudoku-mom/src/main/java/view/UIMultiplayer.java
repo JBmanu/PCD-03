@@ -26,6 +26,8 @@ public interface UIMultiplayer extends ColorComponent {
 
     void joinPlayer(String newPlayerName);
 
+    void leavePlayer(String playerName);
+
     void appendPlayers(List<String> currentPlayers);
     
     void suggest(Coordinate key, Integer value);

@@ -57,7 +57,8 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                 this.connector.sendGridRequest(this.discovery, this.player);
             }
             this.connector.activeCallbackReceiveMessage(this.player, this.grid,
-                    this.ui::joinPlayer,
+                    this.ui::joinPlayer, 
+                    this.ui::leavePlayer,
                     (name, coordinate, value) -> {
                         this.grid.saveValue(coordinate, value);
                         this.ui.writeValueWithoutCheck(coordinate, value);

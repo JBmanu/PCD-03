@@ -8,6 +8,7 @@ import grid.Grid;
 import model.Player;
 import utils.GameConsumers.GridData;
 import utils.GameConsumers.JoinPlayer;
+import utils.GameConsumers.LeavePlayer;
 import utils.GameConsumers.PlayerMove;
 import utils.Messages;
 
@@ -42,7 +43,8 @@ public interface RabbitMQConnector {
     void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
 
     void activeCallbackReceiveMessage(Player player, Grid grid,
-                                      JoinPlayer joinPlayer, PlayerMove moveAction, GridData gridData);
+                                      JoinPlayer joinPlayer, LeavePlayer leavePlayer,
+                                      PlayerMove moveAction, GridData gridData);
 
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
@@ -127,6 +129,10 @@ public interface RabbitMQConnector {
             player.callActionOnData((room, queue, name) -> {
                 try {
                     this.channel.queueUnbind(queue, room, name);
+                    discovery.routingKeysFromBindsExchange(room, name)
+                            .forEach(routingKey ->
+                                    this.sendMessage(room, routingKey, Messages.ToSend.leavePlayer(name)));
+
                     if (discovery.countExchangeBinds(room) == 0) this.channel.exchangeDelete(room);
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
@@ -167,7 +173,7 @@ public interface RabbitMQConnector {
 
         @Override
         public void activeCallbackReceiveMessage(final Player player, final Grid grid,
-                                                 final JoinPlayer joinPlayer,
+                                                 final JoinPlayer joinPlayer, final LeavePlayer leavePlayer,
                                                  final PlayerMove moveAction, final GridData gridData) {
             player.callActionOnData((room, queue, _) -> {
                 try {
@@ -181,6 +187,8 @@ public interface RabbitMQConnector {
                                                 this.sendMessage(room, playerName, Messages.ToSend.grid(grid)));
                                 case Messages.TYPE_JOIN_PLAYER ->
                                         Messages.ToReceive.acceptJoinPlayer(delivery, joinPlayer);
+                                case Messages.TYPE_LEAVE_PLAYER ->
+                                        Messages.ToReceive.acceptLeavePlayer(delivery, leavePlayer);
                                 case Messages.TYPE_GRID -> Messages.ToReceive.acceptGrid(delivery, gridData);
                                 case Messages.TYPE_MOVE -> Messages.ToReceive.acceptMove(delivery, moveAction);
                             }

@@ -48,8 +48,12 @@ public class GameInfoPanel extends JPanel {
         this.playerArea.append("\n" + playerName);
     }
 
+    public void leavePlayer(final String playerName) {
+        final String text = this.playerArea.getText();
+        this.playerArea.setText(text.replace("\n" + playerName, ""));
+    }
+
     public void appendPlayers(final List<String> players) {
         players.forEach(this::joinPlayer);
     }
-
 }

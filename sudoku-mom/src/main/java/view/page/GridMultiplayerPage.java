@@ -99,6 +99,10 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         this.gameInfoPanel.joinPlayer(newPlayerName);
     }
 
+    public void leavePlayer(final String playerName) {
+        this.gameInfoPanel.leavePlayer(playerName);
+    }
+
     public void appendPlayers(final List<String> currentPlayers) {
         this.gameInfoPanel.appendPlayers(currentPlayers);
     }
@@ -190,7 +194,4 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         this.gridColor = palette.secondaryWithAlpha(alpha);
         this.optionPalette = Optional.of(palette);
     }
-
-
-
 }

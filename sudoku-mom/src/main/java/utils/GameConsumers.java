@@ -19,6 +19,9 @@ public final class GameConsumers {
     public interface JoinPlayer extends Consumers.Consumer<String> {
     }
 
+    public interface LeavePlayer extends Consumers.Consumer<String> {
+    }
+
 }
 
 

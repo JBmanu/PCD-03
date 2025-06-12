@@ -18,6 +18,7 @@ public final class Messages {
     // TYPE VALUES
     public static final String TYPE_GRID_REQUEST = "grid";
     public static final String TYPE_JOIN_PLAYER = "join";
+    public static final String TYPE_LEAVE_PLAYER = "leave";
     public static final String TYPE_GRID = "gridData";
     public static final String TYPE_MOVE = "move";
 
@@ -42,6 +43,12 @@ public final class Messages {
         public static String joinPlayer(final String playerName) {
             return GSON.toJson(Map.of(
                     TYPE_MESSAGE_KEY, TYPE_JOIN_PLAYER,
+                    PLAYER_KEY, playerName));
+        }
+        
+        public static String leavePlayer(final String playerName) {
+            return GSON.toJson(Map.of(
+                    TYPE_MESSAGE_KEY, TYPE_LEAVE_PLAYER,
                     PLAYER_KEY, playerName));
         }
 
@@ -89,10 +96,16 @@ public final class Messages {
             request.accept(playerName);
         }
 
-        public static void acceptJoinPlayer(final Delivery delivery, final GameConsumers.JoinPlayer consumer) {
+        public static void acceptJoinPlayer(final Delivery delivery, final GameConsumers.JoinPlayer joinPlayer) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
-            consumer.accept(playerName);
+            joinPlayer.accept(playerName);
+        }
+        
+        public static void acceptLeavePlayer(final Delivery delivery, final GameConsumers.LeavePlayer leavePlayer) {
+            final Map<String, Object> data = createMessage(delivery);
+            final String playerName = (String) data.get(PLAYER_KEY);
+            leavePlayer.accept(playerName);
         }
         
         public static void acceptMove(final Delivery delivery, final PlayerMove action) {

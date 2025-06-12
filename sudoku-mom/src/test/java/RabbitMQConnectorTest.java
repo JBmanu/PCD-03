@@ -92,7 +92,7 @@ public class RabbitMQConnectorTest {
     }
 
     @Test
-    public void twoPlayerLeaveRoom() {
+    public void twoPlayerAndOnePlayerLeaveRoom() {
         final Player player2 = this.computeNewPlayer("2", "lu");
         this.createRoomWithTwoPlayer(player2);
         this.connector.leaveRoom(this.discovery, player2);
@@ -100,6 +100,19 @@ public class RabbitMQConnectorTest {
         assertEquals(COUNT_DEFAULT_EXCHANGE + 1, this.discovery.countExchanges());
         assertEquals(2, this.discovery.countQueues());
         assertEquals(1, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
+
+        this.connector.deleteQueue(player2);
+    }
+
+    @Test
+    public void listenWhenPlayerLeaveRoom() {
+        final String leavePlayerName = "lu";
+        final Player player2 = this.computeNewPlayer("2", leavePlayerName);
+        this.createRoomWithTwoPlayer(player2);
+        this.connector.leaveRoom(this.discovery, player2);
+
+        this.connector.activeCallbackReceiveMessage(this.player1, null, _ -> {}, playerName ->
+                assertEquals(leavePlayerName, playerName), null, null);
 
         this.connector.deleteQueue(player2);
     }
@@ -143,7 +156,9 @@ public class RabbitMQConnectorTest {
 
         this.connector.activeCallbackReceiveMessage(player2, null, name ->
                         assertEquals(this.player1.name(), Optional.of(name)),
-                null, null);
+                null, null, null);
+
+        this.connector.deleteQueue(player2);
     }
 
     @Test
@@ -200,11 +215,12 @@ public class RabbitMQConnectorTest {
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
         assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
 
-        this.connector.activeCallbackReceiveMessage(player2, null, null, (player, position, value) -> {
-            assertEquals(this.player1.name(), Optional.of(player));
-            assertEquals(coordinate, position);
-            assertEquals(cellValue, value);
-        }, null);
+        this.connector.activeCallbackReceiveMessage(player2, null, null, null,
+                (player, position, value) -> {
+                    assertEquals(this.player1.name(), Optional.of(player));
+                    assertEquals(coordinate, position);
+                    assertEquals(cellValue, value);
+                }, null);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
@@ -235,7 +251,7 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
 
         this.connector.sendGridRequest(this.discovery, player2);
-        this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null, null);
+        this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null, null, null);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
@@ -258,8 +274,8 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
 
         this.connector.sendGridRequest(this.discovery, player2);
-        this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null, null);
-        connector2.activeCallbackReceiveMessage(player2, null, null, null, (solution, cells) -> {
+        this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null, null, null);
+        connector2.activeCallbackReceiveMessage(player2, null, null, null, null, (solution, cells) -> {
             assertNotNull(cells);
             assertNotNull(solution);
 
