@@ -1,6 +1,7 @@
 import scala.language.postfixOps
 
 ThisBuild / scalaVersion := "3.3.4"
+ThisBuild / javacOptions ++= Seq("--release", "22")
 
 enablePlugins(AssemblyPlugin)
 
