@@ -83,7 +83,10 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     @Override
     public void onUndo() {
-
+        this.grid.undo().ifPresent(coordinate -> {
+            this.ui.undo(coordinate);
+            this.connector.sendMove(this.discovery, this.player, coordinate, this.grid.emptyValue());
+        });
     }
 
     @Override
