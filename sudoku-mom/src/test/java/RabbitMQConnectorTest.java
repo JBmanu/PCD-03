@@ -32,7 +32,7 @@ public class RabbitMQConnectorTest {
     public void create() {
         this.connector = RabbitMQConnector.create();
         this.discovery = RabbitMQDiscovery.create();
-        
+
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> {
                     this.player1 = Player.create();
@@ -76,7 +76,7 @@ public class RabbitMQConnectorTest {
     @Test
     public void joinRoom() {
         this.connector.createRoom(this.player1);
-        this.connector.joinRoom(this.player1);
+        this.connector.joinRoom(this.discovery, this.player1);
 
         assertEquals(1, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
         assertEquals(COUNT_DEFAULT_QUEUE_BINDS + 1, this.player1.queue().map(this.discovery::countQueueBinds).orElse(0));
@@ -120,7 +120,7 @@ public class RabbitMQConnectorTest {
 
     private void createRoomWithTwoPlayer(final Player player2) {
         this.connector.createRoomAndJoin(this.player1);
-        this.connector.joinRoom(player2);
+        this.connector.joinRoom(this.discovery, player2);
     }
 
     @Test
@@ -136,13 +136,24 @@ public class RabbitMQConnectorTest {
     }
 
     @Test
+    public void connectTwoPlayersAndListenJoinPlayer2() {
+        final String player2Name = "lu";
+        final Player player2 = this.computeNewPlayer("2", player2Name);
+        this.createRoomWithTwoPlayer(player2);
+
+        this.connector.activeCallbackReceiveMessage(player2, null, name ->
+                        assertEquals(this.player1.name(), Optional.of(name)),
+                null, null);
+    }
+
+    @Test
     public void createNPlayerAndJoinInSameRoom() {
         this.connector.createRoom(this.player1);
         final List<Player> players = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
             final Player player = this.computeNewPlayer(i + "", "player" + i);
             players.add(player);
-            this.connector.joinRoom(player);
+            this.connector.joinRoom(this.discovery, player);
             assertEquals(i, this.discovery.countQueues());
             assertEquals(i, player.room().map(this.discovery::countExchangeBinds).orElse(0));
         }
@@ -166,7 +177,7 @@ public class RabbitMQConnectorTest {
 
         this.connector.deleteQueue(player2);
     }
-    
+
     private RabbitMQConnector createOtherConnector() {
         final RabbitMQConnector connector2 = RabbitMQConnector.create();
         await().atMost(Duration.ofSeconds(10))
@@ -179,17 +190,17 @@ public class RabbitMQConnectorTest {
         final Coordinate coordinate = Coordinate.create(0, 0);
         final int cellValue = 1;
         final Player player2 = this.computeNewPlayer("2", "lu");
-        
+
         this.connector.createRoomAndJoin(this.player1);
-        this.connector.joinRoom(player2);
+        this.connector.joinRoom(this.discovery, player2);
 
         this.connector.sendMove(this.discovery, this.player1, coordinate, cellValue);
-        
+
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
         assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
-        
-        this.connector.activeCallbackReceiveMessage(player2, null, (player, position, value) -> {
+
+        this.connector.activeCallbackReceiveMessage(player2, null, null, (player, position, value) -> {
             assertEquals(this.player1.name(), Optional.of(player));
             assertEquals(coordinate, position);
             assertEquals(cellValue, value);
@@ -224,7 +235,7 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
 
         this.connector.sendGridRequest(this.discovery, player2);
-        this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null);
+        this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null, null);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
@@ -247,8 +258,8 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
 
         this.connector.sendGridRequest(this.discovery, player2);
-        this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null);
-        connector2.activeCallbackReceiveMessage(player2, null, null, (solution, cells) -> {
+        this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null, null);
+        connector2.activeCallbackReceiveMessage(player2, null, null, null, (solution, cells) -> {
             assertNotNull(cells);
             assertNotNull(solution);
 

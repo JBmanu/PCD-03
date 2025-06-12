@@ -52,15 +52,17 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                 final String countQueues = this.discovery.countExchangeBinds(roomName) + 1 + "";
                 this.player.computeToJoinRoom(room.get(), countQueues, playerName.get());
                 this.ui.buildPlayer(this.player);
-                this.connector.joinRoom(this.player);
+                this.connector.joinRoom(this.discovery, this.player);
                 this.connector.sendGridRequest(this.discovery, this.player);
             }
             this.connector.activeCallbackReceiveMessage(this.player, this.grid,
+                    newPlayerName -> {
+//                        this.ui.ad
+                    },
                     (name, coordinate, value) -> {
                         this.grid.saveValue(coordinate, value);
                         this.ui.writeValueWithoutCheck(coordinate, value);
-                    },
-                    (solution, cells) -> {
+                    }, (solution, cells) -> {
                         this.grid.loadSolution(solution);
                         this.grid.loadCells(cells);
                         this.ui.buildGrid(this.grid);

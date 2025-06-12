@@ -7,7 +7,8 @@ import grid.Coordinate;
 import grid.Grid;
 import model.Player;
 import utils.GameConsumers.GridData;
-import utils.GameConsumers.PlayerMoveAction;
+import utils.GameConsumers.JoinPlayer;
+import utils.GameConsumers.PlayerMove;
 import utils.Messages;
 
 import java.io.IOException;
@@ -32,16 +33,17 @@ public interface RabbitMQConnector {
 
     void createRoomAndJoin(Player player);
 
-    void joinRoom(Player player);
+    void joinRoom(RabbitMQDiscovery discovery, Player player);
 
     void leaveRoom(RabbitMQDiscovery discovery, Player player);
 
     void sendGridRequest(RabbitMQDiscovery discovery, Player player);
 
     void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
-    
-    void activeCallbackReceiveMessage(Player player, Grid grid, PlayerMoveAction moveAction, GridData gridData);
-    
+
+    void activeCallbackReceiveMessage(Player player, Grid grid,
+                                      JoinPlayer joinPlayer, PlayerMove moveAction, GridData gridData);
+
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
         private static final String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
@@ -96,11 +98,10 @@ public interface RabbitMQConnector {
         @Override
         public void createRoomAndJoin(final Player player) {
             this.createRoom(player);
-            this.joinRoom(player);
+            this.onlyJoinRoom(player);
         }
 
-        @Override
-        public void joinRoom(final Player player) {
+        private void onlyJoinRoom(final Player player) {
             player.callActionOnData((room, queue, name) -> {
                 try {
                     this.channel.queueDeclare(queue, true, false, false, null);
@@ -108,6 +109,16 @@ public interface RabbitMQConnector {
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
+            });
+        }
+
+        @Override
+        public void joinRoom(final RabbitMQDiscovery discovery, final Player player) {
+            this.onlyJoinRoom(player);
+            player.callActionOnData((room, _, name) -> {
+                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
+                routingKeys.forEach(routingKey ->
+                        this.sendMessage(room, routingKey, Messages.ToSend.joinPlayer(name)));
             });
         }
 
@@ -156,7 +167,8 @@ public interface RabbitMQConnector {
 
         @Override
         public void activeCallbackReceiveMessage(final Player player, final Grid grid,
-                                                 final PlayerMoveAction moveAction, final GridData gridData) {
+                                                 final JoinPlayer joinPlayer,
+                                                 final PlayerMove moveAction, final GridData gridData) {
             player.callActionOnData((room, queue, _) -> {
                 try {
                     this.channel.basicConsume(queue, false, (_, delivery) -> {
@@ -167,6 +179,8 @@ public interface RabbitMQConnector {
                                 case Messages.TYPE_GRID_REQUEST ->
                                         Messages.ToReceive.acceptGridRequest(delivery, playerName ->
                                                 this.sendMessage(room, playerName, Messages.ToSend.grid(grid)));
+                                case Messages.TYPE_JOIN_PLAYER ->
+                                        Messages.ToReceive.acceptJoinPlayer(delivery, joinPlayer);
                                 case Messages.TYPE_GRID -> Messages.ToReceive.acceptGrid(delivery, gridData);
                                 case Messages.TYPE_MOVE -> Messages.ToReceive.acceptMove(delivery, moveAction);
                             }

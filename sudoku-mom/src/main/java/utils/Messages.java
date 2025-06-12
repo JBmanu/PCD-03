@@ -7,7 +7,7 @@ import grid.Coordinate;
 import grid.Grid;
 import utils.GameConsumers.GridData;
 import utils.GameConsumers.GridRequest;
-import utils.GameConsumers.PlayerMoveAction;
+import utils.GameConsumers.PlayerMove;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -17,6 +17,7 @@ public final class Messages {
     public static final String TYPE_MESSAGE_KEY = "key";
     // TYPE VALUES
     public static final String TYPE_GRID_REQUEST = "grid";
+    public static final String TYPE_JOIN_PLAYER = "join";
     public static final String TYPE_GRID = "gridData";
     public static final String TYPE_MOVE = "move";
 
@@ -38,6 +39,18 @@ public final class Messages {
 
     public static final class ToSend {
 
+        public static String joinPlayer(final String playerName) {
+            return GSON.toJson(Map.of(
+                    TYPE_MESSAGE_KEY, TYPE_JOIN_PLAYER,
+                    PLAYER_KEY, playerName));
+        }
+
+        public static String gridRequest(final String playerName) {
+            return GSON.toJson(Map.of(
+                    TYPE_MESSAGE_KEY, TYPE_GRID_REQUEST,
+                    PLAYER_KEY, playerName));
+        }
+        
         public static String move(final String playerName, final Coordinate coordinate, final int value) {
             return GSON.toJson(
                     Map.of(
@@ -47,12 +60,6 @@ public final class Messages {
                             VALUE_KEY, value
                     )
             );
-        }
-
-        public static String gridRequest(final String playerName) {
-            return GSON.toJson(Map.of(
-                    TYPE_MESSAGE_KEY, TYPE_GRID_REQUEST,
-                    PLAYER_KEY, playerName));
         }
 
         public static String grid(final Grid grid) {
@@ -72,16 +79,6 @@ public final class Messages {
             return GSON.fromJson(message, Map.class);
         }
 
-        public static void acceptMove(final Delivery delivery, final PlayerMoveAction action) {
-            final Map<String, Object> data = createMessage(delivery);
-            final String playerName = (String) data.get(PLAYER_KEY);
-            final Map<String, Object> coordinate = (Map<String, Object>) data.get(COORDINATE_KEY);
-            final int row = (int) ((double) coordinate.get(ROW_KEY));
-            final int column = (int) ((double) coordinate.get(COL_KEY));
-            final int value = (int) ((double) data.get(VALUE_KEY));
-            action.accept(playerName, Coordinate.create(row, column), value);
-        }
-
         public static void acceptGridRequest(final Delivery delivery, final GridRequest request) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
@@ -90,6 +87,22 @@ public final class Messages {
                 throw new RuntimeException("Received unexpected request: " + infoRequest);
             }
             request.accept(playerName);
+        }
+
+        public static void acceptJoinPlayer(final Delivery delivery, final GameConsumers.JoinPlayer consumer) {
+            final Map<String, Object> data = createMessage(delivery);
+            final String playerName = (String) data.get(PLAYER_KEY);
+            consumer.accept(playerName);
+        }
+        
+        public static void acceptMove(final Delivery delivery, final PlayerMove action) {
+            final Map<String, Object> data = createMessage(delivery);
+            final String playerName = (String) data.get(PLAYER_KEY);
+            final Map<String, Object> coordinate = (Map<String, Object>) data.get(COORDINATE_KEY);
+            final int row = (int) ((double) coordinate.get(ROW_KEY));
+            final int column = (int) ((double) coordinate.get(COL_KEY));
+            final int value = (int) ((double) data.get(VALUE_KEY));
+            action.accept(playerName, Coordinate.create(row, column), value);
         }
 
         public static void acceptGrid(final Delivery delivery, final GridData gridData) {
