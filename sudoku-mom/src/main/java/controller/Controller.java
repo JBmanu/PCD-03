@@ -83,7 +83,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     @Override
     public void onHome() {
-        
+        this.connector.leaveRoom(this.discovery, this.player);
     }
 
     @Override

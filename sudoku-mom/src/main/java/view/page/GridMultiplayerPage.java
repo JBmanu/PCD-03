@@ -64,9 +64,9 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
 
     public void build(final Grid grid) {
         SwingUtilities.invokeLater(() -> {
-        this.cells.clear();
-        this.gridPanel.removeAll();
-        this.gridPanel.setLayout(new GridLayout(grid.size(), grid.size()));
+            this.cells.clear();
+            this.gridPanel.removeAll();
+            this.gridPanel.setLayout(new GridLayout(grid.size(), grid.size()));
 
             grid.orderedCells().forEach(entry -> {
                 final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
@@ -79,11 +79,11 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
                 cell.setBorder(BorderUtils.create(cell, grid.size(), CELL_BORDER, DIVISOR_BORDER, this.gridColor));
             });
             this.gridPanel.revalidate();
-            
-        this.numberInfoPanel.setup(grid.size());
-        for (int i = 1; i <= grid.size();
-             this.numberInfoPanel.checkNumber(i, grid.size(), this.countValue(i++)))
-            ;
+
+            this.numberInfoPanel.setup(grid.size());
+            for (int i = 1; i <= grid.size();
+                 this.numberInfoPanel.checkNumber(i, grid.size(), this.countValue(i++)))
+                ;
         });
     }
 
@@ -93,7 +93,13 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
     }
 
     public void undo(final Coordinate coordinate) {
-        this.cells.get(coordinate).undo();
+        final SNumberCell cell = this.cells.get(coordinate);
+        cell.value().ifPresent(value -> {
+            final int size = (int) Math.sqrt(this.cells.size());
+            cell.undo();
+            this.numberInfoPanel.checkNumber(value, size, this.countValue(value));
+        });
+
     }
 
     public void reset(final Map<Coordinate, Integer> resetGrid) {
