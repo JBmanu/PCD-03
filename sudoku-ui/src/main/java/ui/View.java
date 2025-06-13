@@ -34,7 +34,7 @@ public class View extends JFrame implements UI, MenuPageListener, GridPageListen
         this.backgroundSoundManager = SoundManager.createBackground();
         this.effectSoundManager = SoundManager.createEffect();
         this.menuPage = new MenuPage();
-        this.gridPage = new GridPage();
+        this.gridPage = new GridPage(this.menuPage);
 
         this.menuPage.addListener(this);
         this.gridPage.addActionListener(this);
@@ -112,7 +112,7 @@ public class View extends JFrame implements UI, MenuPageListener, GridPageListen
     public void onChangeDifficulty() {
         this.effectSoundManager.playSound(Track.SoundFX.CLICK);
     }
-    
+
     @Override
     public void onStart() {
         this.effectSoundManager.playSound(Track.SoundFX.CLICK);

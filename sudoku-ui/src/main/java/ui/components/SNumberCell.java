@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class SNumberCell extends JTextField {
+public class SNumberCell extends JTextField implements ColorComponent {
     private static final String EMPTY = "";
 
     private final NumberFilter numberFilter;
@@ -69,16 +69,16 @@ public class SNumberCell extends JTextField {
         return this.coordinate;
     }
 
-    public void setColorable(final Optional<Palette> palette) {
-        SwingUtilities.invokeLater(() -> {
-            this.optionalPalette = palette;
-            this.unselectedColor();
-            
-            final int alpha = 130;
-            palette.ifPresent(color -> BorderUtils.changeColor(this, MatteBorder.class, 
-                    color.secondaryWithAlpha(alpha)));
-        });
-    }
+//    public void setColorable(final Optional<Palette> palette) {
+//        SwingUtilities.invokeLater(() -> {
+//            this.optionalPalette = palette;
+//            this.unselectedColor();
+//            
+//            final int alpha = 130;
+//            palette.ifPresent(color -> BorderUtils.changeColor(this, MatteBorder.class, 
+//                    color.secondaryWithAlpha(alpha)));
+//        });
+//    }
 
     public void selectionColor() {
         this.optionalPalette.ifPresent(color -> {
@@ -166,5 +166,16 @@ public class SNumberCell extends JTextField {
         g2.dispose();
         super.paintComponent(g);
     }
-    
+
+    @Override
+    public void refreshPalette(final Palette palette) {
+        SwingUtilities.invokeLater(() -> {
+            this.optionalPalette = Optional.of(palette);
+            this.unselectedColor();
+
+            final int alpha = 130;
+            BorderUtils.changeColor(this, MatteBorder.class, palette.secondaryWithAlpha(alpha));
+        });
+//        this.setColorable(Optional.of(palette));
+    }
 }

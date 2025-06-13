@@ -2,16 +2,17 @@ package ui;
 
 import grid.Coordinate;
 import grid.Grid;
-import utils.GridUtils;
 import ui.color.Palette;
 import ui.components.ColorComponent;
 import ui.components.SNumberCell;
 import ui.listener.GameListener;
 import ui.listener.GridPageListener;
+import ui.listener.ThemeInvoke;
 import ui.panel.GridActionPanel;
 import ui.panel.NumberInfoPanel;
 import ui.utils.BorderUtils;
 import ui.utils.PanelUtils;
+import utils.GridUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +34,7 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
     private Optional<Palette> optionPalette;
     private Color gridColor;
 
-    public GridPage() {
+    public GridPage(final ThemeInvoke themeInvoker) {
         super(new BorderLayout());
         PanelUtils.transparent(this);
 
@@ -41,7 +42,7 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
         this.cells = new HashMap<>();
 
         this.numberInfoPanel = new NumberInfoPanel();
-        this.gridActionPanel = new GridActionPanel();
+        this.gridActionPanel = new GridActionPanel(themeInvoker);
         this.optionPalette = Optional.empty();
         this.gridColor = Color.BLACK;
 
@@ -69,7 +70,7 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
         grid.orderedCells().forEach(entry -> {
             final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
             this.cells.put(entry.getKey(), cell);
-            cell.setColorable(this.optionPalette);
+            this.optionPalette.ifPresent(cell::refreshPalette);
             cell.addInsertListeners(this);
             cell.addSelectionListener(this);
             this.cellListeners.forEach(cell::addCellListeners);
@@ -83,7 +84,6 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
         for (int i = 1; i <= grid.size();
              this.numberInfoPanel.checkNumber(i, grid.size(), this.countValue(i++)))
             ;
-
     }
 
     public void suggest(final Coordinate key, final Integer value) {
@@ -159,6 +159,7 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
     public void refreshPalette(final Palette palette) {
         this.gridActionPanel.refreshPalette(palette);
         this.numberInfoPanel.refreshPalette(palette);
+        this.cells.values().forEach(cell -> cell.refreshPalette(palette));
 
         final int alpha = 230;
         this.gridColor = palette.secondaryWithAlpha(alpha);

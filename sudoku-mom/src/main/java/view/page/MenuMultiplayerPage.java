@@ -4,6 +4,7 @@ import grid.Settings;
 import ui.color.Palette;
 import ui.components.*;
 import ui.listener.MenuPageListener;
+import ui.listener.ThemeInvoke;
 import ui.utils.PanelUtils;
 import utils.ConditionUtils;
 import view.GameMultiplayerListener;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
 import static ui.utils.PathUtils.ICON_START;
 import static ui.utils.StyleUtils.*;
 
-public class MenuMultiplayerPage extends JPanel implements ColorComponent {
+public class MenuMultiplayerPage extends JPanel implements ColorComponent, ThemeInvoke {
 
     private static final String EXIT = "Exit";
     private static final String START_GAME = "Start Game";
@@ -54,10 +55,8 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent {
         this.schemaSelector = new SSelector<>(Arrays.stream(Settings.Schema.values()).toList());
         this.difficultySelector = new SSelector<>(Arrays.stream(Settings.Difficulty.values()).toList());
 
-        this.isDarkMode = true;
-        this.themeActions = ConditionUtils.createBoolean(
-                () -> this.listeners.forEach(MenuPageListener::onLightMode),
-                () -> this.listeners.forEach(MenuPageListener::onDarkMode));
+        this.isDarkMode = false;
+        this.themeActions = ConditionUtils.createBoolean(this::invokeDarkMode, this::invokeLightMode);
 
         final List<PlaceholderTextField> textFields = List.of(this.roomNameField, this.playerNameField);
         final List<SSelector<?>> selectors = List.of(this.schemaSelector, this.difficultySelector);
@@ -94,7 +93,6 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent {
 
     private void onThemeMode() {
         this.themeActions.get(this.isDarkMode = !this.isDarkMode).run();
-        this.themeModeButton.setText(this.isDarkMode ? DARK_MODE : LIGHT_MODE);
     }
 
     private void onExit() {
@@ -108,6 +106,25 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent {
 
     public void addStartListener(final GameMultiplayerListener.StartListener listener) {
         this.startListeners.add(listener);
+    }  
+    
+    @Override
+    public boolean isDarkMode() {
+        return this.isDarkMode;
+    }
+
+    @Override
+    public void invokeLightMode() {
+        this.isDarkMode = false;
+        this.themeModeButton.setText(LIGHT_MODE);
+        this.listeners.forEach(MenuPageListener::onLightMode);
+    }
+
+    @Override
+    public void invokeDarkMode() {
+        this.isDarkMode = true;
+        this.themeModeButton.setText(DARK_MODE);
+        this.listeners.forEach(MenuPageListener::onDarkMode);
     }
 
     @Override
@@ -121,4 +138,5 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent {
     }
 
 
+  
 }

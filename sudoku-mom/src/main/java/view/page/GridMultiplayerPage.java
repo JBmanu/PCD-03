@@ -8,6 +8,7 @@ import ui.components.ColorComponent;
 import ui.components.SNumberCell;
 import ui.listener.GameListener;
 import ui.listener.GridPageListener;
+import ui.listener.ThemeInvoke;
 import ui.panel.GridActionPanel;
 import ui.panel.NumberInfoPanel;
 import ui.utils.BorderUtils;
@@ -37,7 +38,7 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
     private Optional<Palette> optionPalette;
     private Color gridColor;
 
-    public GridMultiplayerPage() {
+    public GridMultiplayerPage(final ThemeInvoke themeInvoker) {
         super(new BorderLayout());
         PanelUtils.transparent(this);
 
@@ -46,7 +47,7 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
 
         this.gameInfoPanel = new GameInfoPanel();
         this.numberInfoPanel = new NumberInfoPanel();
-        this.gridActionPanel = new GridActionPanel();
+        this.gridActionPanel = new GridActionPanel(themeInvoker);
         this.optionPalette = Optional.empty();
         this.gridColor = Color.BLACK;
 
@@ -75,7 +76,7 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
             grid.orderedCells().forEach(entry -> {
                 final SNumberCell cell = new SNumberCell(entry.getKey(), entry.getValue());
                 this.cells.put(entry.getKey(), cell);
-                cell.setColorable(this.optionPalette);
+                this.optionPalette.ifPresent(cell::refreshPalette);
                 cell.addInsertListeners(this);
                 cell.addSelectionListener(this);
                 this.cellListeners.forEach(cell::addCellListeners);

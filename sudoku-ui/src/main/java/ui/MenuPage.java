@@ -1,7 +1,6 @@
 package ui;
 
 import grid.Settings;
-import utils.ConditionUtils;
 import ui.color.Palette;
 import ui.components.ColorComponent;
 import ui.components.SButton;
@@ -9,7 +8,9 @@ import ui.components.SImage;
 import ui.components.SSelector;
 import ui.listener.GameListener;
 import ui.listener.MenuPageListener;
+import ui.listener.ThemeInvoke;
 import ui.utils.PanelUtils;
+import utils.ConditionUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +23,7 @@ import java.util.stream.Stream;
 import static ui.utils.PathUtils.ICON_START;
 import static ui.utils.StyleUtils.*;
 
-public class MenuPage extends JPanel implements ColorComponent {
+public class MenuPage extends JPanel implements ColorComponent, ThemeInvoke {
 
     private static final String EXIT = "Exit";
     private static final String START_GAME = "Start Game";
@@ -50,15 +51,13 @@ public class MenuPage extends JPanel implements ColorComponent {
 
         final SImage icon = new SImage(ICON_START, DIMENSION_ICON_MENU);
         this.startGameButton = new SButton(START_GAME);
-        this.themeModeButton = new SButton(DARK_MODE);
+        this.themeModeButton = new SButton(LIGHT_MODE);
         this.exitButton = new SButton(EXIT);
         this.schemaSelector = new SSelector<>(Arrays.stream(Settings.Schema.values()).toList());
         this.difficultySelector = new SSelector<>(Arrays.stream(Settings.Difficulty.values()).toList());
 
-        this.isDarkMode = true;
-        this.themeActions = ConditionUtils.createBoolean(
-                () -> this.listeners.forEach(MenuPageListener::onLightMode),
-                () -> this.listeners.forEach(MenuPageListener::onDarkMode));
+        this.isDarkMode = false;
+        this.themeActions = ConditionUtils.createBoolean(this::invokeDarkMode, this::invokeLightMode);
 
         final List<SSelector<?>> selectors = List.of(this.schemaSelector, this.difficultySelector);
         final List<SButton> buttons = List.of(this.startGameButton, this.themeModeButton, this.exitButton);
@@ -88,7 +87,25 @@ public class MenuPage extends JPanel implements ColorComponent {
 
     private void onThemeMode() {
         this.themeActions.get(this.isDarkMode = !this.isDarkMode).run();
-        this.themeModeButton.setText(this.isDarkMode ? DARK_MODE : LIGHT_MODE);
+    }
+
+    @Override
+    public boolean isDarkMode() {
+        return this.isDarkMode;
+    }
+
+    @Override
+    public void invokeLightMode() {
+        this.isDarkMode = false;
+        this.themeModeButton.setText(LIGHT_MODE);
+        this.listeners.forEach(MenuPageListener::onLightMode);
+    }
+
+    @Override
+    public void invokeDarkMode() {
+        this.isDarkMode = true;
+        this.themeModeButton.setText(DARK_MODE);
+        this.listeners.forEach(MenuPageListener::onDarkMode);
     }
 
     private void onExit() {

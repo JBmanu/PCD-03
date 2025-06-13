@@ -38,19 +38,11 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
         this.backgroundSoundManager = SoundManager.createBackground();
         this.effectSoundManager = SoundManager.createEffect();
         this.menuPage = new MenuMultiplayerPage();
-        this.gridPage = new GridMultiplayerPage();
+        this.gridPage = new GridMultiplayerPage(this.menuPage);
 
         this.menuPage.addListener(this);
         this.gridPage.addActionListener(this);
 
-//        this.addWindowListener(new WindowAdapter() {
-//            @Override
-//            public void windowClosing(final WindowEvent e) {}
-//
-//            @Override
-//            public void windowClosed(final WindowEvent e) {}
-//        });
-        
         this.showMenuPage();
     }
 
