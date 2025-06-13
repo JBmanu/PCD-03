@@ -99,7 +99,7 @@ public class MenuMultiplayerPage extends JPanel implements InfoPanel, ColorCompo
         this.themeActions.get(this.isDarkMode = !this.isDarkMode).run();
     }
 
-    private void onExit() {
+    public void onExit() {
         this.listeners.forEach(MenuPageListener::onExit);
         this.startListeners.forEach(GameMultiplayerListener.StartListener::onExit);
     }

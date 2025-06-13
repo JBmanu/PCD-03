@@ -115,7 +115,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
     @Override
     public void onExit() {
         this.ui.close();
-        this.callConnector(connector -> connector.deleteQueue(this.player));
+        this.callRabbitMQ((discovery, connector) -> connector.deleteQueue(discovery, this.player));
         System.exit(0);
     }
 

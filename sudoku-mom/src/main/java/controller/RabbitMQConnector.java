@@ -40,7 +40,7 @@ public interface RabbitMQConnector {
 
     void deleteRoom(Player player);
 
-    void deleteQueue(Player player);
+    void deleteQueue(RabbitMQDiscovery discovery, Player player);
 
     void createRoomAndJoin(Player player);
 
@@ -94,9 +94,10 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void deleteQueue(final Player player) {
+        public void deleteQueue(final RabbitMQDiscovery discovery, final Player player) {
             player.queue().ifPresent(queue -> {
                 try {
+                    this.leaveRoom(discovery, player);
                     this.channel.queueDelete(queue);
                 } catch (final IOException e) {
                     throw new RuntimeException(e);

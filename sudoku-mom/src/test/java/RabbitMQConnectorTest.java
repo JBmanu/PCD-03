@@ -46,7 +46,7 @@ public class RabbitMQConnectorTest {
 
     @AfterEach
     public void cleanup() {
-        this.connector.deleteQueue(this.player1);
+        this.connector.deleteQueue(this.discovery, this.player1);
         this.connector.deleteRoom(this.player1);
     }
 
@@ -103,7 +103,7 @@ public class RabbitMQConnectorTest {
         assertEquals(2, this.discovery.countQueues());
         assertEquals(1, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
 
-        this.connector.deleteQueue(player2);
+        this.connector.deleteQueue(this.discovery, player2);
     }
 
     @Test
@@ -117,17 +117,18 @@ public class RabbitMQConnectorTest {
         }, playerName ->
                 assertEquals(leavePlayerName, playerName), null, null);
 
-        this.connector.deleteQueue(player2);
+        this.connector.deleteQueue(this.discovery, player2);
     }
 
     @Test
     public void deleteQueue() {
         this.connector.createRoomAndJoin(this.player1);
-        this.connector.deleteQueue(this.player1);
+        this.connector.deleteQueue(this.discovery, this.player1);
 
         assertEquals(0, this.player1.queue().map(this.discovery::countQueuesWithName).orElse(1));
+        assertEquals(COUNT_DEFAULT_EXCHANGE, this.discovery.countExchanges());
     }
-
+    
     private Player computeNewPlayer(final String countQueue, final String name) {
         final Player player2 = Player.create();
         player2.computeToCreateRoom(COUNT_ROOM, countQueue, name);
@@ -148,7 +149,7 @@ public class RabbitMQConnectorTest {
         assertEquals(2, this.player1.room().map(this.discovery::countExchangeBinds).orElse(0));
         assertEquals(2, player2.room().map(this.discovery::countExchangeBinds).orElse(0));
 
-        this.connector.deleteQueue(player2);
+        this.connector.deleteQueue(this.discovery, player2);
     }
 
     @Test
@@ -161,7 +162,7 @@ public class RabbitMQConnectorTest {
                         assertEquals(this.player1.name(), Optional.of(name)),
                 null, null, null);
 
-        this.connector.deleteQueue(player2);
+        this.connector.deleteQueue(this.discovery, player2);
     }
 
     @Test
@@ -177,7 +178,7 @@ public class RabbitMQConnectorTest {
         }
 
         this.connector.deleteRoom(this.player1);
-        players.forEach(this.connector::deleteQueue);
+        players.forEach(player -> this.connector.deleteQueue(this.discovery, player));
     }
 
     @Test
@@ -193,7 +194,7 @@ public class RabbitMQConnectorTest {
         assertEquals(0, this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(1));
         assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
 
-        this.connector.deleteQueue(player2);
+        this.connector.deleteQueue(this.discovery, player2);
     }
 
     private RabbitMQConnector createOtherConnector() {
@@ -229,7 +230,7 @@ public class RabbitMQConnectorTest {
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
         assertEquals(0, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
 
-        this.connector.deleteQueue(player2);
+        this.connector.deleteQueue(this.discovery, player2);
     }
 
     @Test
@@ -244,7 +245,7 @@ public class RabbitMQConnectorTest {
         assertEquals(1, this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(0));
         assertEquals(0, player2.queue().map(this.discovery::countMessageOnQueue).orElse(1));
 
-        this.connector.deleteQueue(player2);
+        this.connector.deleteQueue(this.discovery, player2);
     }
 
     @Test
@@ -266,7 +267,7 @@ public class RabbitMQConnectorTest {
 
         assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
 
-        this.connector.deleteQueue(player2);
+        this.connector.deleteQueue(this.discovery, player2);
     }
 
     @Test
@@ -297,7 +298,7 @@ public class RabbitMQConnectorTest {
 
         assertEquals(0, player2.queue().map(this.discovery::countMessageOnQueue).orElse(1));
 
-        this.connector.deleteQueue(player2);
+        this.connector.deleteQueue(this.discovery, player2);
     }
 
 

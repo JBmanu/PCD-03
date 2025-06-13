@@ -14,6 +14,8 @@ import view.page.MenuMultiplayerPage;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +45,13 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
         this.menuPage.addListener(this);
         this.gridPage.addActionListener(this);
 
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(final WindowEvent e) {
+                ViewMultiPlayer.this.menuPage.onExit();
+            }
+        });
+        
         this.refreshPalette(Palette.light());
         this.showMenuPage();
     }
@@ -58,6 +67,7 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
         this.showPage(this.menuPage);
         this.backgroundSoundManager.playSound(Track.SoundBG.START);
     }
+    
 
     @Override
     public void open() {
