@@ -73,6 +73,13 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             connector.sendGridRequest(discovery, this.player);
         });
     }
+    
+    private void checkWin() {
+        if (this.grid.hasWin()) {
+            this.ui.win("Congratulations! You solved the Sudoku!");
+            this.callRabbitMQ((discovery, connector) -> connector.leaveRoom(discovery, this.player));
+        }
+    }
 
     @Override
     public void onStart(final Optional<String> room, final Optional<String> playerName,
@@ -89,8 +96,10 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                                     (name, coordinate, value) -> {
                                         this.grid.saveValue(coordinate, value);
                                         this.ui.writeValueWithoutCheck(coordinate, value);
-                                    }, (newScheme, newDifficulty, solution, cells) -> {
-                                        this.grid = Grid.create(Settings.create(newScheme, newDifficulty));
+                                        this.ui.showInfo(name + " modified cell " + coordinate + " with value " + value);
+                                        this.checkWin();
+                                    }, (newSchema, newDifficulty, solution, cells) -> {
+                                        this.grid = Grid.create(Settings.create(newSchema, newDifficulty));
                                         this.grid.loadSolution(solution);
                                         this.grid.loadCells(cells);
                                         this.ui.buildGrid(this.grid);
@@ -113,6 +122,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
         this.grid.saveValue(coordinate, value);
         this.callRabbitMQ((discovery, connector) ->
                 connector.sendMove(discovery, this.player, coordinate, value));
+        this.checkWin();
         return true;
     }
 
