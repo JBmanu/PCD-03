@@ -51,6 +51,10 @@ public class NumberInfoPanel extends JPanel implements ColorComponent {
                 });
     }
 
+    public void reset() {
+        this.numbers.values().forEach(button -> button.setVisible(true));
+    }
+
     @Override
     public void refreshPalette(final Palette palette) {
         final Colorable colorable = Colorable.createSecondaryButton(palette);

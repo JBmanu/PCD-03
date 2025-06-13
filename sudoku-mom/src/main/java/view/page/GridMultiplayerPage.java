@@ -119,11 +119,11 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
             cell.undo();
             this.numberInfoPanel.checkNumber(value, size, this.countValue(value));
         });
-
     }
 
     public void reset(final Map<Coordinate, Integer> resetGrid) {
         resetGrid.forEach((coordinate, value) -> this.cells.get(coordinate).setSuggest(value));
+        this.numberInfoPanel.reset();
     }
 
     public void addActionListener(final GridPageListener.ActionListener listener) {

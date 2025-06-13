@@ -6,6 +6,10 @@ public interface GridPageListener {
 
     interface ActionListener extends GameListener.ActionListener {
         void onHome();
+        
+//        void onDarkMode();
+//        
+//        void onLightMode();
     }
 
     interface SelectionListener {

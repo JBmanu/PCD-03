@@ -33,7 +33,7 @@ public class GameInfoPanel extends JPanel {
         scrollPane.getViewport().setOpaque(false);
         scrollPane.setOpaque(false);
 
-        this.setBorder(BorderFactory.createEmptyBorder(V_GAP + V_GAP, H_GAP + H_GAP, V_GAP + V_GAP, H_GAP + H_GAP));
+        this.setBorder(BorderFactory.createEmptyBorder(V_GAP, H_GAP + H_GAP, V_GAP, H_GAP + H_GAP));
 
         this.add(PanelUtils.createCenter(this.infoRoom), BorderLayout.NORTH);
         this.add(scrollPane, BorderLayout.CENTER);

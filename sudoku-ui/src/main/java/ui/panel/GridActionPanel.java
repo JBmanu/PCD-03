@@ -22,6 +22,7 @@ public class GridActionPanel extends JPanel implements ColorComponent {
     private final SButton undo;
     private final SButton suggest;
     private final SButton reset;
+    private final SButton theme;
 
     public GridActionPanel() {
         super(new FlowLayout(FlowLayout.CENTER, H_GAP, ZERO_GAP));
@@ -33,9 +34,10 @@ public class GridActionPanel extends JPanel implements ColorComponent {
         this.home = new SButton("Home");
         this.undo = new SButton("Undo");
         this.suggest = new SButton("Suggest");
-        this.reset = new SButton("reset");
+        this.reset = new SButton("Reset");
+        this.theme = new SButton("Theme");
 
-        final List<SButton> buttons = List.of(this.home, this.undo, this.suggest, this.reset);
+        final List<SButton> buttons = List.of(this.home, this.undo, this.suggest, this.reset, this.theme);
         buttons.forEach(button -> button.setFont(FONT_GAME));
         buttons.forEach(this::add);
 
@@ -43,6 +45,7 @@ public class GridActionPanel extends JPanel implements ColorComponent {
         this.undo.addActionListener(_ -> this.onClickUndo());
         this.suggest.addActionListener(_ -> this.onClickSuggest());
         this.reset.addActionListener(_ -> this.onClickReset());
+        this.theme.addActionListener(_ -> this.onClickTheme());
     }
 
     private void onClickHome() {
@@ -65,6 +68,18 @@ public class GridActionPanel extends JPanel implements ColorComponent {
         this.actionListeners.forEach(GameListener.ActionListener::onReset);
     }
 
+    private void onClickTheme() {
+
+    }
+
+    private void onLightTheme() {
+
+    }
+    
+    private void onDackTheme() {
+
+    }
+
     public void addListener(final GridPageListener.ActionListener listener) {
         this.listeners.add(listener);
     }
@@ -79,5 +94,6 @@ public class GridActionPanel extends JPanel implements ColorComponent {
         this.undo.refreshPalette(palette);
         this.suggest.refreshPalette(palette);
         this.reset.refreshPalette(palette);
+        this.theme.refreshPalette(palette);
     }
 }

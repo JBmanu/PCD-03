@@ -92,11 +92,17 @@ public class GridPage extends JPanel implements ColorComponent, GridPageListener
     }
 
     public void undo(final Coordinate coordinate) {
-        this.cells.get(coordinate).undo();
+        final SNumberCell cell = this.cells.get(coordinate);
+        cell.value().ifPresent(value -> {
+            final int size = (int) Math.sqrt(this.cells.size());
+            cell.undo();
+            this.numberInfoPanel.checkNumber(value, size, this.countValue(value));
+        });
     }
 
     public void reset(final Map<Coordinate, Integer> resetGrid) {
         resetGrid.forEach((coordinate, value) -> this.cells.get(coordinate).setSuggest(value));
+        this.numberInfoPanel.reset();
     }
 
     public void addActionListener(final GridPageListener.ActionListener listener) {
