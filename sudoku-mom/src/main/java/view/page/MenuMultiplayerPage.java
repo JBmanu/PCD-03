@@ -8,6 +8,7 @@ import ui.listener.ThemeInvoke;
 import ui.utils.PanelUtils;
 import utils.ConditionUtils;
 import view.GameMultiplayerListener;
+import view.InfoPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
 import static ui.utils.PathUtils.ICON_START;
 import static ui.utils.StyleUtils.*;
 
-public class MenuMultiplayerPage extends JPanel implements ColorComponent, ThemeInvoke {
+public class MenuMultiplayerPage extends JPanel implements InfoPanel, ColorComponent, ThemeInvoke {
 
     private static final String EXIT = "Exit";
     private static final String START_GAME = "Start Game";
@@ -33,6 +34,7 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent, Theme
     private final SButton startGameButton;
     private final SButton themeModeButton;
     private final SButton exitButton;
+    private final JLabel errorLabel;
 
     private final List<MenuPageListener> listeners;
     private final List<GameMultiplayerListener.StartListener> startListeners;
@@ -54,6 +56,7 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent, Theme
         this.exitButton = new SButton(EXIT);
         this.schemaSelector = new SSelector<>(Arrays.stream(Settings.Schema.values()).toList());
         this.difficultySelector = new SSelector<>(Arrays.stream(Settings.Difficulty.values()).toList());
+        this.errorLabel = new JLabel();
 
         this.isDarkMode = false;
         this.themeActions = ConditionUtils.createBoolean(this::invokeDarkMode, this::invokeLightMode);
@@ -64,6 +67,7 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent, Theme
         final List<JComponent> allComponents = new ArrayList<>(Stream.concat(textFields.stream(),
                 selectors.stream().map(selector -> (JComponent) selector)).toList());
         allComponents.addAll(buttons);
+        allComponents.add(this.errorLabel);
 
         final JPanel panel = PanelUtils.createVertical();
         allComponents.forEach(component -> component.setFont(FONT_GAME));
@@ -128,6 +132,18 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent, Theme
     }
 
     @Override
+    public void showInfo(final String info) {
+        this.errorLabel.setForeground(Color.GREEN);
+        this.errorLabel.setText(info);
+    }
+
+    @Override
+    public void showError(final String error) {
+        this.errorLabel.setForeground(Color.RED);
+        this.errorLabel.setText(error);
+    }
+
+    @Override
     public void refreshPalette(final Palette palette) {
         this.roomNameField.refreshPalette(palette);
         this.playerNameField.refreshPalette(palette);
@@ -137,6 +153,4 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent, Theme
         this.themeModeButton.refreshPalette(palette);
         this.exitButton.refreshPalette(palette);
     }
-
-
 }
