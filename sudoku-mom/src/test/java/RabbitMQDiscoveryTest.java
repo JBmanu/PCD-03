@@ -3,11 +3,11 @@ import org.junit.jupiter.api.Test;
 import controller.RabbitMQDiscovery;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static controller.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
 import static controller.RabbitMQDiscovery.DEFAULT_EXCHANGE_NAME;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RabbitMQDiscoveryTest {
 
@@ -15,7 +15,9 @@ public class RabbitMQDiscoveryTest {
 
     @BeforeEach
     public void create() {
-        this.discovery = RabbitMQDiscovery.create();
+        final Optional<RabbitMQDiscovery> discoveryOpt = RabbitMQDiscovery.create();
+        assertTrue(discoveryOpt.isPresent());
+        this.discovery = discoveryOpt.get();
         assertNotNull(this.discovery);
     }
     

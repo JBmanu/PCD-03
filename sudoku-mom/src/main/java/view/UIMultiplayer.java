@@ -8,7 +8,7 @@ import ui.components.ColorComponent;
 import java.util.List;
 import java.util.Map;
 
-public interface UIMultiplayer extends ColorComponent {
+public interface UIMultiplayer extends ColorComponent, InfoPanel {
 
     void open();
     

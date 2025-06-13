@@ -16,8 +16,7 @@ import java.util.Optional;
 import static controller.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
 import static controller.RabbitMQDiscovery.COUNT_DEFAULT_QUEUE_BINDS;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RabbitMQConnectorTest {
     private static final String COUNT_ROOM = "1";
@@ -30,15 +29,18 @@ public class RabbitMQConnectorTest {
 
     @BeforeEach
     public void create() {
+        this.player1 = Player.create();
+        this.player1.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, PLAYER_1_NAME);
+        
+        final Optional<RabbitMQDiscovery> discoveryOpt = RabbitMQDiscovery.create();
+        assertTrue(discoveryOpt.isPresent());
+        
+        this.discovery = discoveryOpt.get();
         this.connector = RabbitMQConnector.create();
-        this.discovery = RabbitMQDiscovery.create();
-
+        
         await().atMost(Duration.ofSeconds(10))
-                .until(() -> {
-                    this.player1 = Player.create();
-                    this.player1.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, PLAYER_1_NAME);
-                    return this.connector != null;
-                });
+                .until(() -> this.connector != null);
+        
         assertNotNull(this.connector);
     }
 

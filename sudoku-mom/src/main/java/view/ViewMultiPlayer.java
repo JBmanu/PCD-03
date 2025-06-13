@@ -43,6 +43,7 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
         this.menuPage.addListener(this);
         this.gridPage.addActionListener(this);
 
+        this.refreshPalette(Palette.light());
         this.showMenuPage();
     }
 
@@ -183,6 +184,16 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     @Override
     public void onReset() {
         this.effectSoundManager.playSound(Track.SoundFX.RESET);
+    }
+
+    @Override
+    public void showInfo(final String info) {
+        this.menuPage.showInfo(info);
+    }
+
+    @Override
+    public void showError(final String error) {
+        this.menuPage.showError(error);
     }
 
     @Override

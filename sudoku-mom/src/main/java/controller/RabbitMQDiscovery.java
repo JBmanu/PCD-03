@@ -8,14 +8,19 @@ import com.rabbitmq.http.client.domain.QueueInfo;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 
 public interface RabbitMQDiscovery {
     String DEFAULT_EXCHANGE_NAME = "";
     int COUNT_DEFAULT_EXCHANGE = 7;
     int COUNT_DEFAULT_QUEUE_BINDS = 1;
 
-    static RabbitMQDiscovery create() {
-        return new RabbitMQDiscoveryImpl();
+    static Optional<RabbitMQDiscovery> create() {
+        try {
+            return Optional.of(new RabbitMQDiscoveryImpl());
+        } catch (final MalformedURLException | URISyntaxException e) {
+            return Optional.empty();
+        }
     }
 
     int countExchanges();
@@ -51,15 +56,11 @@ public interface RabbitMQDiscovery {
 
         private final Client client;
 
-        public RabbitMQDiscoveryImpl() {
-            try {
-                this.client = new Client(new ClientParameters()
-                        .url(URL)
-                        .username(USERNAME)
-                        .password(PASSWORD));
-            } catch (final URISyntaxException | MalformedURLException e) {
-                throw new RuntimeException("Failed to create RabbitMQ HTTP client", e);
-            }
+        public RabbitMQDiscoveryImpl() throws MalformedURLException, URISyntaxException {
+            this.client = new Client(new ClientParameters()
+                    .url(URL)
+                    .username(USERNAME)
+                    .password(PASSWORD));
         }
 
         @Override
