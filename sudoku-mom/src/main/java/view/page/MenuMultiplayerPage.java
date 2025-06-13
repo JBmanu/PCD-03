@@ -131,7 +131,6 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent, Theme
     public void refreshPalette(final Palette palette) {
         this.schemaSelector.refreshPalette(palette);
         this.difficultySelector.refreshPalette(palette);
-
         this.startGameButton.refreshPalette(palette);
         this.themeModeButton.refreshPalette(palette);
         this.exitButton.refreshPalette(palette);
