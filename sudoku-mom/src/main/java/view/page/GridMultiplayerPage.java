@@ -190,7 +190,9 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
     public void refreshPalette(final Palette palette) {
         this.gridActionPanel.refreshPalette(palette);
         this.numberInfoPanel.refreshPalette(palette);
+        this.gameInfoPanel.refreshPalette(palette);
         this.cells.values().forEach(cell -> cell.refreshPalette(palette));
+        
         final int alpha = 230;
         this.gridColor = palette.secondaryWithAlpha(alpha);
         this.optionPalette = Optional.of(palette);

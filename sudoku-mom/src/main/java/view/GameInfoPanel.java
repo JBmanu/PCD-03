@@ -1,6 +1,8 @@
 package view;
 
 import model.Player;
+import ui.color.Palette;
+import ui.components.ColorComponent;
 import ui.utils.PanelUtils;
 import ui.utils.StyleUtils;
 
@@ -10,7 +12,7 @@ import java.util.List;
 
 import static ui.utils.StyleUtils.*;
 
-public class GameInfoPanel extends JPanel {
+public class GameInfoPanel extends JPanel implements ColorComponent {
     public static final String ROOM_LABEL = "ROOM ID: ";
     public static final String SELF = "You";
     final JLabel infoRoom;
@@ -55,5 +57,13 @@ public class GameInfoPanel extends JPanel {
 
     public void appendPlayers(final List<String> players) {
         players.forEach(this::joinPlayer);
+    }
+
+    @Override
+    public void refreshPalette(final Palette palette) {
+        final int alphaTitle = 250;
+        final int alphaPlayer = alphaTitle - 50;
+        this.infoRoom.setForeground(palette.secondaryWithAlpha(alphaTitle));
+        this.playerArea.setForeground(palette.secondaryWithAlpha(alphaTitle - alphaPlayer));
     }
 }
