@@ -86,7 +86,7 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent, Theme
                 Optional.empty() : Optional.of(this.roomNameField.getText());
         final Optional<String> playerName = this.playerNameField.getText().isEmpty() ?
                 Optional.empty() : Optional.of(this.playerNameField.getText());
-        
+
         this.startListeners.forEach(l -> l.onStart(
                 roomName, playerName, this.schemaSelector.item(), this.difficultySelector.item()));
     }
@@ -106,8 +106,8 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent, Theme
 
     public void addStartListener(final GameMultiplayerListener.StartListener listener) {
         this.startListeners.add(listener);
-    }  
-    
+    }
+
     @Override
     public boolean isDarkMode() {
         return this.isDarkMode;
@@ -129,6 +129,8 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent, Theme
 
     @Override
     public void refreshPalette(final Palette palette) {
+        this.roomNameField.refreshPalette(palette);
+        this.playerNameField.refreshPalette(palette);
         this.schemaSelector.refreshPalette(palette);
         this.difficultySelector.refreshPalette(palette);
         this.startGameButton.refreshPalette(palette);
@@ -137,5 +139,4 @@ public class MenuMultiplayerPage extends JPanel implements ColorComponent, Theme
     }
 
 
-  
 }

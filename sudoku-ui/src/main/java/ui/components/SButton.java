@@ -7,6 +7,8 @@ import ui.color.Palette;
 import javax.swing.*;
 import java.awt.*;
 
+import static ui.utils.StyleUtils.ARC_SIZE;
+
 public class SButton extends JButton implements ColorComponent {
     private final Colorable colorable;
 
@@ -30,11 +32,10 @@ public class SButton extends JButton implements ColorComponent {
     @Override
     protected void paintComponent(final Graphics g) {
         final Graphics2D g2 = (Graphics2D) g;
-        final int arcSize = 10;
         this.colorable.currentBackground().ifPresent(g2::setColor);
         this.colorable.currentText().ifPresent(this::setForeground);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), arcSize, arcSize);
+        g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), ARC_SIZE, ARC_SIZE);
         super.paintComponent(g);
     }
 

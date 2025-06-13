@@ -14,6 +14,7 @@ public final class StyleUtils {
     public static final int ZERO_GAP = 0;
     public static final int V_GAP = 5;
     public static final int H_GAP = 10;
+    public static final int ARC_SIZE = 10;
 
     // MENU
     public static final Dimension DIMENSION_ICON_MENU = new Dimension(300, 300);
