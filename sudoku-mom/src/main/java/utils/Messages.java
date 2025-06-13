@@ -5,6 +5,7 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Delivery;
 import grid.Coordinate;
 import grid.Grid;
+import grid.Settings;
 import utils.GameConsumers.GridData;
 import utils.GameConsumers.GridRequest;
 import utils.GameConsumers.PlayerMove;
@@ -27,6 +28,8 @@ public final class Messages {
     public static final String GRID_KEY = "grid";
     public static final String COL_KEY = "column";
     public static final String VALUE_KEY = "value";
+    public static final String SCHEME_KEY = "scheme";
+    public static final String DIFFICULTY_KEY = "difficulty";
 
     public static final String PLAYER_KEY = "player";
     public static final String COORDINATE_KEY = "coordinate";
@@ -45,7 +48,7 @@ public final class Messages {
                     TYPE_MESSAGE_KEY, TYPE_JOIN_PLAYER,
                     PLAYER_KEY, playerName));
         }
-        
+
         public static String leavePlayer(final String playerName) {
             return GSON.toJson(Map.of(
                     TYPE_MESSAGE_KEY, TYPE_LEAVE_PLAYER,
@@ -57,7 +60,7 @@ public final class Messages {
                     TYPE_MESSAGE_KEY, TYPE_GRID_REQUEST,
                     PLAYER_KEY, playerName));
         }
-        
+
         public static String move(final String playerName, final Coordinate coordinate, final int value) {
             return GSON.toJson(
                     Map.of(
@@ -74,6 +77,8 @@ public final class Messages {
             final byte[][] gridArray = grid.cellsArray();
             return GSON.toJson(Map.of(
                     TYPE_MESSAGE_KEY, TYPE_GRID,
+                    SCHEME_KEY, grid.settings().schema().code(),
+                    DIFFICULTY_KEY, grid.settings().difficulty().code(),
                     GRID_SOLUTION_KEY, solution,
                     GRID_KEY, gridArray));
         }
@@ -101,13 +106,13 @@ public final class Messages {
             final String playerName = (String) data.get(PLAYER_KEY);
             joinPlayer.accept(playerName);
         }
-        
+
         public static void acceptLeavePlayer(final Delivery delivery, final GameConsumers.LeavePlayer leavePlayer) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
             leavePlayer.accept(playerName);
         }
-        
+
         public static void acceptMove(final Delivery delivery, final PlayerMove action) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
@@ -120,9 +125,11 @@ public final class Messages {
 
         public static void acceptGrid(final Delivery delivery, final GridData gridData) {
             final Map<String, Object> data = createMessage(delivery);
+            final Settings.Schema schema = Settings.Schema.valueOf(((String) data.get(SCHEME_KEY)));
+            final Settings.Difficulty difficulty = Settings.Difficulty.valueOf((String) data.get(DIFFICULTY_KEY));
             final byte[][] gridArray = GSON.fromJson(data.get(GRID_KEY).toString(), byte[][].class);
             final byte[][] solutionArray = GSON.fromJson(data.get(GRID_SOLUTION_KEY).toString(), byte[][].class);
-            gridData.accept(solutionArray, gridArray);
+            gridData.accept(schema, difficulty, solutionArray, gridArray);
         }
     }
 

@@ -3,6 +3,8 @@ package grid;
 import de.sfuhrm.sudoku.GameSchema;
 import de.sfuhrm.sudoku.GameSchemas;
 
+import java.io.Serializable;
+
 public interface Settings {
 
     static Settings create(final Schema schema, final Difficulty difficulty) {
@@ -40,6 +42,10 @@ public interface Settings {
         public GameSchema schema() {
             return this.schema;
         }
+        
+        public String code() {
+            return super.toString();
+        }
 
         @Override
         public String toString() {
@@ -64,6 +70,10 @@ public interface Settings {
 
         public int percent() {
             return this.percent;
+        }
+
+        public String code() {
+            return super.toString();
         }
     }
 

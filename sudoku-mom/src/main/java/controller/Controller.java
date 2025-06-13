@@ -42,16 +42,6 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
         this.ui.showInfo("Connected to RabbitMQ server");
     }
 
-    private void callDiscovery(final GameConsumers.CallDiscovery callDiscovery) {
-        this.discovery.ifPresentOrElse(callDiscovery::accept,
-                () -> this.ui.showError(ERROR_DISCOVERY));
-    }
-
-    private void callConnector(final GameConsumers.CallConnector callConnector) {
-        this.connector.ifPresentOrElse(callConnector::accept,
-                () -> this.ui.showError(ERROR_CONNECTOR));
-    }
-
     private void callRabbitMQ(final GameConsumers.CallRabbitMQ callRabbitMQ) {
         this.discovery.ifPresentOrElse(discovery ->
                         this.connector.ifPresentOrElse(connector ->
@@ -60,8 +50,9 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                 () -> this.ui.showError(ERROR_DISCOVERY));
     }
 
-    private void createRoom(final String playerName) {
+    private void createRoom(final String playerName, final Settings.Schema schema, final Settings.Difficulty difficulty) {
         this.callRabbitMQ((discovery, connector) -> {
+            this.grid = Grid.create(Settings.create(schema, difficulty));
             final String countRoom = discovery.countExchangesWithoutDefault() + 1 + "";
             this.player.computeToCreateRoom(countRoom, "1", playerName);
             connector.createRoomAndJoin(this.player);
@@ -89,19 +80,17 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
         this.callRabbitMQ((_, connector) ->
                 playerName.ifPresentOrElse(
                         myName -> {
-                            this.grid = Grid.create(Settings.create(schema, difficulty));
-                            
                             room.ifPresentOrElse(
                                     roomID -> this.joinRoom(roomID, myName),
-                                    () -> this.createRoom(myName));
-                            
+                                    () -> this.createRoom(myName, schema, difficulty));
                             connector.activeCallbackReceiveMessage(this.player, this.grid,
                                     this.ui::joinPlayer,
                                     this.ui::leavePlayer,
                                     (name, coordinate, value) -> {
                                         this.grid.saveValue(coordinate, value);
                                         this.ui.writeValueWithoutCheck(coordinate, value);
-                                    }, (solution, cells) -> {
+                                    }, (newScheme, newDifficulty, solution, cells) -> {
+                                        this.grid = Grid.create(Settings.create(newScheme, newDifficulty));
                                         this.grid.loadSolution(solution);
                                         this.grid.loadCells(cells);
                                         this.ui.buildGrid(this.grid);

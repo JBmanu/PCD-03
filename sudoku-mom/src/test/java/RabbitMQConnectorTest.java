@@ -128,7 +128,7 @@ public class RabbitMQConnectorTest {
         assertEquals(0, this.player1.queue().map(this.discovery::countQueuesWithName).orElse(1));
         assertEquals(COUNT_DEFAULT_EXCHANGE, this.discovery.countExchanges());
     }
-    
+
     private Player computeNewPlayer(final String countQueue, final String name) {
         final Player player2 = Player.create();
         player2.computeToCreateRoom(COUNT_ROOM, countQueue, name);
@@ -279,19 +279,20 @@ public class RabbitMQConnectorTest {
 
         this.connector.sendGridRequest(this.discovery, player2);
         this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null, null, null);
-        connector2.activeCallbackReceiveMessage(player2, null, null, null, null, (solution, cells) -> {
-            assertNotNull(cells);
-            assertNotNull(solution);
+        connector2.activeCallbackReceiveMessage(player2, null, null, null, null,
+                (schema, difficulty, solution, cells) -> {
+                    assertNotNull(cells);
+                    assertNotNull(solution);
 
-            final byte[][] originalSolution = grid.solutionArray();
-            final byte[][] originalCells = grid.cellsArray();
-            for (int row = 0; row < grid.size(); row++) {
-                for (int col = 0; col < grid.size(); col++) {
-                    assertEquals(originalSolution[row][col], solution[row][col]);
-                    assertEquals(originalCells[row][col], cells[row][col]);
-                }
-            }
-        });
+                    final byte[][] originalSolution = grid.solutionArray();
+                    final byte[][] originalCells = grid.cellsArray();
+                    for (int row = 0; row < grid.size(); row++) {
+                        for (int col = 0; col < grid.size(); col++) {
+                            assertEquals(originalSolution[row][col], solution[row][col]);
+                            assertEquals(originalCells[row][col], cells[row][col]);
+                        }
+                    }
+                });
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);

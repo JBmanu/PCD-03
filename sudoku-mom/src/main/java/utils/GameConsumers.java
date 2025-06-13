@@ -3,6 +3,7 @@ package utils;
 import controller.RabbitMQConnector;
 import controller.RabbitMQDiscovery;
 import grid.Coordinate;
+import grid.Settings;
 
 public final class GameConsumers {
 
@@ -12,7 +13,7 @@ public final class GameConsumers {
     public interface PlayerMove extends Consumers.TriConsumer<String, Coordinate, Integer> {
     }
 
-    public interface GridData extends Consumers.BiConsumer<byte[][], byte[][]> {
+    public interface GridData extends Consumers.QuadConsumer<Settings.Schema, Settings.Difficulty, byte[][], byte[][]> {
     }
 
     public interface GridRequest extends Consumers.Consumer<String> {

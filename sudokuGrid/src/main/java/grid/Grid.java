@@ -15,6 +15,8 @@ public interface Grid {
     }
 
 
+    Settings settings();
+    
     int size();
 
     int emptyValue();
@@ -58,6 +60,7 @@ public interface Grid {
     Map<Coordinate, Integer> reset();
 
 
+
     class GridImpl implements Grid {
         public static final int ZERO = 0;
         private final Settings settings;
@@ -78,6 +81,11 @@ public interface Grid {
 
         private int solutionValue(final Coordinate coordinate) {
             return this.solution.get(coordinate.row(), coordinate.col());
+        }
+
+        @Override
+        public Settings settings() {
+            return this.settings;
         }
 
         @Override
