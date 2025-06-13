@@ -96,7 +96,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                                     (name, coordinate, value) -> {
                                         this.grid.saveValue(coordinate, value);
                                         this.ui.writeValueWithoutCheck(coordinate, value);
-                                        this.ui.showInfo(name + " modified cell " + coordinate + " with value " + value);
+                                        this.ui.showInfo(name + ": " + coordinate + " -> " + value);
                                         this.checkWin();
                                     }, (newSchema, newDifficulty, solution, cells) -> {
                                         this.grid = Grid.create(Settings.create(newSchema, newDifficulty));

@@ -47,7 +47,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
 
     public void build(final Player player) {
         player.computeRoomID().ifPresent(id -> this.infoRoom.setText(ROOM_LABEL + id));
-        this.playerArea.append(SELF);
+        this.playerArea.setText(SELF);
     }
 
     public void joinPlayer(final String playerName) {
