@@ -4,6 +4,7 @@ import grid.Coordinate;
 import grid.Grid;
 import grid.Settings;
 import model.Player;
+import utils.GameConsumers;
 import utils.Topics;
 import view.GameMultiplayerListener;
 import view.UIMultiplayer;
@@ -12,8 +13,11 @@ import view.ViewMultiPlayer;
 import java.util.Optional;
 
 public class Controller implements GameMultiplayerListener.PlayerListener {
+    public static final String ERROR_DISCOVERY = "Discovery not available.";
+    public static final String ERROR_CONNECTOR = "Connector not available.";
+    public static final String INFO_PLAYER = "Enter a player name.";
     private Optional<RabbitMQDiscovery> discovery;
-    private final RabbitMQConnector connector;
+    private Optional<RabbitMQConnector> connector;
     private final Player player;
     private Grid grid;
 
@@ -26,22 +30,41 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
         this.ui.addPlayerListener(this);
         this.ui.open();
 
+        this.discovery = Optional.empty();
+        this.connector = Optional.empty();
+
         this.loadServices();
-        this.connector = RabbitMQConnector.create();
     }
 
     private void loadServices() {
-        do {
-            this.discovery = RabbitMQDiscovery.create();
-        } while (this.discovery.isEmpty());
+        do this.discovery = RabbitMQDiscovery.create(); while (this.discovery.isEmpty());
+        do this.connector = RabbitMQConnector.create(); while (this.connector.isEmpty());
         this.ui.showInfo("Connected to RabbitMQ server");
     }
 
+    private void callDiscovery(final GameConsumers.CallDiscovery callDiscovery) {
+        this.discovery.ifPresentOrElse(callDiscovery::accept,
+                () -> this.ui.showError(ERROR_DISCOVERY));
+    }
+
+    private void callConnector(final GameConsumers.CallConnector callConnector) {
+        this.connector.ifPresentOrElse(callConnector::accept,
+                () -> this.ui.showError(ERROR_CONNECTOR));
+    }
+
+    private void callRabbitMQ(final GameConsumers.CallRabbitMQ callRabbitMQ) {
+        this.discovery.ifPresentOrElse(discovery ->
+                        this.connector.ifPresentOrElse(connector ->
+                                        callRabbitMQ.accept(discovery, connector),
+                                () -> this.ui.showError(ERROR_CONNECTOR)),
+                () -> this.ui.showError(ERROR_DISCOVERY));
+    }
+
     private void createRoom(final String playerName) {
-        this.discovery.ifPresent(discovery -> {
+        this.callRabbitMQ((discovery, connector) -> {
             final String countRoom = discovery.countExchangesWithoutDefault() + 1 + "";
             this.player.computeToCreateRoom(countRoom, "1", playerName);
-            this.connector.createRoomAndJoin(this.player);
+            connector.createRoomAndJoin(this.player);
             this.ui.buildPlayer(this.player);
             this.ui.buildGrid(this.grid);
             this.ui.showGridPage();
@@ -49,73 +72,72 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
     }
 
     private void joinRoom(final String roomID, final String playerName) {
-        this.discovery.ifPresent(discovery -> {
+        this.callRabbitMQ((discovery, connector) -> {
             final String roomName = Topics.computeRoomNameFrom(roomID);
             final String countQueues = discovery.countExchangeBinds(roomName) + 1 + "";
             this.player.computeToJoinRoom(roomID, countQueues, playerName);
             this.ui.buildPlayer(this.player);
             this.ui.appendPlayers(discovery.routingKeysFromBindsExchange(roomName));
-            this.connector.joinRoom(discovery, this.player);
-            this.connector.sendGridRequest(discovery, this.player);
+            connector.joinRoom(discovery, this.player);
+            connector.sendGridRequest(discovery, this.player);
         });
     }
 
     @Override
     public void onStart(final Optional<String> room, final Optional<String> playerName,
                         final Settings.Schema schema, final Settings.Difficulty difficulty) {
-        if (playerName.isEmpty()) {
-            this.ui.showError("Please enter a player name.");
-        }
-        if (playerName.isPresent()) {
-            this.grid = Grid.create(Settings.create(schema, difficulty));
-            if (room.isEmpty()) {
-                this.createRoom(playerName.get());
-            } else {
-                this.joinRoom(room.get(), playerName.get());
-            }
-
-            this.connector.activeCallbackReceiveMessage(this.player, this.grid,
-                    this.ui::joinPlayer,
-                    this.ui::leavePlayer,
-                    (name, coordinate, value) -> {
-                        this.grid.saveValue(coordinate, value);
-                        this.ui.writeValueWithoutCheck(coordinate, value);
-                    }, (solution, cells) -> {
-                        this.grid.loadSolution(solution);
-                        this.grid.loadCells(cells);
-                        this.ui.buildGrid(this.grid);
-                        this.ui.showGridPage();
-                    });
-        }
+        this.callRabbitMQ((_, connector) ->
+                playerName.ifPresentOrElse(
+                        myName -> {
+                            this.grid = Grid.create(Settings.create(schema, difficulty));
+                            
+                            room.ifPresentOrElse(
+                                    roomID -> this.joinRoom(roomID, myName),
+                                    () -> this.createRoom(myName));
+                            
+                            connector.activeCallbackReceiveMessage(this.player, this.grid,
+                                    this.ui::joinPlayer,
+                                    this.ui::leavePlayer,
+                                    (name, coordinate, value) -> {
+                                        this.grid.saveValue(coordinate, value);
+                                        this.ui.writeValueWithoutCheck(coordinate, value);
+                                    }, (solution, cells) -> {
+                                        this.grid.loadSolution(solution);
+                                        this.grid.loadCells(cells);
+                                        this.ui.buildGrid(this.grid);
+                                        this.ui.showGridPage();
+                                    });
+                        },
+                        () -> this.ui.showError(INFO_PLAYER)
+                ));
     }
 
     @Override
     public void onExit() {
         this.ui.close();
-        this.connector.deleteQueue(this.player);
+        this.callConnector(connector -> connector.deleteQueue(this.player));
         System.exit(0);
     }
 
     @Override
     public boolean onModifyCell(final Coordinate coordinate, final int value) {
         this.grid.saveValue(coordinate, value);
-        this.discovery.ifPresent(discovery ->
-                this.connector.sendMove(discovery, this.player, coordinate, value));
+        this.callRabbitMQ((discovery, connector) ->
+                connector.sendMove(discovery, this.player, coordinate, value));
         return true;
     }
 
     @Override
     public void onHome() {
-        this.discovery.ifPresent(discovery ->
-                this.connector.leaveRoom(discovery, this.player));
+        this.callRabbitMQ((discovery, connector) -> connector.leaveRoom(discovery, this.player));
     }
 
     @Override
     public void onUndo() {
         this.grid.undo().ifPresent(coordinate -> {
             this.ui.undo(coordinate);
-            this.discovery.ifPresent(discovery ->
-                    this.connector.sendMove(discovery, this.player, coordinate, this.grid.emptyValue()));
+            this.callRabbitMQ((discovery, connector) ->
+                    connector.sendMove(discovery, this.player, coordinate, this.grid.emptyValue()));
         });
     }
 

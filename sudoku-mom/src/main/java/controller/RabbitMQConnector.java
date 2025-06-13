@@ -13,17 +13,27 @@ import utils.GameConsumers.PlayerMove;
 import utils.Messages;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 
 import static utils.Messages.JSON_PROPERTIES;
 import static utils.Messages.TYPE_MESSAGE_KEY;
 
 public interface RabbitMQConnector {
 
-    static RabbitMQConnector create() {
-        return new RabbitMQConnectorImpl();
+    static Optional<RabbitMQConnector> create() {
+        try {
+            return Optional.of(new RabbitMQConnectorImpl());
+        } catch (final URISyntaxException | TimeoutException | IOException | KeyManagementException |
+                       NoSuchAlgorithmException e) {
+            return Optional.empty();
+        }
     }
 
     void createRoom(Player player);
@@ -53,15 +63,12 @@ public interface RabbitMQConnector {
 
         private final Channel channel;
 
-        public RabbitMQConnectorImpl() {
+        public RabbitMQConnectorImpl() throws URISyntaxException, NoSuchAlgorithmException,
+                KeyManagementException, IOException, TimeoutException {
             final ConnectionFactory connectionFactory = new ConnectionFactory();
-            try {
-                connectionFactory.setUri(URI);
-                final Connection connection = connectionFactory.newConnection();
-                this.channel = connection.createChannel();
-            } catch (final Exception e) {
-                throw new RuntimeException("Failed to create RabbitMQ channel: " + e.getMessage(), e);
-            }
+            connectionFactory.setUri(URI);
+            final Connection connection = connectionFactory.newConnection();
+            this.channel = connection.createChannel();
         }
 
         @Override

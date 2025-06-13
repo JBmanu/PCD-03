@@ -31,17 +31,17 @@ public class RabbitMQConnectorTest {
     public void create() {
         this.player1 = Player.create();
         this.player1.computeToCreateRoom(COUNT_ROOM, COUNT_QUEUE, PLAYER_1_NAME);
-        
+
         final Optional<RabbitMQDiscovery> discoveryOpt = RabbitMQDiscovery.create();
+        final Optional<RabbitMQConnector> connectorOpt = RabbitMQConnector.create();
+
+        await().atMost(Duration.ofSeconds(10)).until(connectorOpt::isPresent);
+
         assertTrue(discoveryOpt.isPresent());
-        
+        assertTrue(connectorOpt.isPresent());
+
+        this.connector = connectorOpt.get();
         this.discovery = discoveryOpt.get();
-        this.connector = RabbitMQConnector.create();
-        
-        await().atMost(Duration.ofSeconds(10))
-                .until(() -> this.connector != null);
-        
-        assertNotNull(this.connector);
     }
 
     @AfterEach
@@ -113,7 +113,8 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
         this.connector.leaveRoom(this.discovery, player2);
 
-        this.connector.activeCallbackReceiveMessage(this.player1, null, _ -> {}, playerName ->
+        this.connector.activeCallbackReceiveMessage(this.player1, null, _ -> {
+        }, playerName ->
                 assertEquals(leavePlayerName, playerName), null, null);
 
         this.connector.deleteQueue(player2);
@@ -196,10 +197,10 @@ public class RabbitMQConnectorTest {
     }
 
     private RabbitMQConnector createOtherConnector() {
-        final RabbitMQConnector connector2 = RabbitMQConnector.create();
-        await().atMost(Duration.ofSeconds(10))
-                .until(() -> connector2 != null);
-        return connector2;
+        final Optional<RabbitMQConnector> connector2Opt = RabbitMQConnector.create();
+        await().atMost(Duration.ofSeconds(10)).until(connector2Opt::isPresent);
+        assertTrue(connector2Opt.isPresent());
+        return connector2Opt.get();
     }
 
     @Test

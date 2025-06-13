@@ -133,7 +133,7 @@ public class MenuMultiplayerPage extends JPanel implements InfoPanel, ColorCompo
 
     @Override
     public void showInfo(final String info) {
-        this.errorLabel.setForeground(Color.GREEN);
+        this.errorLabel.setForeground(Color.BLACK);
         this.errorLabel.setText(info);
     }
 

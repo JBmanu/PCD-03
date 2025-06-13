@@ -61,9 +61,9 @@ public class GameInfoPanel extends JPanel implements ColorComponent {
 
     @Override
     public void refreshPalette(final Palette palette) {
-        final int alphaTitle = 250;
+        final int alphaTitle = 230;
         final int alphaPlayer = alphaTitle - 50;
         this.infoRoom.setForeground(palette.secondaryWithAlpha(alphaTitle));
-        this.playerArea.setForeground(palette.secondaryWithAlpha(alphaTitle - alphaPlayer));
+        this.playerArea.setForeground(palette.secondaryWithAlpha(alphaPlayer));
     }
 }

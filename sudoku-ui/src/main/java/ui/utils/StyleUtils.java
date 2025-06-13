@@ -5,7 +5,7 @@ import java.awt.*;
 public final class StyleUtils {
     // GENERAL
     public static final String TITLE_GUI = "Sudoku";
-    public static final Dimension FRAME_SIZE = new Dimension(800, 800);
+    public static final Dimension FRAME_SIZE = new Dimension(800, 900);
     
     public static final Font FONT_GAME = new Font("Roboto", Font.PLAIN, 20);
     public static final Font INFO_FONT = new Font("Roboto", Font.BOLD, 20);
