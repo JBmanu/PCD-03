@@ -189,11 +189,13 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     @Override
     public void showInfo(final String info) {
         this.menuPage.showInfo(info);
+        this.gridPage.showInfo(info);
     }
 
     @Override
     public void showError(final String error) {
         this.menuPage.showError(error);
+        this.gridPage.showError(error);
     }
 
     @Override

@@ -12,17 +12,19 @@ import java.util.List;
 
 import static ui.utils.StyleUtils.*;
 
-public class GameInfoPanel extends JPanel implements ColorComponent {
+public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
     public static final String ROOM_LABEL = "ROOM ID: ";
     public static final String SELF = "You";
-    final JLabel infoRoom;
-    final JTextArea playerArea;
-
+    private final JLabel infoRoom;
+    private final JLabel infoLabel;
+    private final JTextArea playerArea;
+    
     public GameInfoPanel() {
         super(new BorderLayout());
         PanelUtils.transparent(this);
 
         this.infoRoom = new JLabel();
+        this.infoLabel = new JLabel();
         this.playerArea = new JTextArea();
         final JScrollPane scrollPane = new JScrollPane(this.playerArea);
 
@@ -31,6 +33,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent {
         this.playerArea.setEditable(false);
         this.playerArea.setOpaque(false);
         this.playerArea.setBorder(null);
+        this.playerArea.getCaret().setVisible(false);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(V_GAP, ZERO_GAP, ZERO_GAP, ZERO_GAP));
         scrollPane.getViewport().setOpaque(false);
         scrollPane.setOpaque(false);
@@ -39,6 +42,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent {
 
         this.add(PanelUtils.createCenter(this.infoRoom), BorderLayout.NORTH);
         this.add(scrollPane, BorderLayout.CENTER);
+        this.add(PanelUtils.createCenter(this.infoLabel), BorderLayout.SOUTH);
     }
 
     public void build(final Player player) {
@@ -60,10 +64,23 @@ public class GameInfoPanel extends JPanel implements ColorComponent {
     }
 
     @Override
+    public void showInfo(final String info) {
+        this.infoLabel.setForeground(Color.BLACK);
+        this.infoLabel.setText(info);
+    }
+
+    @Override
+    public void showError(final String error) {
+        this.infoLabel.setForeground(Color.RED);
+        this.infoLabel.setText(error);
+    }
+    
+    @Override
     public void refreshPalette(final Palette palette) {
         final int alphaTitle = 230;
         final int alphaPlayer = alphaTitle - 50;
         this.infoRoom.setForeground(palette.secondaryWithAlpha(alphaTitle));
         this.playerArea.setForeground(palette.secondaryWithAlpha(alphaPlayer));
     }
+    
 }

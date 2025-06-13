@@ -16,6 +16,7 @@ import ui.utils.PanelUtils;
 import utils.GridUtils;
 import view.GameInfoPanel;
 import view.GameMultiplayerListener;
+import view.InfoPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +26,7 @@ import java.util.stream.Stream;
 
 import static ui.utils.StyleUtils.*;
 
-public class GridMultiplayerPage extends JPanel implements ColorComponent, GridPageListener.CellListener {
+public class GridMultiplayerPage extends JPanel implements ColorComponent, GridPageListener.CellListener, InfoPanel {
     private final JPanel gridPanel;
     private final Map<Coordinate, SNumberCell> cells;
 
@@ -184,6 +185,16 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
             final int size = (int) Math.sqrt(this.cells.size());
             this.numberInfoPanel.checkNumber(value, size, this.countValue(value));
         });
+    }
+
+    @Override
+    public void showInfo(final String info) {
+        this.gameInfoPanel.showInfo(info);
+    }
+
+    @Override
+    public void showError(final String error) {
+        this.gameInfoPanel.showError(error);
     }
 
     @Override
