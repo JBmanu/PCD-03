@@ -64,6 +64,7 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     }
 
     private void showMenuPage() {
+        this.showInfo("");
         this.showPage(this.menuPage);
         this.backgroundSoundManager.playSound(Track.SoundBG.START);
     }

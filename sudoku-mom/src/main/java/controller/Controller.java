@@ -80,6 +80,10 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             this.callRabbitMQ((discovery, connector) -> connector.leaveRoom(discovery, this.player));
         }
     }
+    
+    private String infoMove(final String name, final Coordinate coordinate, final int value) {
+        return name + ": [" + coordinate.row() + ", " + coordinate.col() + "] => " + value;
+    }
 
     @Override
     public void onStart(final Optional<String> room, final Optional<String> playerName,
@@ -96,7 +100,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                                     (name, coordinate, value) -> {
                                         this.grid.saveValue(coordinate, value);
                                         this.ui.writeValueWithoutCheck(coordinate, value);
-                                        this.ui.showInfo(name + ": " + coordinate + " -> " + value);
+                                        this.ui.showInfo(this.infoMove(name, coordinate, value));
                                         this.checkWin();
                                     }, (newSchema, newDifficulty, solution, cells) -> {
                                         this.grid = Grid.create(Settings.create(newSchema, newDifficulty));
