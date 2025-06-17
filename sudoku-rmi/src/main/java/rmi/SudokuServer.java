@@ -19,6 +19,7 @@ public interface SudokuServer {
         }
     }
 
+    UnicastRemoteObject remoteObject();
 
     Optional<SudokuClient> createRoom(String namePlayer, Settings settings) throws RemoteException;
 
@@ -38,6 +39,11 @@ public interface SudokuServer {
         public SudokuServerImpl() throws RemoteException {
             this.rooms = new HashMap<>();
             this.currentId = 0;
+        }
+
+        @Override
+        public UnicastRemoteObject remoteObject() {
+            return this;
         }
 
         @Override

@@ -1,3 +1,8 @@
+import sbt.*
+import sbt.Keys.*
+import sbtassembly.AssemblyPlugin
+import sbtassembly.AssemblyPlugin.autoImport.*
+
 import scala.language.postfixOps
 
 ThisBuild / scalaVersion := "3.3.4"
@@ -6,7 +11,7 @@ ThisBuild / javacOptions ++= Seq("--release", "22")
 enablePlugins(AssemblyPlugin)
 
 lazy val root = (project in file("."))
-  .aggregate(sudokuGrid, sudokuUI, sudokuLocal, sudokuMOM)
+  .aggregate(sudokuGrid, sudokuUI, sudokuLocal, sudokuMOM, sudokuRMI)
   .settings(
     name := "PCD-03",
     )
@@ -67,14 +72,16 @@ lazy val sudokuMOM = (project in file("sudoku-mom"))
       )
     )
 
+lazy val assemblyClient = taskKey[File]("Build client jar")
+lazy val assemblyServer = taskKey[File]("Build server jar")
+
 lazy val sudokuRMI = (project in file("sudoku-rmi"))
   .dependsOn(sudokuGrid % "compile->compile", sudokuMOM % "compile->compile")
   .settings(commonSettings *)
   .settings(
     name := "sudoku-rmi",
-    Compile / mainClass := Some("Main"),
-    assembly / assemblyJarName := "sudoku-rmi.jar",
+    Compile / mainClass := Some("MainClient"),
+    assembly / assemblyJarName := "sudoku-rmi-client.jar",
     libraryDependencies ++= Seq(
-
-      )
+    ),
     )
