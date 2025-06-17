@@ -19,6 +19,7 @@ lazy val commonSettings = Seq(
   resolvers += "jitpack" at "https://jitpack.io",
   libraryDependencies ++= Seq(
     "org.slf4j" % "slf4j-simple" % "2.0.17",
+    "org.awaitility" % "awaitility" % "4.3.0" % Test,
     "org.junit.jupiter" % "junit-jupiter-api" % "5.13.1" % Test,
     )
   )
@@ -61,8 +62,19 @@ lazy val sudokuMOM = (project in file("sudoku-mom"))
     assembly / assemblyJarName := "sudoku-mom.jar",
     libraryDependencies ++= Seq(
       "com.rabbitmq" % "amqp-client" % "5.25.0",
-      "org.awaitility" % "awaitility" % "4.3.0",
       "com.google.code.gson" % "gson" % "2.13.1",
       "com.github.rabbitmq" % "hop" % "5.3.0",
+      )
+    )
+
+lazy val sudokuRMI = (project in file("sudoku-rmi"))
+  .dependsOn(sudokuGrid % "compile->compile", sudokuMOM % "compile->compile")
+  .settings(commonSettings *)
+  .settings(
+    name := "sudoku-rmi",
+    Compile / mainClass := Some("Main"),
+    assembly / assemblyJarName := "sudoku-rmi.jar",
+    libraryDependencies ++= Seq(
+
       )
     )
