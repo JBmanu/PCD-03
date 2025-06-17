@@ -1,14 +1,13 @@
-package view.page;
+package ui.multiPlayer;
 
 import grid.Settings;
 import ui.color.Palette;
 import ui.components.*;
 import ui.listener.MenuPageListener;
 import ui.listener.ThemeInvoke;
+import ui.multiPlayer.panel.InfoPanel;
 import ui.utils.PanelUtils;
 import utils.ConditionUtils;
-import view.GameMultiplayerListener;
-import view.InfoPanel;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,6 +1,5 @@
-package view;
+package ui.multiPlayer.panel;
 
-import model.Player;
 import ui.color.Palette;
 import ui.components.ColorComponent;
 import ui.utils.PanelUtils;
@@ -45,8 +44,8 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
         this.add(PanelUtils.createCenter(this.infoLabel), BorderLayout.SOUTH);
     }
 
-    public void build(final Player player) {
-        player.computeRoomID().ifPresent(id -> this.infoRoom.setText(ROOM_LABEL + id));
+    public void buildRoom(final String roomId) {
+        this.infoRoom.setText(ROOM_LABEL + roomId);
         this.playerArea.setText(SELF);
     }
 

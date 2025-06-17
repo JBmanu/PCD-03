@@ -1,8 +1,8 @@
 import grid.Coordinate;
 import grid.Grid;
 import grid.Settings;
-import model.SudokuClient;
-import model.SudokuServer;
+import rmi.SudokuClient;
+import rmi.SudokuServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,12 +33,12 @@ public class SudokuServerTest {
         }
     }
 
-    private SudokuClient createPlayer2WithRoom(final SudokuClient client1) {
-        final Optional<SudokuClient> newClientOptional = SudokuClient.create("lu", client1.roomId());
+    private SudokuClient createPlayer2WithRoomOf(final String name, final SudokuClient client1) {
+        final Optional<SudokuClient> newClientOptional = SudokuClient.create(name, client1.roomId());
         assertTrue(newClientOptional.isPresent());
         return newClientOptional.get();
     }
-    
+
     @Test
     public void createRoom() {
         final SudokuClient client = this.createRoomWithPlayer("manu");
@@ -53,7 +53,7 @@ public class SudokuServerTest {
     @Test
     public void joinRoom() {
         final SudokuClient client = this.createRoomWithPlayer("manu");
-        final SudokuClient client2 = this.createPlayer2WithRoom(client);
+        final SudokuClient client2 = this.createPlayer2WithRoomOf("lu", client);
 
         try {
             final Optional<Grid> currentGrid = this.server.joinRoom(client2);
@@ -81,7 +81,7 @@ public class SudokuServerTest {
     @Test
     public void leaveRoomWithMultiplePlayers() {
         final SudokuClient client = this.createRoomWithPlayer("manu");
-        final SudokuClient client2 = this.createPlayer2WithRoom(client);
+        final SudokuClient client2 = this.createPlayer2WithRoomOf("lu", client);
 
         try {
             this.server.joinRoom(client2);

@@ -1,16 +1,13 @@
-package view;
+package ui.multiPlayer;
 
 import grid.Coordinate;
 import grid.Grid;
-import model.Player;
 import ui.color.Palette;
 import ui.listener.GameListener;
 import ui.listener.GridPageListener;
 import ui.listener.MenuPageListener;
 import ui.sound.SoundManager;
 import ui.sound.Track;
-import view.page.GridMultiplayerPage;
-import view.page.MenuMultiplayerPage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -99,8 +96,8 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     }
 
     @Override
-    public void buildPlayer(final Player player) {
-        this.gridPage.buildPlayer(player);
+    public void buildRoom(final String roomId) {
+        this.gridPage.buildRoom(roomId);
     }
 
     @Override

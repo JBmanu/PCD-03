@@ -1,8 +1,8 @@
 import grid.Coordinate;
 import grid.Grid;
 import grid.Settings;
-import ui.UI;
-import ui.View;
+import ui.singlePlayer.UI;
+import ui.singlePlayer.View;
 import ui.color.Palette;
 import ui.listener.GameListener;
 

@@ -1,12 +1,12 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import controller.RabbitMQDiscovery;
+import rabbitMQ.RabbitMQDiscovery;
 
 import java.util.List;
 import java.util.Optional;
 
-import static controller.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
-import static controller.RabbitMQDiscovery.DEFAULT_EXCHANGE_NAME;
+import static rabbitMQ.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
+import static rabbitMQ.RabbitMQDiscovery.DEFAULT_EXCHANGE_NAME;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RabbitMQDiscoveryTest {

@@ -1,9 +1,9 @@
-package view;
+package ui.multiPlayer;
 
 import grid.Coordinate;
 import grid.Grid;
-import model.Player;
 import ui.components.ColorComponent;
+import ui.multiPlayer.panel.InfoPanel;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +22,7 @@ public interface UIMultiplayer extends ColorComponent, InfoPanel {
     
     void buildGrid(Grid grid);
     
-    void buildPlayer(Player player);
+    void buildRoom(String roomId);
 
     void joinPlayer(String newPlayerName);
 

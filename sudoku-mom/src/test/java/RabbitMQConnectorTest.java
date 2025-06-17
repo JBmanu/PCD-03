@@ -1,5 +1,5 @@
-import controller.RabbitMQConnector;
-import controller.RabbitMQDiscovery;
+import rabbitMQ.RabbitMQConnector;
+import rabbitMQ.RabbitMQDiscovery;
 import grid.Coordinate;
 import grid.Grid;
 import grid.Settings;
@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static controller.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
-import static controller.RabbitMQDiscovery.COUNT_DEFAULT_QUEUE_BINDS;
+import static rabbitMQ.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
+import static rabbitMQ.RabbitMQDiscovery.COUNT_DEFAULT_QUEUE_BINDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 

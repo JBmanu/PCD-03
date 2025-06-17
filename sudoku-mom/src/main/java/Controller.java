@@ -1,14 +1,14 @@
-package controller;
-
+import rabbitMQ.RabbitMQConnector;
+import rabbitMQ.RabbitMQDiscovery;
 import grid.Coordinate;
 import grid.Grid;
 import grid.Settings;
 import model.Player;
 import utils.GameConsumers;
 import utils.Topics;
-import view.GameMultiplayerListener;
-import view.UIMultiplayer;
-import view.ViewMultiPlayer;
+import ui.multiPlayer.GameMultiplayerListener;
+import ui.multiPlayer.UIMultiplayer;
+import ui.multiPlayer.ViewMultiPlayer;
 
 import java.util.Optional;
 
@@ -56,7 +56,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             final String countRoom = discovery.countExchangesWithoutDefault() + 1 + "";
             this.player.computeToCreateRoom(countRoom, "1", playerName);
             connector.createRoomAndJoin(this.player);
-            this.ui.buildPlayer(this.player);
+            this.player.computeRoomID().ifPresent(this.ui::buildRoom);
             this.ui.buildGrid(this.grid);
             this.ui.showGridPage();
         });
@@ -67,7 +67,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             final String roomName = Topics.computeRoomNameFrom(roomID);
             final String countQueues = discovery.countExchangeBinds(roomName) + 1 + "";
             this.player.computeToJoinRoom(roomID, countQueues, playerName);
-            this.ui.buildPlayer(this.player);
+            this.player.computeRoomID().ifPresent(this.ui::buildRoom);
             this.ui.appendPlayers(discovery.routingKeysFromBindsExchange(roomName));
             connector.joinRoom(discovery, this.player);
             connector.sendGridRequest(discovery, this.player);

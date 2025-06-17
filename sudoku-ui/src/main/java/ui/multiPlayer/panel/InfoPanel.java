@@ -1,4 +1,4 @@
-package view;
+package ui.multiPlayer.panel;
 
 public interface InfoPanel {
     void showInfo(String info);

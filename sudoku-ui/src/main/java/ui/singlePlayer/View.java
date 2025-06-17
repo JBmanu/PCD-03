@@ -1,4 +1,4 @@
-package ui;
+package ui.singlePlayer;
 
 import grid.Coordinate;
 import grid.Grid;

@@ -1,22 +1,20 @@
-package view.page;
+package ui.multiPlayer;
 
 import grid.Coordinate;
 import grid.Grid;
-import model.Player;
 import ui.color.Palette;
 import ui.components.ColorComponent;
 import ui.components.SNumberCell;
 import ui.listener.GameListener;
 import ui.listener.GridPageListener;
 import ui.listener.ThemeInvoke;
+import ui.multiPlayer.panel.GameInfoPanel;
+import ui.multiPlayer.panel.InfoPanel;
 import ui.panel.GridActionPanel;
 import ui.panel.NumberInfoPanel;
 import ui.utils.BorderUtils;
 import ui.utils.PanelUtils;
 import utils.GridUtils;
-import view.GameInfoPanel;
-import view.GameMultiplayerListener;
-import view.InfoPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -93,8 +91,8 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         });
     }
 
-    public void buildPlayer(final Player player) {
-        this.gameInfoPanel.build(player);
+    public void buildRoom(final String roomId) {
+        this.gameInfoPanel.buildRoom(roomId);
     }
 
     public void joinPlayer(final String newPlayerName) {

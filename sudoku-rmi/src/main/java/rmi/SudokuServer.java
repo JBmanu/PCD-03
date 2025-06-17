@@ -1,4 +1,4 @@
-package model;
+package rmi;
 
 import grid.Coordinate;
 import grid.Grid;

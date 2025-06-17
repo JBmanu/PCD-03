@@ -1,7 +1,7 @@
 package utils;
 
-import controller.RabbitMQConnector;
-import controller.RabbitMQDiscovery;
+import rabbitMQ.RabbitMQConnector;
+import rabbitMQ.RabbitMQDiscovery;
 import grid.Coordinate;
 import grid.Settings;
 

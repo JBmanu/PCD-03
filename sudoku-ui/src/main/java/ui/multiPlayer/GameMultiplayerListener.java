@@ -1,4 +1,4 @@
-package view;
+package ui.multiPlayer;
 
 import grid.Settings;
 import ui.listener.GameListener;
