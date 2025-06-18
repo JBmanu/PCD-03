@@ -6,13 +6,20 @@ import ui.multiPlayer.GameMultiplayerListener;
 import ui.multiPlayer.UIMultiplayer;
 import ui.multiPlayer.ViewMultiPlayer;
 
+import java.rmi.NotBoundException;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.Optional;
 
+import static rmi.RMIPath.*;
+
 public class Controller implements GameMultiplayerListener.PlayerListener {
-    private final Optional<SudokuServer> server;
+    private Optional<SudokuServer> server;
     private final Optional<SudokuClient> client;
     private final UIMultiplayer ui;
-    
+
     public Controller() {
         this.ui = new ViewMultiPlayer();
         this.client = Optional.empty();
@@ -20,12 +27,28 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
         this.ui.addPlayerListener(this);
         this.ui.open();
+        
+        this.loadService();
+    }
+
+    private void loadService() {
+        do {
+            try {
+                final Registry registry = LocateRegistry.getRegistry(HOST, SERVER_PORT);
+                final Remote remote = registry.lookup(SERVER_NAME);
+                final SudokuServer server = ((SudokuServer) remote);
+                System.out.println("Connected to server: " + server);
+                this.server = Optional.of(server);
+                this.ui.showInfo("Connected to server");
+            } catch (final RemoteException | NotBoundException _) {
+            }
+        } while (this.server.isEmpty());
     }
 
 
     @Override
     public void onHome() {
-        
+
     }
 
     @Override

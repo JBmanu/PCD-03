@@ -5,21 +5,12 @@ import grid.Grid;
 import grid.Settings;
 import utils.Pair;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-public interface SudokuServer {
-
-    static Optional<SudokuServer> create() {
-        try {
-            return Optional.of(new SudokuServerImpl());
-        } catch (final RemoteException e) {
-            return Optional.empty();
-        }
-    }
-
-    UnicastRemoteObject remoteObject();
+public interface SudokuServer extends Remote {
 
     Optional<SudokuClient> createRoom(String namePlayer, Settings settings) throws RemoteException;
 
@@ -39,11 +30,6 @@ public interface SudokuServer {
         public SudokuServerImpl() throws RemoteException {
             this.rooms = new HashMap<>();
             this.currentId = 0;
-        }
-
-        @Override
-        public UnicastRemoteObject remoteObject() {
-            return this;
         }
 
         @Override

@@ -1,6 +1,7 @@
 import grid.Coordinate;
 import grid.Grid;
 import grid.Settings;
+import rmi.FactoryRMI;
 import rmi.SudokuClient;
 import rmi.SudokuServer;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +18,8 @@ public class SudokuServerTest {
 
     @BeforeEach
     public void setup() {
-        final Optional<SudokuServer> serverOptional = SudokuServer.create();
-        assertTrue(serverOptional.isPresent());
+        final Optional<SudokuServer> serverOptional = FactoryRMI.createSudokuServer();
+        assertTrue(serverOptional.isPresent(), "Failed to create SudokuServer");
         this.server = serverOptional.get();
     }
 

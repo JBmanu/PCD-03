@@ -1,5 +1,7 @@
+import rmi.FactoryRMI;
 import rmi.SudokuServer;
 
+import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -11,13 +13,16 @@ import static rmi.RMIPath.SERVER_PORT;
 public final class MainServer {
 
     public static void main(final String[] args) {
-        final Optional<SudokuServer> serverOpt = SudokuServer.create();
-        serverOpt.ifPresent(server -> {
+        Optional<SudokuServer> sudokuServer = FactoryRMI.createSudokuServer();
+
+        while (sudokuServer.isEmpty()) sudokuServer = FactoryRMI.createSudokuServer();
+        
+        sudokuServer.ifPresent(server -> {
             try {
                 final Registry registry = LocateRegistry.createRegistry(SERVER_PORT);
-                registry.rebind(SERVER_NAME, server.remoteObject());
-                System.out.println("Sudoku RMI Server is starting...");
-            } catch (final RemoteException e) {
+                registry.bind(SERVER_NAME, server);
+                System.out.println("Sudoku server is running on port " + SERVER_PORT);
+            } catch (final RemoteException | AlreadyBoundException e) {
                 throw new RuntimeException(e);
             }
         });
