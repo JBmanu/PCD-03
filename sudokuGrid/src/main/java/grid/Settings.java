@@ -3,14 +3,10 @@ package grid;
 import de.sfuhrm.sudoku.GameSchema;
 import de.sfuhrm.sudoku.GameSchemas;
 
+import java.io.Serial;
 import java.io.Serializable;
 
-public interface Settings {
-
-    static Settings create(final Schema schema, final Difficulty difficulty) {
-        return new SettingsImpl(schema, difficulty);
-    }
-
+public interface Settings extends Serializable {
 
     Schema schema();
     
@@ -23,7 +19,7 @@ public interface Settings {
     }
 
 
-    enum Schema {
+    enum Schema implements Serializable {
         SCHEMA_4x4(GameSchemas.SCHEMA_4X4, "4 X 4", GameSchemas.SCHEMA_4X4.getWidth()),
         SCHEMA_9x9(GameSchemas.SCHEMA_9X9, "9 X 9", GameSchemas.SCHEMA_9X9.getWidth()),
         SCHEMA_16X16(GameSchemas.SCHEMA_16X16, "16 X 16", GameSchemas.SCHEMA_16X16.getWidth()),
@@ -53,7 +49,7 @@ public interface Settings {
         }
     }
 
-    enum Difficulty {
+    enum Difficulty implements Serializable {
         EASY(30),
         MEDIUM(40),
         HARD(50);
@@ -79,7 +75,9 @@ public interface Settings {
 
 
     record SettingsImpl(Schema schema, Difficulty difficulty) implements Settings {
-
+        @Serial
+        private static final long serialVersionUID = 1L;
+        
         @Override
         public int size() {
             return this.schema.size;

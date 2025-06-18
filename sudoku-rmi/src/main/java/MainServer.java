@@ -7,15 +7,14 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Optional;
 
-import static rmi.RMIPath.SERVER_NAME;
-import static rmi.RMIPath.SERVER_PORT;
+import static utils.RMIPath.SERVER_NAME;
+import static utils.RMIPath.SERVER_PORT;
 
 public final class MainServer {
 
     public static void main(final String[] args) {
-        Optional<SudokuServer> sudokuServer = FactoryRMI.createSudokuServer();
-
-        while (sudokuServer.isEmpty()) sudokuServer = FactoryRMI.createSudokuServer();
+        Optional<SudokuServer> sudokuServer = FactoryRMI.server();
+        while (sudokuServer.isEmpty()) sudokuServer = FactoryRMI.server();
         
         sudokuServer.ifPresent(server -> {
             try {

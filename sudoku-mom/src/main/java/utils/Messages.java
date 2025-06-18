@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Delivery;
 import grid.Coordinate;
+import grid.FactoryGrid;
 import grid.Grid;
 import grid.Settings;
 import utils.GameConsumers.GridData;
@@ -120,7 +121,7 @@ public final class Messages {
             final int row = (int) ((double) coordinate.get(ROW_KEY));
             final int column = (int) ((double) coordinate.get(COL_KEY));
             final int value = (int) ((double) data.get(VALUE_KEY));
-            action.accept(playerName, Coordinate.create(row, column), value);
+            action.accept(playerName, FactoryGrid.coordinate(row, column), value);
         }
 
         public static void acceptGrid(final Delivery delivery, final GridData gridData) {

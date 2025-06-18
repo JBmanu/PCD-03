@@ -1,11 +1,8 @@
 package grid;
 
-public interface Coordinate {
+import java.io.Serializable;
 
-    static Coordinate create(final int row, final int column) {
-        return new CoordinateImpl(row, column);
-    }
-    
+public interface Coordinate extends Serializable {
 
     int row();
 
@@ -13,6 +10,7 @@ public interface Coordinate {
     
 
     record CoordinateImpl(int row, int col) implements Coordinate {
+        private static final long serialVersionUID = 1L;
 
         @Override
         public String toString() {

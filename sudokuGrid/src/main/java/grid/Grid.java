@@ -10,13 +10,8 @@ import java.util.stream.Stream;
 
 public interface Grid {
 
-    static Grid create(final Settings settings) {
-        return new GridImpl(settings);
-    }
-
-
     Settings settings();
-    
+
     int size();
 
     int emptyValue();
@@ -58,7 +53,6 @@ public interface Grid {
     Optional<Coordinate> undo();
 
     Map<Coordinate, Integer> reset();
-
 
 
     class GridImpl implements Grid {
@@ -136,7 +130,7 @@ public interface Grid {
         private Map<Coordinate, Integer> convertToMap(final GameMatrix matrix) {
             final List<Integer> rangeSize = IntStream.range(0, this.size()).boxed().toList();
             final Stream<Coordinate> coordinates = rangeSize.stream().flatMap(row -> rangeSize.stream()
-                    .map(column -> Coordinate.create(row, column)));
+                    .map(column -> FactoryGrid.coordinate(row, column)));
 
             return coordinates.map(coord -> Map.entry(coord, matrix.get(coord.row(), coord.col())))
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingInt(Map.Entry::getValue)));

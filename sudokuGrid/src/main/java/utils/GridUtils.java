@@ -1,6 +1,7 @@
 package utils;
 
 import grid.Coordinate;
+import grid.FactoryGrid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public final class GridUtils {
 
         for (int i = 0; i < sizeQuadrant; i++)
             for (int j = 0; j < sizeQuadrant; j++)
-                coordinates.add(Coordinate.create(rowStart + i, colStart + j));
+                coordinates.add(FactoryGrid.coordinate(rowStart + i, colStart + j));
 
         return coordinates;
     }
@@ -29,7 +30,7 @@ public final class GridUtils {
         final int col = coordinate.col();
 
         return new java.util.ArrayList<>(IntStream.range(0, size)
-                .mapToObj(i -> List.of(Coordinate.create(row, i), Coordinate.create(i, col)))
+                .mapToObj(i -> List.of(FactoryGrid.coordinate(row, i), FactoryGrid.coordinate(i, col)))
                 .flatMap(List::stream)
                 .toList());
     }

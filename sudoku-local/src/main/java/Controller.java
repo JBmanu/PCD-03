@@ -1,4 +1,5 @@
 import grid.Coordinate;
+import grid.FactoryGrid;
 import grid.Grid;
 import grid.Settings;
 import ui.singlePlayer.UI;
@@ -22,7 +23,7 @@ public class Controller implements GameListener.PlayerListener {
 
     @Override
     public void onStart(final Settings.Schema schema, final Settings.Difficulty difficulty) {
-        this.grid = Grid.create(Settings.create(schema, difficulty));
+        this.grid = FactoryGrid.grid(FactoryGrid.settings(schema, difficulty));
         this.ui.buildGrid(this.grid);
         this.ui.showGridPage();
     }

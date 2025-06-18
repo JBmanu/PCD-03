@@ -1,14 +1,15 @@
-import rabbitMQ.RabbitMQConnector;
-import rabbitMQ.RabbitMQDiscovery;
 import grid.Coordinate;
+import grid.FactoryGrid;
 import grid.Grid;
 import grid.Settings;
 import model.Player;
-import utils.GameConsumers;
-import utils.Topics;
+import rabbitMQ.RabbitMQConnector;
+import rabbitMQ.RabbitMQDiscovery;
 import ui.multiPlayer.GameMultiplayerListener;
 import ui.multiPlayer.UIMultiplayer;
 import ui.multiPlayer.ViewMultiPlayer;
+import utils.GameConsumers;
+import utils.Topics;
 
 import java.util.Optional;
 
@@ -52,7 +53,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     private void createRoom(final String playerName, final Settings.Schema schema, final Settings.Difficulty difficulty) {
         this.callRabbitMQ((discovery, connector) -> {
-            this.grid = Grid.create(Settings.create(schema, difficulty));
+            this.grid = FactoryGrid.grid(FactoryGrid.settings(schema, difficulty));
             final String countRoom = discovery.countExchangesWithoutDefault() + 1 + "";
             this.player.computeToCreateRoom(countRoom, "1", playerName);
             connector.createRoomAndJoin(this.player);
@@ -73,14 +74,14 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             connector.sendGridRequest(discovery, this.player);
         });
     }
-    
+
     private void checkWin() {
         if (this.grid.hasWin()) {
             this.ui.win("Congratulations! You solved the Sudoku!");
             this.callRabbitMQ((discovery, connector) -> connector.leaveRoom(discovery, this.player));
         }
     }
-    
+
     private String infoMove(final String name, final Coordinate coordinate, final int value) {
         return name + ": [" + coordinate.row() + ", " + coordinate.col() + "] => " + value;
     }
@@ -103,7 +104,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                                         this.ui.showInfo(this.infoMove(name, coordinate, value));
                                         this.checkWin();
                                     }, (newSchema, newDifficulty, solution, cells) -> {
-                                        this.grid = Grid.create(Settings.create(newSchema, newDifficulty));
+                                        this.grid = FactoryGrid.grid(FactoryGrid.settings(newSchema, newDifficulty));
                                         this.grid.loadSolution(solution);
                                         this.grid.loadCells(cells);
                                         this.ui.buildGrid(this.grid);
