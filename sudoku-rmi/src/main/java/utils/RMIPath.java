@@ -1,11 +1,10 @@
 package utils;
 
-public final class RMIPath {
+public interface RMIPath {
+    String HOST = "localhost";
+    String SERVER_NAME = "sudoku-server";
     
-    public static final String HOST = "localhost";
-    public static final String SERVER_NAME = "sudoku-server";
-    
-    public static final int SERVER_PORT = 1099;
+    int SERVER_PORT = 1099;
     
 
 }
