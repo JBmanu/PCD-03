@@ -1,28 +1,51 @@
 package rmi;
 
 import grid.Grid;
+import grid.Settings;
+import utils.Try;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.Objects;
+import java.util.Optional;
 
 public interface SudokuClient extends Remote, Serializable {
 
-    int roomId();
+    String name() throws RemoteException;
+
+    int roomId() throws RemoteException;
 
     void retrieveGrid(Grid grid) throws RemoteException;
 
-    SudokuClient setId(int id) throws RemoteException;
+    void setId(int id) throws RemoteException;
 
-    default SudokuClient copyId(final SudokuClient client) throws RemoteException {
-        return this.setId(client.roomId());
-    }
+    void copyId(final SudokuClient client) throws RemoteException;
 
 
-    record SudokuClientImpl(String name, int roomId) implements SudokuClient {
+    class SudokuClientImpl extends UnicastRemoteObject implements SudokuClient {
         @Serial
         private static final long serialVersionUID = 1L;
+
+        private final String name;
+        private int roomId;
+
+        public SudokuClientImpl(final String name, final int roomId) throws RemoteException {
+            this.name = name;
+            this.roomId = roomId;
+        }
+
+        @Override
+        public String name() throws RemoteException {
+            return this.name;
+        }
+
+        @Override
+        public int roomId() throws RemoteException {
+            return this.roomId;
+        }
 
         @Override
         public void retrieveGrid(final Grid grid) throws RemoteException {
@@ -30,8 +53,14 @@ public interface SudokuClient extends Remote, Serializable {
         }
 
         @Override
-        public SudokuClient setId(final int id) throws RemoteException {
-            return new SudokuClientImpl(this.name, id);
+        public void setId(final int id) throws RemoteException {
+            this.roomId = id;
         }
+
+        @Override
+        public void copyId(final SudokuClient client) throws RemoteException {
+            this.setId(client.roomId());
+        }
+
     }
 }

@@ -1,22 +1,23 @@
-import rabbitMQ.RabbitMQConnector;
-import rabbitMQ.RabbitMQDiscovery;
 import grid.Coordinate;
+import grid.FactoryGrid;
 import grid.Grid;
 import grid.Settings;
 import model.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import rabbitMQ.RabbitMQConnector;
+import rabbitMQ.RabbitMQDiscovery;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static rabbitMQ.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
-import static rabbitMQ.RabbitMQDiscovery.COUNT_DEFAULT_QUEUE_BINDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
+import static rabbitMQ.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
+import static rabbitMQ.RabbitMQDiscovery.COUNT_DEFAULT_QUEUE_BINDS;
 
 public class RabbitMQConnectorTest {
     private static final String COUNT_ROOM = "1";
@@ -186,7 +187,7 @@ public class RabbitMQConnectorTest {
         final Player player2 = this.computeNewPlayer("2", "lu");
         this.createRoomWithTwoPlayer(player2);
 
-        this.connector.sendMove(this.discovery, this.player1, Coordinate.create(0, 0), 1);
+        this.connector.sendMove(this.discovery, this.player1, FactoryGrid.coordinate(0, 0), 1);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
@@ -206,7 +207,7 @@ public class RabbitMQConnectorTest {
 
     @Test
     public void receiveMove() {
-        final Coordinate coordinate = Coordinate.create(0, 0);
+        final Coordinate coordinate = FactoryGrid.coordinate(0, 0);
         final int cellValue = 1;
         final Player player2 = this.computeNewPlayer("2", "lu");
 
@@ -250,7 +251,7 @@ public class RabbitMQConnectorTest {
 
     @Test
     public void receiveRequestAndSendGrid() {
-        final Grid grid = Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.MEDIUM));
+        final Grid grid = FactoryGrid.grid(FactoryGrid.settings(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.MEDIUM));
         final Player player2 = this.computeNewPlayer("2", "lu");
         this.createRoomWithTwoPlayer(player2);
 
@@ -272,7 +273,7 @@ public class RabbitMQConnectorTest {
 
     @Test
     public void receiveGrid() {
-        final Grid grid = Grid.create(Settings.create(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.MEDIUM));
+        final Grid grid = FactoryGrid.grid(FactoryGrid.settings(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.MEDIUM));
         final Player player2 = this.computeNewPlayer("2", "lu");
         final RabbitMQConnector connector2 = this.createOtherConnector();
         this.createRoomWithTwoPlayer(player2);

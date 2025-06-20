@@ -1,6 +1,9 @@
 package utils;
 
-public interface Pair<X, Y> {
+import java.io.Serial;
+import java.io.Serializable;
+
+public interface Pair<X, Y> extends Serializable {
 
     X first();
 
@@ -10,6 +13,9 @@ public interface Pair<X, Y> {
         return new PairImpl<>(first, second);
     }
     
-    record PairImpl<X, Y>(X first, Y second) implements Pair<X, Y> {}
+    record PairImpl<X, Y>(X first, Y second) implements Pair<X, Y> {
+        @Serial
+        private static final long serialVersionUID = 1L;
+    }
 
 }

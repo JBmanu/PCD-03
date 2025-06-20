@@ -8,7 +8,7 @@ import rabbitMQ.RabbitMQDiscovery;
 import ui.multiPlayer.GameMultiplayerListener;
 import ui.multiPlayer.UIMultiplayer;
 import ui.multiPlayer.ViewMultiPlayer;
-import utils.GameConsumers;
+import utils.MOMConsumers;
 import utils.Topics;
 
 import java.util.Optional;
@@ -43,7 +43,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
         this.ui.showInfo("Connected to RabbitMQ server");
     }
 
-    private void callRabbitMQ(final GameConsumers.CallRabbitMQ callRabbitMQ) {
+    private void callRabbitMQ(final MOMConsumers.CallRabbitMQ callRabbitMQ) {
         this.discovery.ifPresentOrElse(discovery ->
                         this.connector.ifPresentOrElse(connector ->
                                         callRabbitMQ.accept(discovery, connector),

@@ -72,9 +72,6 @@ lazy val sudokuMOM = (project in file("sudoku-mom"))
       )
     )
 
-lazy val assemblyClient = taskKey[File]("Build client jar")
-lazy val assemblyServer = taskKey[File]("Build server jar")
-
 lazy val sudokuRMI = (project in file("sudoku-rmi"))
   .dependsOn(sudokuGrid % "compile->compile", sudokuMOM % "compile->compile")
   .settings(commonSettings *)

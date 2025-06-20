@@ -3,12 +3,14 @@ package grid;
 import de.sfuhrm.sudoku.Creator;
 import de.sfuhrm.sudoku.GameMatrix;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public interface Grid {
+public interface Grid extends Serializable {
 
     Settings settings();
 
@@ -56,7 +58,10 @@ public interface Grid {
 
 
     class GridImpl implements Grid {
+        @Serial
+        private static final long serialVersionUID = 1L;
         public static final int ZERO = 0;
+        
         private final Settings settings;
         private final GameMatrix solution;
         private final GameMatrix grid;

@@ -6,7 +6,6 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.Optional;
 
 import static utils.RMIPath.*;
@@ -35,7 +34,7 @@ public interface FactoryRMI {
             registry.bind(SERVER_NAME, server);
             return Optional.of(server);
         } catch (final RemoteException | AlreadyBoundException e) {
-            System.out.println("Failed to create SudokuServer: " + e.getMessage());
+            System.out.println("FAILED: to create SudokuServer: " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -44,14 +43,12 @@ public interface FactoryRMI {
         try {
             final Registry registry = LocateRegistry.getRegistry(SERVER_PORT);
             final SudokuClient client = new SudokuClient.SudokuClientImpl(name, roomId);
-            final SudokuClient stub = (SudokuClient) UnicastRemoteObject.exportObject(client, SERVER_PORT);
-            registry.rebind(generateRoomName(name, roomId), stub);
-            return Optional.of(stub);
-        } catch (final RemoteException e) {
-            System.out.println("Failed to create SudokuClient: " + e.getMessage());
+            registry.bind(generateRoomName(name, roomId), client);
+            return Optional.of(client);
+        } catch (final RemoteException | AlreadyBoundException e) {
+            System.out.println("FAILED: to create SudokuClient: " + e.getMessage());
             return Optional.empty();
         }
     }
-
 
 }

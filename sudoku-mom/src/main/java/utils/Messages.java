@@ -7,7 +7,7 @@ import grid.Coordinate;
 import grid.FactoryGrid;
 import grid.Grid;
 import grid.Settings;
-import utils.GameConsumers.GridData;
+import utils.GameConsumers.CreationGrid;
 import utils.GameConsumers.GridRequest;
 import utils.GameConsumers.PlayerMove;
 
@@ -124,13 +124,13 @@ public final class Messages {
             action.accept(playerName, FactoryGrid.coordinate(row, column), value);
         }
 
-        public static void acceptGrid(final Delivery delivery, final GridData gridData) {
+        public static void acceptGrid(final Delivery delivery, final CreationGrid initGrid) {
             final Map<String, Object> data = createMessage(delivery);
             final Settings.Schema schema = Settings.Schema.valueOf(((String) data.get(SCHEME_KEY)));
             final Settings.Difficulty difficulty = Settings.Difficulty.valueOf((String) data.get(DIFFICULTY_KEY));
             final byte[][] gridArray = GSON.fromJson(data.get(GRID_KEY).toString(), byte[][].class);
             final byte[][] solutionArray = GSON.fromJson(data.get(GRID_SOLUTION_KEY).toString(), byte[][].class);
-            gridData.accept(schema, difficulty, solutionArray, gridArray);
+            initGrid.accept(schema, difficulty, solutionArray, gridArray);
         }
     }
 

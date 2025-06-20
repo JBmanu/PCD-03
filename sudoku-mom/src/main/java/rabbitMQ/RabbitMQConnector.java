@@ -6,7 +6,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import grid.Coordinate;
 import grid.Grid;
 import model.Player;
-import utils.GameConsumers.GridData;
+import utils.GameConsumers.CreationGrid;
 import utils.GameConsumers.JoinPlayer;
 import utils.GameConsumers.LeavePlayer;
 import utils.GameConsumers.PlayerMove;
@@ -54,7 +54,7 @@ public interface RabbitMQConnector {
 
     void activeCallbackReceiveMessage(Player player, Grid grid,
                                       JoinPlayer joinPlayer, LeavePlayer leavePlayer,
-                                      PlayerMove moveAction, GridData gridData);
+                                      PlayerMove moveAction, CreationGrid initGrid);
 
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
@@ -182,7 +182,7 @@ public interface RabbitMQConnector {
         @Override
         public void activeCallbackReceiveMessage(final Player player, final Grid grid,
                                                  final JoinPlayer joinPlayer, final LeavePlayer leavePlayer,
-                                                 final PlayerMove moveAction, final GridData gridData) {
+                                                 final PlayerMove moveAction, final CreationGrid initGrid) {
             player.callActionOnData((room, queue, _) -> {
                 try {
                     this.channel.basicConsume(queue, false, (_, delivery) -> {
@@ -197,7 +197,7 @@ public interface RabbitMQConnector {
                                         Messages.ToReceive.acceptJoinPlayer(delivery, joinPlayer);
                                 case Messages.TYPE_LEAVE_PLAYER ->
                                         Messages.ToReceive.acceptLeavePlayer(delivery, leavePlayer);
-                                case Messages.TYPE_GRID -> Messages.ToReceive.acceptGrid(delivery, gridData);
+                                case Messages.TYPE_GRID -> Messages.ToReceive.acceptGrid(delivery, initGrid);
                                 case Messages.TYPE_MOVE -> Messages.ToReceive.acceptMove(delivery, moveAction);
                             }
                             this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);

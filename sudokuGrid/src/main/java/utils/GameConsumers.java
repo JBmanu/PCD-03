@@ -1,9 +1,9 @@
 package utils;
 
-import rabbitMQ.RabbitMQConnector;
-import rabbitMQ.RabbitMQDiscovery;
 import grid.Coordinate;
-import grid.Settings;
+import grid.Settings.*;
+
+import java.io.Serializable;
 
 public final class GameConsumers {
 
@@ -13,7 +13,10 @@ public final class GameConsumers {
     public interface PlayerMove extends Consumers.TriConsumer<String, Coordinate, Integer> {
     }
 
-    public interface GridData extends Consumers.QuadConsumer<Settings.Schema, Settings.Difficulty, byte[][], byte[][]> {
+    public interface CreationGrid extends Consumers.QuadConsumer<Schema, Difficulty, byte[][], byte[][]> {
+    }
+
+    public interface GridCells extends Serializable, Consumers.BiConsumer<byte[][], byte[][]> {
     }
 
     public interface GridRequest extends Consumers.Consumer<String> {
@@ -25,14 +28,6 @@ public final class GameConsumers {
     public interface LeavePlayer extends Consumers.Consumer<String> {
     }
 
-    public interface CallDiscovery extends Consumers.Consumer<RabbitMQDiscovery> {
-    }
-
-    public interface CallConnector extends Consumers.Consumer<RabbitMQConnector> {
-    }
-
-    public interface CallRabbitMQ extends Consumers.BiConsumer<RabbitMQDiscovery, RabbitMQConnector> {
-    }
 }
 
 
