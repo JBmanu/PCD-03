@@ -1,6 +1,8 @@
 package rmi;
 
 import grid.Coordinate;
+import rmi.ClientConsumers.CallbackJoinPlayers;
+import rmi.ClientConsumers.CallbackLeavePlayer;
 import rmi.ClientConsumers.CallbackMove;
 import utils.Try;
 
@@ -15,10 +17,18 @@ public interface SudokuClient extends Remote, Serializable {
     String name() throws RemoteException;
 
     int roomId() throws RemoteException;
-    
+
     void setCallbackMove(CallbackMove callbackMove) throws RemoteException;
-    
+
+    void setCallbackJoinPlayer(CallbackJoinPlayers callbackPlayers) throws RemoteException;
+
+    void setCallbackLeavePlayer(CallbackLeavePlayer callbackLeavePlayer) throws RemoteException;
+
     void invokeMove(Coordinate coordinate, int value) throws RemoteException;
+
+    void invokeJoinPlayer(String player) throws RemoteException;
+    
+    void invokeLeavePlayer(String player) throws RemoteException;
 
 
     class SudokuClientImpl extends UnicastRemoteObject implements SudokuClient {
@@ -28,12 +38,14 @@ public interface SudokuClient extends Remote, Serializable {
         private final String name;
         private final int roomId;
         private CallbackMove callbackMove;
+        private CallbackJoinPlayers callbackPlayers;
+        private CallbackLeavePlayer callbackLeavePlayer;
 
         public SudokuClientImpl(final String name, final int roomId) throws RemoteException {
             this.name = name;
             this.roomId = roomId;
         }
-        
+
         @Override
         public String name() throws RemoteException {
             return this.name;
@@ -50,8 +62,28 @@ public interface SudokuClient extends Remote, Serializable {
         }
 
         @Override
+        public void setCallbackJoinPlayer(final CallbackJoinPlayers callbackPlayers) throws RemoteException {
+            this.callbackPlayers = callbackPlayers;
+        }
+
+        @Override
+        public void setCallbackLeavePlayer(final CallbackLeavePlayer callbackLeavePlayer) throws RemoteException {
+            this.callbackLeavePlayer = callbackLeavePlayer;
+        }
+
+        @Override
         public void invokeMove(final Coordinate coordinate, final int value) throws RemoteException {
             Try.toOptional(this.callbackMove::accept, coordinate, value);
+        }
+
+        @Override
+        public void invokeJoinPlayer(final String player) throws RemoteException {
+            Try.toOptional(this.callbackPlayers::accept, player);
+        }
+
+        @Override
+        public void invokeLeavePlayer(final String player) throws RemoteException {
+            Try.toOptional(this.callbackLeavePlayer::accept, player);
         }
 
     }

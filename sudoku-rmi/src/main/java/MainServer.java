@@ -1,5 +1,6 @@
 import rmi.FactoryRMI;
 import rmi.SudokuServer;
+import utils.Try;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
@@ -13,8 +14,8 @@ import static utils.RMIPath.SERVER_PORT;
 public final class MainServer {
 
     public static void main(final String[] args) {
-        Optional<SudokuServer> sudokuServer = FactoryRMI.server();
-        while (sudokuServer.isEmpty()) sudokuServer = FactoryRMI.server();
+        Optional<SudokuServer> sudokuServer = Try.toOptional(FactoryRMI::server);
+        while (sudokuServer.isEmpty()) sudokuServer = Try.toOptional(FactoryRMI::server);
         
         sudokuServer.ifPresent(server -> {
             try {

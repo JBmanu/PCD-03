@@ -27,28 +27,19 @@ public interface FactoryRMI {
         }
     }
 
-    static Optional<SudokuServer> server() {
-        try {
-            final Registry registry = LocateRegistry.createRegistry(SERVER_PORT);
-            final SudokuServer server = new SudokuServer.SudokuServerImpl();
-            registry.bind(SERVER_NAME, server);
-            return Optional.of(server);
-        } catch (final RemoteException | AlreadyBoundException e) {
-            System.out.println("FAILED: to create SudokuServer: " + e.getMessage());
-            return Optional.empty();
-        }
+    static SudokuServer server() throws RemoteException, AlreadyBoundException {
+        final Registry registry = LocateRegistry.createRegistry(SERVER_PORT);
+        final SudokuServer server = new SudokuServer.SudokuServerImpl();
+        registry.bind(SERVER_NAME, server);
+        return server;
     }
 
-    static Optional<SudokuClient> client(final String name, final int roomId) {
-        try {
-            final Registry registry = LocateRegistry.getRegistry(SERVER_PORT);
-            final SudokuClient client = new SudokuClient.SudokuClientImpl(name, roomId);
-            registry.bind(generateRoomName(name, roomId), client);
-            return Optional.of(client);
-        } catch (final RemoteException | AlreadyBoundException e) {
-            System.out.println("FAILED: to create SudokuClient: " + e.getMessage());
-            return Optional.empty();
-        }
-    }
 
+    static SudokuClient client(final String name, final int roomId) throws RemoteException, AlreadyBoundException {
+        final Registry registry = LocateRegistry.getRegistry(SERVER_PORT);
+        final SudokuClient client = new SudokuClient.SudokuClientImpl(name, roomId);
+        registry.bind(generateRoomName(name, roomId), client);
+        return client;
+    }
+    
 }
