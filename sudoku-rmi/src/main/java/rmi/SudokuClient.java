@@ -1,7 +1,7 @@
 package rmi;
 
-import grid.Grid;
-import grid.Settings;
+import grid.Coordinate;
+import rmi.ClientConsumers.CallbackMove;
 import utils.Try;
 
 import java.io.Serial;
@@ -9,20 +9,16 @@ import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Objects;
-import java.util.Optional;
 
 public interface SudokuClient extends Remote, Serializable {
 
     String name() throws RemoteException;
 
     int roomId() throws RemoteException;
-
-    void retrieveGrid(Grid grid) throws RemoteException;
-
-    void setId(int id) throws RemoteException;
-
-    void copyId(final SudokuClient client) throws RemoteException;
+    
+    void setCallbackMove(CallbackMove callbackMove) throws RemoteException;
+    
+    void invokeMove(Coordinate coordinate, int value) throws RemoteException;
 
 
     class SudokuClientImpl extends UnicastRemoteObject implements SudokuClient {
@@ -30,13 +26,14 @@ public interface SudokuClient extends Remote, Serializable {
         private static final long serialVersionUID = 1L;
 
         private final String name;
-        private int roomId;
+        private final int roomId;
+        private CallbackMove callbackMove;
 
         public SudokuClientImpl(final String name, final int roomId) throws RemoteException {
             this.name = name;
             this.roomId = roomId;
         }
-
+        
         @Override
         public String name() throws RemoteException {
             return this.name;
@@ -48,18 +45,13 @@ public interface SudokuClient extends Remote, Serializable {
         }
 
         @Override
-        public void retrieveGrid(final Grid grid) throws RemoteException {
-
+        public void setCallbackMove(final CallbackMove callbackMove) throws RemoteException {
+            this.callbackMove = callbackMove;
         }
 
         @Override
-        public void setId(final int id) throws RemoteException {
-            this.roomId = id;
-        }
-
-        @Override
-        public void copyId(final SudokuClient client) throws RemoteException {
-            this.setId(client.roomId());
+        public void invokeMove(final Coordinate coordinate, final int value) throws RemoteException {
+            Try.toOptional(this.callbackMove::accept, coordinate, value);
         }
 
     }

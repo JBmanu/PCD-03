@@ -45,4 +45,8 @@ public final class GridUtils {
         }
         return true;
     }
+
+    public static int value(final byte[][] grid, final Coordinate coordinate) {
+        return grid[coordinate.row()][coordinate.col()];
+    }
 }

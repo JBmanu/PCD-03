@@ -1,5 +1,6 @@
 package utils;
 
+import utils.Remote.ExceptionConsumers.TriConsumer;
 import utils.Remote.ExceptionConsumers.BiConsumer;
 import utils.Remote.ExceptionConsumers.Consumer;
 import utils.Remote.ExceptionFunctions.Dyadic;
@@ -65,4 +66,15 @@ public final class Try {
             throw new RuntimeException();
         }
     }
+    
+    public static <A, B, C> void toOptional(final TriConsumer<A, B, C> consumer,
+                                            final A arg1, final B arg2, final C arg3) {
+        try {
+            consumer.accept(arg1, arg2, arg3);
+        } catch (final Exception e) {
+            System.out.println("Error during remote operation: " + e.getMessage());
+            throw new RuntimeException();
+        }
+    }
+    
 }

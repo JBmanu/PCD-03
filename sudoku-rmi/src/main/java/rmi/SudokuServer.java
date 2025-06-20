@@ -62,7 +62,7 @@ public interface SudokuServer extends Remote {
             return clientOpt.get();
         }
 
-        private boolean isPlayerInRoom(final SudokuClient client)  {
+        private boolean isPlayerInRoom(final SudokuClient client) {
             final Optional<Integer> roomIdOpt = Try.toOptional(client::roomId);
             final Optional<String> nameOpt = Try.toOptional(client::name);
             if (roomIdOpt.isEmpty() || nameOpt.isEmpty()) return false;
@@ -77,14 +77,23 @@ public interface SudokuServer extends Remote {
             return names.contains(name);
         }
 
-        
+        private boolean comparePlayers(final SudokuClient client1, final SudokuClient client2) {
+            final Optional<Integer> roomIdOpt = Try.toOptional(client1::roomId);
+            final Optional<Integer> roomIdOpt2 = Try.toOptional(client2::roomId);
+            if (roomIdOpt.isEmpty() || roomIdOpt2.isEmpty()) return false;
+            final Optional<String> nameOpt = Try.toOptional(client1::name);
+            final Optional<String> nameOpt2 = Try.toOptional(client2::name);
+            if (nameOpt.isEmpty() || nameOpt2.isEmpty()) return false;
+            return roomIdOpt.equals(roomIdOpt2) && nameOpt.equals(nameOpt2);
+        }
+
         @Override
         public void leaveRoom(final SudokuClient client) throws RemoteException {
             final int roomId = client.roomId();
             if (!this.rooms.containsKey(roomId)) return;
             final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
             final List<SudokuClient> players = room.second();
-            players.removeIf(this::isPlayerInRoom);
+            players.removeIf(player -> this.comparePlayers(player, client));
             if (players.isEmpty()) this.rooms.remove(roomId);
         }
 
@@ -116,17 +125,10 @@ public interface SudokuServer extends Remote {
 
         @Override
         public void updateCell(final SudokuClient client, final Coordinate coordinate, final int value) throws RemoteException {
-//            final byte[] grid = this.grid(client, );
-//            grid.saveValue(coordinate, value);
-//            final List<SudokuClient> players = this.playersWithout(client);
-//            players.forEach(player -> {
-//                try {
-//                    player.retrieveGrid(grid);
-//                } catch (final RemoteException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            });
-//            return grid;
+            final int roomId = client.roomId();
+            if (!this.rooms.containsKey(roomId)) throw new RemoteException();
+            this.rooms.get(roomId).first().saveValue(coordinate, value);
+            this.rooms.get(roomId).second().forEach(player -> Try.toOptional(player::invokeMove, coordinate, value));
         }
 
     }

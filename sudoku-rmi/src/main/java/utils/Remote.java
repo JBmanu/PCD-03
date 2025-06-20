@@ -32,6 +32,10 @@ public final class Remote {
         public interface BiConsumer<A, B> {
             void accept(A a, B b) throws RemoteException;
         }
+        
+        public interface TriConsumer<A, B, C> {
+            void accept(A a, B b, C c) throws RemoteException;
+        }
     }
 
 }
