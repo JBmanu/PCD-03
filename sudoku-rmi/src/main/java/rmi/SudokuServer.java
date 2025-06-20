@@ -62,25 +62,30 @@ public interface SudokuServer extends Remote {
             return clientOpt.get();
         }
 
+        private boolean isPlayerInRoom(final SudokuClient client)  {
+            final Optional<Integer> roomIdOpt = Try.toOptional(client::roomId);
+            final Optional<String> nameOpt = Try.toOptional(client::name);
+            if (roomIdOpt.isEmpty() || nameOpt.isEmpty()) return false;
+            final int roomId = roomIdOpt.get();
+            final String name = nameOpt.get();
+            if (!this.rooms.containsKey(roomId)) return false;
+            final List<String> names = this.rooms.get(roomId).second().stream()
+                    .map(player -> Try.toOptional(player::name))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .toList();
+            return names.contains(name);
+        }
+
+        
         @Override
         public void leaveRoom(final SudokuClient client) throws RemoteException {
             final int roomId = client.roomId();
             if (!this.rooms.containsKey(roomId)) return;
             final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
             final List<SudokuClient> players = room.second();
-            players.remove(client);
+            players.removeIf(this::isPlayerInRoom);
             if (players.isEmpty()) this.rooms.remove(roomId);
-            // retrive players
-        }
-
-        private boolean isPlayerInRoom(final SudokuClient client) throws RemoteException {
-            if (!this.rooms.containsKey(client.roomId())) return false;
-            final List<String> names = this.rooms.get(client.roomId()).second().stream()
-                    .map(player -> Try.toOptional(player::name))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .toList();
-            return names.contains(client.name());
         }
 
         @Override

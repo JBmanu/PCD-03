@@ -64,7 +64,7 @@ public class SudokuServerTest {
         final Optional<byte[][]> solutionClient = Try.toOptional(this.server::solution, client);
         final Optional<byte[][]> solutionClient1 = Try.toOptional(this.server::solution, client1);
         final Optional<byte[][]> gridClient = Try.toOptional(this.server::grid, client);
-        final Optional<byte[][]> gridClient1 = Try.toOptional(this.server::grid, client);
+        final Optional<byte[][]> gridClient1 = Try.toOptional(this.server::grid, client1);
 
         assertTrue(Stream.of(solutionClient, solutionClient1, gridClient, gridClient1)
                 .allMatch(Optional::isPresent));
@@ -72,16 +72,15 @@ public class SudokuServerTest {
         assertTrue(GridUtils.compareArrays(gridClient.get(), gridClient1.get()));
     }
 
-//    @Test
-//    public void leaveRoomWithOnePlayer() {
-//        final SudokuClient client = this.createRoomWithPlayer("manu");
-//        Try.toOptional(this.server::leaveRoom, client);
-//        final Optional<Grid> grid = Try.toOptional(client1 -> {
-//            return this.server.grid(client1, );
-//        }, client);
-//        assertTrue(grid.isEmpty());
-//
-//    }
+    @Test
+    public void leaveRoomWithOnePlayer() {
+        final SudokuClient client = this.createRoomWithPlayer("manu", IDENTITY_UPDATE_GRID);
+        Try.toOptional(this.server::leaveRoom, client);
+        final Optional<byte[][]> solutionClient = Try.toOptional(this.server::solution, client);
+        final Optional<byte[][]> gridClient = Try.toOptional(this.server::grid, client);
+        assertTrue(solutionClient.isEmpty());
+        assertTrue(gridClient.isEmpty());
+    }
 
 //    @Test
 //    public void leaveRoomWithMultiplePlayers() {
