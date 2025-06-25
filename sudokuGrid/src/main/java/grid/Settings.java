@@ -9,11 +9,11 @@ import java.io.Serializable;
 public interface Settings extends Serializable {
 
     Schema schema();
-    
+
     int size();
 
     Difficulty difficulty();
-    
+
     default int maxNumbersToClear() {
         return this.difficulty().computeMaxNumbersToClear(this.schema());
     }
@@ -38,9 +38,13 @@ public interface Settings extends Serializable {
         public GameSchema schema() {
             return this.schema;
         }
-        
+
         public String code() {
             return super.toString();
+        }
+
+        public int size() {
+            return this.size;
         }
 
         @Override
@@ -77,12 +81,12 @@ public interface Settings extends Serializable {
     record SettingsImpl(Schema schema, Difficulty difficulty) implements Settings {
         @Serial
         private static final long serialVersionUID = 1L;
-        
+
         @Override
         public int size() {
             return this.schema.size;
         }
-        
+
         @Override
         public String toString() {
             return "model.Settings: size[" + this.schema + "] difficulty[" + this.difficulty + "]";

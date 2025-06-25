@@ -3,7 +3,7 @@ package rmi;
 import java.io.Serializable;
 import java.util.List;
 
-public final class ServerConsumers {
+public final class CallbackServer {
 
     public interface CallbackGrid extends Serializable {
         void accept(byte[][] solution, byte[][] cells);

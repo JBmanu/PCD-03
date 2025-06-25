@@ -27,6 +27,18 @@ public final class Remote {
         public interface Quadradic<A, B, C, D, R> {
             R apply(A a, B b, C c, D d) throws RemoteException, NotBoundException, AlreadyBoundException;
         }
+        
+        public interface Pentadic<A, B, C, D, E, R> {
+            R apply(A a, B b, C c, D d, E e) throws RemoteException, NotBoundException, AlreadyBoundException;
+        }
+        
+        public interface Hexadic<A, B, C, D, E, F, R> {
+            R apply(A a, B b, C c, D d, E e, F f) throws RemoteException, NotBoundException, AlreadyBoundException;
+        }
+        
+        public interface Heptadic<A, B, C, D, E, F, G, R> {
+            R apply(A a, B b, C c, D d, E e, F f, G g) throws RemoteException, NotBoundException, AlreadyBoundException;
+        }
     }
 
     public static class ExceptionConsumers {

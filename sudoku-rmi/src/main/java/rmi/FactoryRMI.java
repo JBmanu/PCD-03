@@ -16,6 +16,19 @@ public interface FactoryRMI {
         return "room." + roomId + ".name." + name;
     }
 
+    static SudokuClient createClient(final String name,
+                                     final CallbackClient.CallbackMove callbackMove,
+                                     final CallbackClient.CallbackJoinPlayers callbackPlayers,
+                                     final CallbackClient.CallbackLeavePlayer callbackLeavePlayer) throws RemoteException {
+        return new SudokuClient.SudokuClientImpl(name, callbackMove, callbackPlayers, callbackLeavePlayer);
+    }
+
+    static SudokuClient registerClient(final SudokuClient client) throws RemoteException, AlreadyBoundException {
+        final Registry registry = LocateRegistry.getRegistry(SERVER_PORT);
+        registry.rebind(generateRoomName(client.name(), client.roomId()), client);
+        return client;
+    }
+
     static Optional<SudokuServer> retrieveServer() {
         try {
             final Registry registry = LocateRegistry.getRegistry(HOST, SERVER_PORT);
@@ -27,19 +40,20 @@ public interface FactoryRMI {
         }
     }
 
-    static SudokuServer server() throws RemoteException, AlreadyBoundException {
+    static SudokuServer createAndRegisterServer() throws RemoteException, AlreadyBoundException {
         final Registry registry = LocateRegistry.createRegistry(SERVER_PORT);
         final SudokuServer server = new SudokuServer.SudokuServerImpl();
-        registry.bind(SERVER_NAME, server);
+        registry.rebind(SERVER_NAME, server);
         return server;
     }
 
-
-    static SudokuClient client(final String name, final int roomId) throws RemoteException, AlreadyBoundException {
-        final Registry registry = LocateRegistry.getRegistry(SERVER_PORT);
-        final SudokuClient client = new SudokuClient.SudokuClientImpl(name, roomId);
-        registry.bind(generateRoomName(name, roomId), client);
-        return client;
+    static void shutdownServer() throws RemoteException, NotBoundException {
+        final Registry registry = LocateRegistry.getRegistry();
+        registry.unbind(SERVER_NAME);
     }
-    
+
+    static void shutdownClient(final String name, final int roomId) throws RemoteException, NotBoundException {
+        final Registry registry = LocateRegistry.getRegistry(SERVER_PORT);
+        registry.unbind(generateRoomName(name, roomId));
+    }
 }

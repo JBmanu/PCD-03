@@ -4,24 +4,26 @@ import grid.Coordinate;
 import grid.FactoryGrid;
 import grid.Grid;
 import grid.Settings;
-import rmi.ServerConsumers.CallbackGrid;
-import rmi.ServerConsumers.CallbackJoinPlayers;
+import rmi.CallbackServer.CallbackGrid;
+import rmi.CallbackServer.CallbackJoinPlayers;
 import utils.Pair;
 import utils.RMIUtils;
 import utils.Try;
 
+import java.io.Serializable;
 import java.rmi.AlreadyBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-public interface SudokuServer extends Remote {
+public interface SudokuServer extends Serializable, Remote {
 
-    SudokuClient createRoom(String namePlayer, Settings settings, CallbackGrid callback) throws RemoteException;
+    boolean createRoom(SudokuClient client, Settings settings,
+                       CallbackGrid callbackGrid) throws RemoteException, AlreadyBoundException;
 
-    SudokuClient joinRoom(String namePlayer, int roomId,
-                          CallbackGrid callbackGrid, CallbackJoinPlayers callbackJoinPlayers) throws RemoteException, AlreadyBoundException;
+    boolean joinRoom(SudokuClient client,
+                     CallbackGrid callbackGrid, CallbackJoinPlayers callbackJoinPlayers) throws RemoteException, AlreadyBoundException;
 
     void leaveRoom(SudokuClient client) throws RemoteException;
 
@@ -56,32 +58,31 @@ public interface SudokuServer extends Remote {
         }
 
         @Override
-        public SudokuClient createRoom(final String namePlayer, final Settings settings, final CallbackGrid callback) throws RemoteException {
-            final Optional<SudokuClient> clientOpt = Try.toOptional(FactoryRMI::client, namePlayer, this.currentId);
-            if (clientOpt.isEmpty()) throw new RemoteException();
-
+        public boolean createRoom(final SudokuClient client, final Settings settings,
+                                  final CallbackGrid callbackGrid) throws RemoteException, AlreadyBoundException {
+            client.setRoomId(this.currentId);
             final Grid grid = FactoryGrid.grid(settings);
-            callback.accept(grid.solutionArray(), grid.solutionArray());
-            clientOpt.ifPresent(client ->
-                    this.rooms.put(this.currentId, Pair.of(grid, new ArrayList<>(Collections.singleton(client)))));
+            callbackGrid.accept(grid.solutionArray(), grid.solutionArray());
+            this.rooms.put(this.currentId, Pair.of(grid, new ArrayList<>(Collections.singleton(client))));
             this.currentId += 1;
-            return clientOpt.get();
+            return true;
         }
 
         @Override
-        public SudokuClient joinRoom(final String namePlayer, final int roomId, 
-                                     final CallbackGrid callbackGrid, final CallbackJoinPlayers callbackJoinPlayers) throws RemoteException, AlreadyBoundException {
-            if (!this.rooms.containsKey(roomId)) throw new RemoteException();
-
-            final SudokuClient client = FactoryRMI.client(namePlayer, roomId);
+        public boolean joinRoom(final SudokuClient client,
+                                final CallbackGrid callbackGrid, final CallbackJoinPlayers callbackJoinPlayers) throws RemoteException, AlreadyBoundException {
+            final int roomId = client.roomId();
+            final List<String> playerNames = this.playersNames(roomId);
+            if (!this.rooms.containsKey(roomId) || playerNames.contains(client.name())) return false;
+            
             final List<SudokuClient> players = this.rooms.get(roomId).second();
             final Grid grid = this.rooms.get(roomId).first();
 
-            players.forEach(player -> Try.toOptional(player::invokeJoinPlayer, namePlayer));
+            for (final SudokuClient player : players) player.invokeJoinPlayer(client.name());
             callbackJoinPlayers.accept(this.playersNames(roomId));
             players.add(client);
             callbackGrid.accept(grid.solutionArray(), grid.cellsArray());
-            return client;
+            return true;
         }
 
         @Override

@@ -1,29 +1,33 @@
 import grid.Coordinate;
+import grid.FactoryGrid;
+import grid.Grid;
 import grid.Settings;
-import rmi.SudokuClient;
-import rmi.SudokuServer;
+import rmi.*;
 import ui.multiPlayer.GameMultiplayerListener;
 import ui.multiPlayer.UIMultiplayer;
 import ui.multiPlayer.ViewMultiPlayer;
+import utils.Try;
 
-import java.rmi.NotBoundException;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
+import javax.swing.*;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static utils.RMIPath.*;
+public class Controller implements Serializable, GameMultiplayerListener.PlayerListener {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-public class Controller implements GameMultiplayerListener.PlayerListener {
     public static final String CONNECTED_TO_SERVER = "Connected to server";
     public static final String SERVER_IS_NOT_AVAILABLE = "Server is not available";
     public static final String PLAYER_NAME_IS_REQUIRED = "Player name is required";
+    public static final String INVALID_ROOM_ID = "Invalid room ID";
 
     private Optional<SudokuServer> server;
     private final Optional<SudokuClient> client;
     private final UIMultiplayer ui;
+    private Grid grid;
 
     public Controller() {
         this.ui = new ViewMultiPlayer();
@@ -38,14 +42,8 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     private void loadService() {
         do {
-            try {
-                final Registry registry = LocateRegistry.getRegistry(HOST, SERVER_PORT);
-                final Remote remote = registry.lookup(SERVER_NAME);
-                final SudokuServer server = ((SudokuServer) remote);
-                this.server = Optional.of(server);
-                this.ui.showInfo(CONNECTED_TO_SERVER);
-            } catch (final RemoteException | NotBoundException _) {
-            }
+            this.server = FactoryRMI.retrieveServer();
+            this.ui.showInfo(CONNECTED_TO_SERVER);
         } while (this.server.isEmpty());
     }
 
@@ -58,22 +56,48 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     private void createRoom(final String playerName, final Settings.Schema schema, final Settings.Difficulty difficulty) {
 //        this.callServer(server -> {
-//            try {
-//                this.client = server.createRoom(playerName, FactoryGrid.settings(schema, difficulty));
-//                final Optional<Grid> grid = this.client.flatMap(client -> TryOptional.tryOptional(server::grid, client));
-//                this.client.map(SudokuClient::roomId).ifPresent(id -> this.ui.buildRoom(id + ""));
-//                grid.ifPresent(this.ui::buildGrid);
-//                this.ui.showGridPage();
-//            } catch (final RemoteException e) {
-//                System.out.println("Failed to create room: " + e.getMessage());
-//            }
+//            final Settings settings = FactoryGrid.settings(schema, difficulty);
+//            this.client = Try.toOptional((A client1, B settings1, C callbackMove, D callbackPlayers, E callbackLeavePlayer, F callbackGrid) -> server.createRoom(client1, settings1, callbackGrid),
+//                    playerName, settings,
+//                    (solution, cells) -> {
+//                        // MOVE
+//                    },
+//                    (players) -> {
+//                    }, //this.ui.appendPlayers(List.of(players)),
+////                    this.ui::leavePlayer,
+//                    _ -> {
+//                    },
+//                    (solution, cells) -> {
+////                        this.grid = FactoryGrid.gridAndLoadData(settings, solution, cells);
+////                        this.ui.buildGrid(this.grid);
+////                        this.client.map(client -> Try.toOptional(client::roomId))
+////                                .ifPresent(id -> this.ui.buildRoom(id + ""));
+//
+//                        SwingUtilities.invokeLater(() -> {
+//                            this.ui.showGridPage();
+//                        });
+//                    });
 //        });
     }
 
     private void joinRoom(final String roomId, final String playerName) {
-        this.callServer(server -> {
-
-        });
+//        this.callServer(server -> {
+//            final Optional<Integer> roomCode = Try.toOptional(roomId);
+//            roomCode.ifPresentOrElse(id ->
+//                            this.client = Try.toOptional((String namePlayer, Integer roomId1, CallbackClient.CallbackMove callbackMove, CallbackClient.CallbackJoinPlayers callbackPlayers, CallbackClient.CallbackLeavePlayer callbackLeavePlayer, CallbackServer.CallbackGrid callbackGrid, CallbackServer.CallbackJoinPlayers callbackJoinPlayers) -> server.joinRoom(, namePlayer, callbackMove, callbackPlayers, callbackLeavePlayer, callbackGrid, callbackJoinPlayers), playerName, id,
+//                                    (coordinate, value) -> {
+//                                        // MOVE
+//                                    },
+//                                    (players) -> this.ui.appendPlayers(List.of(players)),
+//                                    this.ui::leavePlayer,
+//                                    (solution, cells) -> {
+//                                        this.grid = FactoryGrid.gridLoad(solution, cells);
+//                                        this.ui.buildRoom(roomId);
+//                                        this.ui.buildGrid(this.grid);
+//                                        this.ui.showGridPage();
+//                                    }, this.ui::appendPlayers),
+//                    () -> this.ui.showError(INVALID_ROOM_ID));
+//        });
     }
 
     @Override
