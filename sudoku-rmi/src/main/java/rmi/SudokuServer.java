@@ -4,14 +4,11 @@ import grid.Coordinate;
 import grid.FactoryGrid;
 import grid.Grid;
 import grid.Settings;
-import rmi.CallbackServer.CallbackGrid;
-import rmi.CallbackServer.CallbackJoinPlayers;
 import utils.Pair;
 import utils.RMIUtils;
 import utils.Try;
 
 import java.io.Serializable;
-import java.rmi.AlreadyBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -19,11 +16,9 @@ import java.util.*;
 
 public interface SudokuServer extends Serializable, Remote {
 
-    boolean createRoom(SudokuClient client, Settings settings,
-                       CallbackGrid callbackGrid) throws RemoteException, AlreadyBoundException;
+    boolean createRoom(SudokuClient client, Settings settings) throws RemoteException;
 
-    boolean joinRoom(SudokuClient client,
-                     CallbackGrid callbackGrid, CallbackJoinPlayers callbackJoinPlayers) throws RemoteException, AlreadyBoundException;
+    boolean joinRoom(SudokuClient client) throws RemoteException;
 
     void leaveRoom(SudokuClient client) throws RemoteException;
 
@@ -58,30 +53,29 @@ public interface SudokuServer extends Serializable, Remote {
         }
 
         @Override
-        public boolean createRoom(final SudokuClient client, final Settings settings,
-                                  final CallbackGrid callbackGrid) throws RemoteException, AlreadyBoundException {
+        public boolean createRoom(final SudokuClient client, final Settings settings) throws RemoteException {
             client.setRoomId(this.currentId);
             final Grid grid = FactoryGrid.grid(settings);
-            callbackGrid.accept(grid.solutionArray(), grid.solutionArray());
+            client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());
             this.rooms.put(this.currentId, Pair.of(grid, new ArrayList<>(Collections.singleton(client))));
             this.currentId += 1;
             return true;
         }
 
         @Override
-        public boolean joinRoom(final SudokuClient client,
-                                final CallbackGrid callbackGrid, final CallbackJoinPlayers callbackJoinPlayers) throws RemoteException, AlreadyBoundException {
+        public boolean joinRoom(final SudokuClient client) throws RemoteException {
             final int roomId = client.roomId();
-            final List<String> playerNames = this.playersNames(roomId);
-            if (!this.rooms.containsKey(roomId) || playerNames.contains(client.name())) return false;
-            
+            final String name = client.name();
+            final List<String> playersName = this.playersNames(roomId);
+            if (!this.rooms.containsKey(roomId) || playersName.contains(name)) return false;
+
             final List<SudokuClient> players = this.rooms.get(roomId).second();
             final Grid grid = this.rooms.get(roomId).first();
 
-            for (final SudokuClient player : players) player.invokeJoinPlayer(client.name());
-            callbackJoinPlayers.accept(this.playersNames(roomId));
+            for (final SudokuClient player : players) player.invokeOnJoinPlayer(name);
+            client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());
+            client.invokeOnJoin(playersName);
             players.add(client);
-            callbackGrid.accept(grid.solutionArray(), grid.cellsArray());
             return true;
         }
 
@@ -94,7 +88,7 @@ public interface SudokuServer extends Serializable, Remote {
             final List<SudokuClient> players = room.second();
             players.removeIf(player -> RMIUtils.comparePlayers(player, client));
             if (players.isEmpty()) this.rooms.remove(roomId);
-            players.forEach(player -> Try.toOptional(player::invokeLeavePlayer, name));
+            players.forEach(player -> Try.toOptional(player::invokeOnLeavePlayer, name));
         }
 
         @Override
@@ -116,7 +110,7 @@ public interface SudokuServer extends Serializable, Remote {
             if (this.cantDoAction(client)) throw new RemoteException();
             final Pair<Grid, List<SudokuClient>> room = this.rooms.get(client.roomId());
             room.first().saveValue(coordinate, value);
-            room.second().forEach(player -> Try.toOptional(player::invokeMove, coordinate, value));
+            room.second().forEach(player -> Try.toOptional(player::invokeOnMove, coordinate, value));
         }
 
     }

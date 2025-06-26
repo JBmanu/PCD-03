@@ -123,15 +123,6 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
     }
 
     @Override
-    public boolean onModifyCell(final Coordinate coordinate, final int value) {
-        this.grid.saveValue(coordinate, value);
-        this.callRabbitMQ((discovery, connector) ->
-                connector.sendMove(discovery, this.player, coordinate, value));
-        this.checkWin();
-        return true;
-    }
-
-    @Override
     public void onHome() {
         this.callRabbitMQ((discovery, connector) -> connector.leaveRoom(discovery, this.player));
     }
@@ -153,5 +144,14 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
     @Override
     public void onReset() {
 
+    }
+
+    @Override
+    public boolean onModifyCell(final Coordinate coordinate, final int value) {
+        this.grid.saveValue(coordinate, value);
+        this.callRabbitMQ((discovery, connector) ->
+                connector.sendMove(discovery, this.player, coordinate, value));
+        this.checkWin();
+        return true;
     }
 }

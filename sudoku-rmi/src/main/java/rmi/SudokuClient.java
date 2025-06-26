@@ -1,81 +1,106 @@
 package rmi;
 
 import grid.Coordinate;
-import rmi.CallbackClient.CallbackJoinPlayers;
-import rmi.CallbackClient.CallbackLeavePlayer;
-import rmi.CallbackClient.CallbackMove;
-import utils.Try;
+import rmi.CallbackClient.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
+import java.util.Optional;
 
 public interface SudokuClient extends Serializable, Remote {
 
-    String name() throws RemoteException;
-
     int roomId() throws RemoteException;
+
+    String name() throws RemoteException;
 
     void setRoomId(int roomId) throws RemoteException;
 
-    void invokeMove(Coordinate coordinate, int value) throws RemoteException;
+    void setName(String name) throws RemoteException;
 
-    void invokeJoinPlayer(String player) throws RemoteException;
+    void invokeOnEnter(byte[][] solution, byte[][] cells) throws RemoteException;
 
-    void invokeLeavePlayer(String player) throws RemoteException;
+    void invokeOnMove(Coordinate coordinate, int value) throws RemoteException;
+
+    void invokeOnJoin(List<String> players) throws RemoteException;
+
+    void invokeOnJoinPlayer(String player) throws RemoteException;
+
+    void invokeOnLeavePlayer(String player) throws RemoteException;
 
 
     class SudokuClientImpl extends UnicastRemoteObject implements SudokuClient {
         @Serial
         private static final long serialVersionUID = 1L;
 
-        private int roomId;
-        private final String name;
-        private final CallbackMove callbackMove;
-        private final CallbackJoinPlayers callbackPlayers;
-        private final CallbackLeavePlayer callbackLeavePlayer;
+        private Optional<Integer> roomId;
+        private Optional<String> name;
+        private final CallbackOnMove onMove;
+        private final CallbackOnJoin onJoin;
+        private final CallbackOnEnter onEnter;
+        private final CallbackOnJoinPlayer onJoinPlayer;
+        private final CallbackLeavePlayer onLeavePlayer;
 
-        public SudokuClientImpl(final String name,
-                                final CallbackMove callbackMove,
-                                final CallbackJoinPlayers callbackPlayers,
-                                final CallbackLeavePlayer callbackLeavePlayer) throws RemoteException {
-            this.name = name;
-            this.roomId = -1;
-            this.callbackMove = callbackMove;
-            this.callbackPlayers = callbackPlayers;
-            this.callbackLeavePlayer = callbackLeavePlayer;
+        public SudokuClientImpl(final CallbackOnEnter onEnter,
+                                final CallbackOnJoin onJoin,
+                                final CallbackOnMove onMove,
+                                final CallbackOnJoinPlayer onJoinPlayer,
+                                final CallbackLeavePlayer onLeavePlayer) throws RemoteException {
+            this.name = Optional.empty();
+            this.roomId = Optional.empty();
+            this.onMove = onMove;
+            this.onJoin = onJoin;
+            this.onEnter = onEnter;
+            this.onJoinPlayer = onJoinPlayer;
+            this.onLeavePlayer = onLeavePlayer;
         }
 
         @Override
         public String name() throws RemoteException {
-            return this.name;
+            return this.name.orElse("Unknown");
         }
 
         @Override
         public int roomId() throws RemoteException {
-            return this.roomId;
+            return this.roomId.orElse(-1);
         }
 
         @Override
         public void setRoomId(final int roomId) throws RemoteException {
-            this.roomId = roomId;
+            this.roomId = Optional.of(roomId);
         }
 
         @Override
-        public void invokeMove(final Coordinate coordinate, final int value) throws RemoteException {
-            Try.toOptional(this.callbackMove::accept, coordinate, value);
+        public void setName(final String name) throws RemoteException {
+            this.name = Optional.of(name);
         }
 
         @Override
-        public void invokeJoinPlayer(final String player) throws RemoteException {
-            Try.toOptional(this.callbackPlayers::accept, player);
+        public void invokeOnEnter(final byte[][] solution, final byte[][] cells) throws RemoteException {
+            this.onEnter.accept(solution, cells);
         }
 
         @Override
-        public void invokeLeavePlayer(final String player) throws RemoteException {
-            Try.toOptional(this.callbackLeavePlayer::accept, player);
+        public void invokeOnMove(final Coordinate coordinate, final int value) throws RemoteException {
+            this.onMove.accept(coordinate, value);
+        }
+
+        @Override
+        public void invokeOnJoin(final List<String> players) throws RemoteException {
+            this.onJoin.accept(players);
+        }
+
+        @Override
+        public void invokeOnJoinPlayer(final String player) throws RemoteException {
+            this.onJoinPlayer.accept(player);
+        }
+
+        @Override
+        public void invokeOnLeavePlayer(final String player) throws RemoteException {
+            this.onLeavePlayer.accept(player);
         }
 
     }

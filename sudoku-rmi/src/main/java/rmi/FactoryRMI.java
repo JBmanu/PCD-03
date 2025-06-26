@@ -1,5 +1,8 @@
 package rmi;
 
+import rmi.CallbackClient.*;
+import utils.Try;
+
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
@@ -16,11 +19,23 @@ public interface FactoryRMI {
         return "room." + roomId + ".name." + name;
     }
 
+    static SudokuClient createClient(final CallbackOnEnter onEnter,
+                                     final CallbackOnJoin onJoin,
+                                     final CallbackOnMove onMove,
+                                     final CallbackOnJoinPlayer onJoinPlayer,
+                                     final CallbackLeavePlayer onLeavePlayer) throws RemoteException {
+        return new SudokuClient.SudokuClientImpl(onEnter, onJoin, onMove, onJoinPlayer, onLeavePlayer);
+    }
+
     static SudokuClient createClient(final String name,
-                                     final CallbackClient.CallbackMove callbackMove,
-                                     final CallbackClient.CallbackJoinPlayers callbackPlayers,
-                                     final CallbackClient.CallbackLeavePlayer callbackLeavePlayer) throws RemoteException {
-        return new SudokuClient.SudokuClientImpl(name, callbackMove, callbackPlayers, callbackLeavePlayer);
+                                     final CallbackOnEnter onEnter,
+                                     final CallbackOnJoin onJoin,
+                                     final CallbackOnMove onMove,
+                                     final CallbackOnJoinPlayer onJoinPlayer,
+                                     final CallbackLeavePlayer onLeavePlayer) throws RemoteException {
+        final SudokuClient client = createClient(onEnter, onJoin, onMove, onJoinPlayer, onLeavePlayer);
+        client.setName(name);
+        return client;
     }
 
     static SudokuClient registerClient(final SudokuClient client) throws RemoteException, AlreadyBoundException {
@@ -52,8 +67,8 @@ public interface FactoryRMI {
         registry.unbind(SERVER_NAME);
     }
 
-    static void shutdownClient(final String name, final int roomId) throws RemoteException, NotBoundException {
+    static void shutdownClient(final SudokuClient client) throws RemoteException, NotBoundException {
         final Registry registry = LocateRegistry.getRegistry(SERVER_PORT);
-        registry.unbind(generateRoomName(name, roomId));
+        registry.unbind(generateRoomName(client.name(), client.roomId()));
     }
 }

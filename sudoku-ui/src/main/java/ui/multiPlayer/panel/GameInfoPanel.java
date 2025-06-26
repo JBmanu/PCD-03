@@ -59,7 +59,11 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
     }
 
     public void appendPlayers(final List<String> players) {
+        System.out.println("Players: " + players);
+            System.out.println("Current players: " + this.playerArea.getText());
         players.forEach(this::joinPlayer);
+        this.playerArea.revalidate();
+        this.playerArea.repaint();
     }
 
     @Override
