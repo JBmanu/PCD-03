@@ -129,9 +129,12 @@ public class GridTest {
     public void emptyUndo() {
         this.settingsList.forEach(settings -> {
             final Grid grid = FactoryGrid.grid(settings);
+            final Optional<Coordinate> peekUndo = grid.peekUndo();
             final Optional<Coordinate> undoCoordinate = grid.undo();
             assertFalse(grid.canUndo());
             assertTrue(undoCoordinate.isEmpty());
+            assertEquals(undoCoordinate, peekUndo);
+            assertEquals(undoCoordinate, grid.peekUndo());
         });
     }
 
@@ -146,8 +149,11 @@ public class GridTest {
             grid.saveValue(firstEmptyCell.getKey(), newValue);
             assertEquals(newValue, grid.valueFrom(coordinate));
             assertTrue(grid.canUndo());
+            final Optional<Coordinate> peekUndo = grid.peekUndo();
             final Optional<Coordinate> undoCoordinate = grid.undo();
             assertFalse(grid.canUndo());
+            assertEquals(undoCoordinate, peekUndo);
+            assertNotEquals(undoCoordinate, grid.peekUndo());
             assertEquals(Optional.of(coordinate), undoCoordinate);
             assertEquals(grid.emptyValue(), grid.valueFrom(coordinate));
         });

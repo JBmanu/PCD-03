@@ -55,6 +55,8 @@ public interface Grid extends Serializable {
     Optional<Map.Entry<Coordinate, Integer>> suggest();
 
     Optional<Coordinate> undo();
+    
+    Optional<Coordinate> peekUndo();
 
     Map<Coordinate, Integer> reset();
 
@@ -219,6 +221,12 @@ public interface Grid extends Serializable {
             final Map.Entry<Coordinate, Integer> firstAction = this.historyAction.pop();
             this.setValue(firstAction.getKey(), this.emptyValue());
             return Optional.of(firstAction.getKey());
+        }
+
+        @Override
+        public Optional<Coordinate> peekUndo() {
+            if (!this.canUndo()) return Optional.empty();
+            return Optional.of(this.historyAction.peek().getKey());
         }
 
         @Override

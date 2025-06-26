@@ -132,6 +132,9 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
 
     @Override
     public void onUndo() {
+        if (!this.grid.canUndo()) return; 
+        
+        
         this.grid.undo().ifPresent(coordinate ->
                 this.callServerAndClient((server, client) ->
                         Try.toOptional(server::updateCell, client, coordinate, this.grid.emptyValue())));
