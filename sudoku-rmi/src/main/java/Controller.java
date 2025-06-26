@@ -16,7 +16,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class Controller implements Serializable, GameMultiplayerListener.PlayerListener, CallbackClient.Callbacks {
     @Serial
@@ -27,7 +26,6 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
     public static final String CLIENT_IS_NOT_AVAILABLE = "Client is not available";
 
     public static final String PLAYER_NAME_IS_REQUIRED = "Player name is required";
-    public static final String INVALID_ROOM_ID = "Invalid room ID";
 
     private Optional<SudokuServer> server;
     private Optional<SudokuClient> client;
@@ -54,18 +52,6 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
         while (this.client.isEmpty()) {
             this.client = Try.toOptional(FactoryRMI::createClient, this, this, this, this, this);
         }
-    }
-
-    private void callClient(final Consumer<SudokuClient> consumer) {
-        this.client.ifPresentOrElse(
-                consumer,
-                () -> this.ui.showError(CLIENT_IS_NOT_AVAILABLE));
-    }
-
-    private void callServer(final Consumer<SudokuServer> consumer) {
-        this.server.ifPresentOrElse(
-                consumer,
-                () -> this.ui.showError(SERVER_IS_NOT_AVAILABLE));
     }
 
     private void callServerAndClient(final Consumers.BiConsumer<SudokuServer, SudokuClient> consumer) {
@@ -114,6 +100,7 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
     private void joinRoom(final SudokuServer server, final SudokuClient client, final String roomId, final String playerName) {
         Try.toOptional(client::setName, playerName);
         Try.toOptional(client::setRoomId, Integer.parseInt(roomId));
+        Try.toOptional(FactoryRMI::registerClient, client);
         this.ui.buildRoom(roomId);
         Try.toOptional(server::joinRoom, client);
     }
@@ -145,11 +132,9 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
 
     @Override
     public void onUndo() {
-        this.grid.undo().ifPresent(coordinate -> {
-//            this.ui.undo(coordinate);
-            this.callServerAndClient((server, client) ->
-                    Try.toOptional(server::updateCell, client, coordinate, this.grid.emptyValue()));
-        });
+        this.grid.undo().ifPresent(coordinate ->
+                this.callServerAndClient((server, client) ->
+                        Try.toOptional(server::updateCell, client, coordinate, this.grid.emptyValue())));
 
     }
 
@@ -165,7 +150,7 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
 
     @Override
     public boolean onModifyCell(final Coordinate coordinate, final int value) {
-        this.callServerAndClient((server, client) -> 
+        this.callServerAndClient((server, client) ->
                 Try.toOptional(server::updateCell, client, coordinate, value));
         return false;
     }

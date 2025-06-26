@@ -44,8 +44,8 @@ public interface SudokuServer extends Serializable, Remote {
                     RMIUtils.containsPlayer(this.rooms.get(id).second(), client)).orElse(false);
         }
 
-        private List<String> playersNames(final int roomId) throws RemoteException {
-            if (!this.rooms.containsKey(roomId)) return Collections.emptyList(); 
+        private List<String> playersNames(final int roomId) {
+            if (!this.rooms.containsKey(roomId)) return Collections.emptyList();
             final List<SudokuClient> players = this.rooms.get(roomId).second();
             return players.stream().map(player -> Try.toOptional(player::name))
                     .filter(Optional::isPresent)
