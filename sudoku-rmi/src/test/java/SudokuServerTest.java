@@ -146,6 +146,16 @@ public class SudokuServerTest {
         assertTrue(isJoined.isPresent());
         assertFalse(isJoined.get());
     }
+    
+    @Test
+    public void joinInvalidRoom() {
+        final Optional<SudokuClient> clientOpt = Try.toOptional(FactoryRMI::createClient, "manu",
+                IDENTITY_ON_ENTER, IDENTITY_ON_JOIN, IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
+        
+        clientOpt.ifPresent(client -> Try.toOptional(client::setRoomId, -1));
+        final Optional<Boolean> isJoined = clientOpt.flatMap(client -> Try.toOptional(this.server::joinRoom, client));
+        assertEquals(Optional.of(false), isJoined);
+    }
 
     @Test
     public void leaveRoomWithOnePlayer() {
