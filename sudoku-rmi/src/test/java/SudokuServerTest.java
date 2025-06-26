@@ -31,7 +31,7 @@ public class SudokuServerTest {
     };
     public static final CallbackOnJoinPlayer IDENTITY_ON_JOIN_PLAYER = _ -> {
     };
-    public static final CallbackLeavePlayer IDENTITY_ON_LEAVE_PLAYER = _ -> {
+    public static final CallbackOnLeavePlayer IDENTITY_ON_LEAVE_PLAYER = _ -> {
     };
 
     private SudokuServer server;
@@ -58,7 +58,7 @@ public class SudokuServerTest {
                                               final CallbackOnJoin onJoin,
                                               final CallbackOnMove onMove,
                                               final CallbackOnJoinPlayer onJoinPlayer,
-                                              final CallbackLeavePlayer onLeavePlayer) {
+                                              final CallbackOnLeavePlayer onLeavePlayer) {
         final Optional<SudokuClient> client = Try.toOptional(FactoryRMI::createClient, name, onEnter, onJoin, onMove, onJoinPlayer, onLeavePlayer);
         assertTrue(client.isPresent());
 
@@ -73,7 +73,7 @@ public class SudokuServerTest {
                                      final CallbackOnJoin onJoin,
                                      final CallbackOnMove onMove,
                                      final CallbackOnJoinPlayer onJoinPlayer,
-                                     final CallbackLeavePlayer onLeavePlayer) {
+                                     final CallbackOnLeavePlayer onLeavePlayer) {
         final int roomId = Try.toOptional(client::roomId).orElse(-1);
         assertNotEquals(-1, roomId);
         final Optional<SudokuClient> client1 = Try.toOptional(FactoryRMI::createClient, name, onEnter, onJoin, onMove, onJoinPlayer, onLeavePlayer);

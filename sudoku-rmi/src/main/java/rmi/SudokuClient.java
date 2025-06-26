@@ -42,13 +42,13 @@ public interface SudokuClient extends Serializable, Remote {
         private final CallbackOnJoin onJoin;
         private final CallbackOnEnter onEnter;
         private final CallbackOnJoinPlayer onJoinPlayer;
-        private final CallbackLeavePlayer onLeavePlayer;
+        private final CallbackOnLeavePlayer onLeavePlayer;
 
         public SudokuClientImpl(final CallbackOnEnter onEnter,
                                 final CallbackOnJoin onJoin,
                                 final CallbackOnMove onMove,
                                 final CallbackOnJoinPlayer onJoinPlayer,
-                                final CallbackLeavePlayer onLeavePlayer) throws RemoteException {
+                                final CallbackOnLeavePlayer onLeavePlayer) throws RemoteException {
             this.name = Optional.empty();
             this.roomId = Optional.empty();
             this.onMove = onMove;
@@ -80,27 +80,27 @@ public interface SudokuClient extends Serializable, Remote {
 
         @Override
         public void invokeOnEnter(final byte[][] solution, final byte[][] cells) throws RemoteException {
-            this.onEnter.accept(solution, cells);
+            this.onEnter.callbackOnEnter(solution, cells);
         }
 
         @Override
         public void invokeOnMove(final Coordinate coordinate, final int value) throws RemoteException {
-            this.onMove.accept(coordinate, value);
+            this.onMove.callbackOnMove(coordinate, value);
         }
 
         @Override
         public void invokeOnJoin(final List<String> players) throws RemoteException {
-            this.onJoin.accept(players);
+            this.onJoin.callbackOnJoin(players);
         }
 
         @Override
         public void invokeOnJoinPlayer(final String player) throws RemoteException {
-            this.onJoinPlayer.accept(player);
+            this.onJoinPlayer.callbackOnJoinPlayer(player);
         }
 
         @Override
         public void invokeOnLeavePlayer(final String player) throws RemoteException {
-            this.onLeavePlayer.accept(player);
+            this.onLeavePlayer.callbackOnLeavePlayer(player);
         }
 
     }

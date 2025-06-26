@@ -24,7 +24,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
 
         this.infoRoom = new JLabel();
         this.infoLabel = new JLabel();
-        this.playerArea = new JTextArea();
+        this.playerArea = new JTextArea("");
         final JScrollPane scrollPane = new JScrollPane(this.playerArea);
 
         this.infoRoom.setFont(StyleUtils.CELL_FONT);

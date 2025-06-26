@@ -8,26 +8,26 @@ import java.util.List;
 public final class CallbackClient {
 
     public interface CallbackOnMove extends Serializable {
-        void accept(Coordinate coordinate, int value);
+        void callbackOnMove(Coordinate coordinate, int value);
     }
 
     public interface CallbackOnJoinPlayer extends Serializable {
-        void accept(String player);
+        void callbackOnJoinPlayer(String player);
     }
     
     public interface CallbackOnJoin extends Serializable {
-        void accept(List<String> players);
+        void callbackOnJoin(List<String> players);
     }
 
-    public interface CallbackLeavePlayer extends Serializable {
-        void accept(String player);
+    public interface CallbackOnLeavePlayer extends Serializable {
+        void callbackOnLeavePlayer(String player);
     }
     
     public interface CallbackOnEnter extends Serializable {
-        void accept(byte[][] solution, byte[][] cells);
+        void callbackOnEnter(byte[][] solution, byte[][] cells);
     }
     
-    public interface Callbacks extends Serializable, CallbackOnMove, CallbackOnJoinPlayer, CallbackOnJoin, CallbackLeavePlayer, CallbackOnEnter {
+    public interface Callbacks extends Serializable, CallbackOnMove, CallbackOnJoinPlayer, CallbackOnJoin, CallbackOnLeavePlayer, CallbackOnEnter {
         
     }
 

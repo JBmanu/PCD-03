@@ -1,7 +1,6 @@
 package rmi;
 
 import rmi.CallbackClient.*;
-import utils.Try;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
@@ -23,7 +22,7 @@ public interface FactoryRMI {
                                      final CallbackOnJoin onJoin,
                                      final CallbackOnMove onMove,
                                      final CallbackOnJoinPlayer onJoinPlayer,
-                                     final CallbackLeavePlayer onLeavePlayer) throws RemoteException {
+                                     final CallbackOnLeavePlayer onLeavePlayer) throws RemoteException {
         return new SudokuClient.SudokuClientImpl(onEnter, onJoin, onMove, onJoinPlayer, onLeavePlayer);
     }
 
@@ -32,7 +31,7 @@ public interface FactoryRMI {
                                      final CallbackOnJoin onJoin,
                                      final CallbackOnMove onMove,
                                      final CallbackOnJoinPlayer onJoinPlayer,
-                                     final CallbackLeavePlayer onLeavePlayer) throws RemoteException {
+                                     final CallbackOnLeavePlayer onLeavePlayer) throws RemoteException {
         final SudokuClient client = createClient(onEnter, onJoin, onMove, onJoinPlayer, onLeavePlayer);
         client.setName(name);
         return client;

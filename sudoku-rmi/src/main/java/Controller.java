@@ -76,29 +76,31 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
     }
 
     @Override
-    public void accept(final byte[][] solution, final byte[][] cells) {
+    public void callbackOnEnter(final byte[][] solution, final byte[][] cells) {
         this.grid = FactoryGrid.gridLoad(solution, cells);
         this.ui.buildGrid(this.grid);
         this.ui.showGridPage();
     }
 
     @Override
-    public void accept(final List<String> players) {
-        this.callClient(client -> {
-            System.out.println("CALL: " + Try.toOptional(client::name));
-        });
+    public void callbackOnJoin(final List<String> players) {
         this.ui.appendPlayers(players);
     }
 
     @Override
-    public void accept(final String player) {
+    public void callbackOnJoinPlayer(final String player) {
         this.ui.joinPlayer(player);
     }
 
     @Override
-    public void accept(final Coordinate coordinate, final int value) {
+    public void callbackOnMove(final Coordinate coordinate, final int value) {
         this.grid.saveValue(coordinate, value);
         this.ui.writeValueWithoutCheck(coordinate, value);
+    }
+
+    @Override
+    public void callbackOnLeavePlayer(final String player) {
+        this.ui.leavePlayer(player);
     }
 
     private void createRoom(final SudokuServer server, final SudokuClient client, final String playerName, final Settings.Schema schema, final Settings.Difficulty difficulty) {
@@ -167,5 +169,6 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
                 Try.toOptional(server::updateCell, client, coordinate, value));
         return false;
     }
+
 
 }
