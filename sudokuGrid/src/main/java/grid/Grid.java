@@ -22,6 +22,8 @@ public interface Grid extends Serializable {
 
     boolean hasWin();
 
+    boolean canUndo();
+    
     boolean isValidSolution();
 
     boolean isGridCreateFromSolution();
@@ -112,6 +114,11 @@ public interface Grid extends Serializable {
         @Override
         public boolean hasWin() {
             return this.countEmptyValue() == ZERO && this.grid.isValid();
+        }
+
+        @Override
+        public boolean canUndo() {
+            return !this.historyAction.isEmpty();
         }
 
         @Override
@@ -208,9 +215,9 @@ public interface Grid extends Serializable {
 
         @Override
         public Optional<Coordinate> undo() {
-            if (this.historyAction.empty()) return Optional.empty();
+            if (!this.canUndo()) return Optional.empty();
             final Map.Entry<Coordinate, Integer> firstAction = this.historyAction.pop();
-            this.saveValue(firstAction.getKey(), this.emptyValue());
+            this.setValue(firstAction.getKey(), this.emptyValue());
             return Optional.of(firstAction.getKey());
         }
 

@@ -130,6 +130,7 @@ public class GridTest {
         this.settingsList.forEach(settings -> {
             final Grid grid = FactoryGrid.grid(settings);
             final Optional<Coordinate> undoCoordinate = grid.undo();
+            assertFalse(grid.canUndo());
             assertTrue(undoCoordinate.isEmpty());
         });
     }
@@ -144,9 +145,10 @@ public class GridTest {
 
             grid.saveValue(firstEmptyCell.getKey(), newValue);
             assertEquals(newValue, grid.valueFrom(coordinate));
+            assertTrue(grid.canUndo());
             final Optional<Coordinate> undoCoordinate = grid.undo();
-            assertTrue(undoCoordinate.isPresent());
-            assertEquals(coordinate, undoCoordinate.get());
+            assertFalse(grid.canUndo());
+            assertEquals(Optional.of(coordinate), undoCoordinate);
             assertEquals(grid.emptyValue(), grid.valueFrom(coordinate));
         });
     }
@@ -157,7 +159,9 @@ public class GridTest {
             final Grid grid = FactoryGrid.grid(settings);
             grid.suggest();
             assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue() + 1);
+            assertTrue(grid.canUndo());
             grid.undo();
+            assertFalse(grid.canUndo());
             assertEquals(settings.maxNumbersToClear(), grid.countEmptyValue());
         });
     }
