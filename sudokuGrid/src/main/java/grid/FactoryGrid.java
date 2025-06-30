@@ -17,6 +17,10 @@ public final class FactoryGrid {
         return new Grid.GridImpl(settings);
     }
 
+    public static Grid grid(final Settings.Schema schema, final Settings.Difficulty difficulty) {
+        return new Grid.GridImpl(settings(schema, difficulty));
+    }
+
     public static Grid gridAndLoadData(final Settings settings, final byte[][] solution, final byte[][] cells) {
         final Grid grid = grid(settings);
         grid.loadSolution(solution);

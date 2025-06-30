@@ -80,8 +80,10 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
 
     @Override
     public void callbackOnMove(final Coordinate coordinate, final int value) {
-        this.grid.saveValue(coordinate, value);
+        if (value == this.grid.emptyValue()) this.grid.undo();
+        else this.grid.saveValue(coordinate, value);
         this.ui.writeValueWithoutCheck(coordinate, value);
+        this.checkWin();
     }
 
     @Override
@@ -103,6 +105,15 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
         Try.toOptional(FactoryRMI::registerClient, client);
         this.ui.buildRoom(roomId);
         Try.toOptional(server::joinRoom, client);
+    }
+
+    private void checkWin() {
+        if (this.grid.hasWin()) {
+            this.callServerAndClient((server, client) ->
+                    Try.toOptional(server::leaveRoom, client));
+            System.out.println("Congratulations! You solved the Sudoku!");
+            this.ui.win("Congratulations! You solved the Sudoku!");
+        }
     }
 
     @Override
@@ -132,13 +143,9 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
 
     @Override
     public void onUndo() {
-        if (!this.grid.canUndo()) return; 
-        
-        
-        this.grid.undo().ifPresent(coordinate ->
+        this.grid.peekUndo().ifPresent(coordinate ->
                 this.callServerAndClient((server, client) ->
                         Try.toOptional(server::updateCell, client, coordinate, this.grid.emptyValue())));
-
     }
 
     @Override

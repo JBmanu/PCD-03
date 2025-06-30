@@ -99,7 +99,8 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                                     this.ui::joinPlayer,
                                     this.ui::leavePlayer,
                                     (name, coordinate, value) -> {
-                                        this.grid.saveValue(coordinate, value);
+                                        if (value == this.grid.emptyValue()) this.grid.undo();
+                                        else this.grid.saveValue(coordinate, value);
                                         this.ui.writeValueWithoutCheck(coordinate, value);
                                         this.ui.showInfo(this.infoMove(name, coordinate, value));
                                         this.checkWin();
@@ -129,8 +130,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     @Override
     public void onUndo() {
-        this.grid.undo().ifPresent(coordinate -> {
-            this.ui.undo(coordinate);
+        this.grid.peekUndo().ifPresent(coordinate -> {
             this.callRabbitMQ((discovery, connector) ->
                     connector.sendMove(discovery, this.player, coordinate, this.grid.emptyValue()));
         });
@@ -148,10 +148,8 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     @Override
     public boolean onModifyCell(final Coordinate coordinate, final int value) {
-        this.grid.saveValue(coordinate, value);
         this.callRabbitMQ((discovery, connector) ->
                 connector.sendMove(discovery, this.player, coordinate, value));
-        this.checkWin();
-        return true;
+        return false;
     }
 }

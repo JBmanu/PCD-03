@@ -171,7 +171,7 @@ public interface RabbitMQConnector {
         public void sendMove(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate,
                              final int value) {
             player.callActionOnData((room, _, name) -> {
-                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
+                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room);
                 routingKeys.forEach(routingKey -> {
                     final String message = Messages.ToSend.move(name, coordinate, value);
                     this.sendMessage(room, routingKey, message);

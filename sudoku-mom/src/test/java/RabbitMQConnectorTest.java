@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rabbitMQ.RabbitMQConnector;
 import rabbitMQ.RabbitMQDiscovery;
+import utils.GameConsumers;
+import utils.GridUtils;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -20,9 +22,19 @@ import static rabbitMQ.RabbitMQDiscovery.COUNT_DEFAULT_EXCHANGE;
 import static rabbitMQ.RabbitMQDiscovery.COUNT_DEFAULT_QUEUE_BINDS;
 
 public class RabbitMQConnectorTest {
+    private static final int MESSAGE_JOINED = 1;
     private static final String COUNT_ROOM = "1";
     private static final String COUNT_QUEUE = "1";
     private static final String PLAYER_1_NAME = "manu";
+
+    private static final GameConsumers.JoinPlayer IDENTITY_JOIN_PLAYER = _ -> {
+    };
+    private static final GameConsumers.LeavePlayer IDENTITY_LEAVE_PLAYER = _ -> {
+    };
+    private static final GameConsumers.PlayerMove IDENTITY_PLAYER_MOVE = (_, _, _) -> {
+    };
+    private static final GameConsumers.CreationGrid IDENTITY_CREATION_GRID = (_, _, _, _) -> {
+    };
 
     private RabbitMQDiscovery discovery;
     private RabbitMQConnector connector;
@@ -114,9 +126,9 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
         this.connector.leaveRoom(this.discovery, player2);
 
-        this.connector.activeCallbackReceiveMessage(this.player1, null, _ -> {
-        }, playerName ->
-                assertEquals(leavePlayerName, playerName), null, null);
+        this.connector.activeCallbackReceiveMessage(this.player1, null, IDENTITY_JOIN_PLAYER,
+                playerName -> assertEquals(leavePlayerName, playerName),
+                IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID);
 
         this.connector.deleteQueue(this.discovery, player2);
     }
@@ -161,7 +173,7 @@ public class RabbitMQConnectorTest {
 
         this.connector.activeCallbackReceiveMessage(player2, null, name ->
                         assertEquals(this.player1.name(), Optional.of(name)),
-                null, null, null);
+                IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID);
 
         this.connector.deleteQueue(this.discovery, player2);
     }
@@ -187,12 +199,14 @@ public class RabbitMQConnectorTest {
         final Player player2 = this.computeNewPlayer("2", "lu");
         this.createRoomWithTwoPlayer(player2);
 
-        this.connector.sendMove(this.discovery, this.player1, FactoryGrid.coordinate(0, 0), 1);
+        final Coordinate coordinate = FactoryGrid.coordinate(0, 0);
+        final int value = 1;
+        this.connector.sendMove(this.discovery, this.player1, coordinate, value);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
 
-        assertEquals(0, this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(1));
+        assertEquals(MESSAGE_JOINED + 1, this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(1));
         assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
 
         this.connector.deleteQueue(this.discovery, player2);
@@ -210,9 +224,27 @@ public class RabbitMQConnectorTest {
         final Coordinate coordinate = FactoryGrid.coordinate(0, 0);
         final int cellValue = 1;
         final Player player2 = this.computeNewPlayer("2", "lu");
+        final RabbitMQConnector connector2 = this.createOtherConnector();
 
         this.connector.createRoomAndJoin(this.player1);
         this.connector.joinRoom(this.discovery, player2);
+
+        this.connector.activeCallbackReceiveMessage(player2, null,
+                IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER,
+                (player, position, value) -> {
+                    assertEquals(this.player1.name(), Optional.of(player));
+                    assertEquals(coordinate, position);
+                    assertEquals(cellValue, value);
+                }, IDENTITY_CREATION_GRID);
+
+        connector2.activeCallbackReceiveMessage(player2, null,
+                IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER,
+                (player, position, value) -> {
+                    assertEquals(this.player1.name(), Optional.of(player));
+                    assertEquals(coordinate, position);
+                    assertEquals(cellValue, value);
+                }, IDENTITY_CREATION_GRID);
+
 
         this.connector.sendMove(this.discovery, this.player1, coordinate, cellValue);
 
@@ -220,12 +252,6 @@ public class RabbitMQConnectorTest {
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
         assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
 
-        this.connector.activeCallbackReceiveMessage(player2, null, null, null,
-                (player, position, value) -> {
-                    assertEquals(this.player1.name(), Optional.of(player));
-                    assertEquals(coordinate, position);
-                    assertEquals(cellValue, value);
-                }, null);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
@@ -243,7 +269,7 @@ public class RabbitMQConnectorTest {
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
 
-        assertEquals(1, this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(0));
+        assertEquals(MESSAGE_JOINED + 1, this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(0));
         assertEquals(0, player2.queue().map(this.discovery::countMessageOnQueue).orElse(1));
 
         this.connector.deleteQueue(this.discovery, player2);
@@ -256,7 +282,8 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
 
         this.connector.sendGridRequest(this.discovery, player2);
-        this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null, null, null);
+        this.connector.activeCallbackReceiveMessage(this.player1, grid,
+                IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
@@ -273,27 +300,23 @@ public class RabbitMQConnectorTest {
 
     @Test
     public void receiveGrid() {
-        final Grid grid = FactoryGrid.grid(FactoryGrid.settings(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.MEDIUM));
+        final Grid grid = FactoryGrid.grid(Settings.Schema.SCHEMA_9x9, Settings.Difficulty.MEDIUM);
         final Player player2 = this.computeNewPlayer("2", "lu");
         final RabbitMQConnector connector2 = this.createOtherConnector();
         this.createRoomWithTwoPlayer(player2);
 
-        this.connector.sendGridRequest(this.discovery, player2);
-        this.connector.activeCallbackReceiveMessage(this.player1, grid, null, null, null, null);
-        connector2.activeCallbackReceiveMessage(player2, null, null, null, null,
-                (schema, difficulty, solution, cells) -> {
+        this.connector.activeCallbackReceiveMessage(this.player1, grid,
+                IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID);
+        connector2.activeCallbackReceiveMessage(player2, null,
+                IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE,
+                (_, _, solution, cells) -> {
                     assertNotNull(cells);
                     assertNotNull(solution);
-
-                    final byte[][] originalSolution = grid.solutionArray();
-                    final byte[][] originalCells = grid.cellsArray();
-                    for (int row = 0; row < grid.size(); row++) {
-                        for (int col = 0; col < grid.size(); col++) {
-                            assertEquals(originalSolution[row][col], solution[row][col]);
-                            assertEquals(originalCells[row][col], cells[row][col]);
-                        }
-                    }
+                    assertTrue(GridUtils.compareArrays(grid.solutionArray(), solution));
+                    assertTrue(GridUtils.compareArrays(grid.cellsArray(), cells));
                 });
+
+        connector2.sendGridRequest(this.discovery, player2);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);

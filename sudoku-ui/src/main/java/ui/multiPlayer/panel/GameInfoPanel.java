@@ -17,7 +17,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
     private final JLabel infoRoom;
     private final JLabel infoLabel;
     private final JTextArea playerArea;
-    
+
     public GameInfoPanel() {
         super(new BorderLayout());
         PanelUtils.transparent(this);
@@ -59,8 +59,6 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
     }
 
     public void appendPlayers(final List<String> players) {
-        System.out.println("Players: " + players);
-            System.out.println("Current players: " + this.playerArea.getText());
         players.forEach(this::joinPlayer);
         this.playerArea.revalidate();
         this.playerArea.repaint();
@@ -77,7 +75,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
         this.infoLabel.setForeground(Color.RED);
         this.infoLabel.setText(error);
     }
-    
+
     @Override
     public void refreshPalette(final Palette palette) {
         final int alphaTitle = 230;
@@ -85,5 +83,5 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
         this.infoRoom.setForeground(palette.secondaryWithAlpha(alphaTitle));
         this.playerArea.setForeground(palette.secondaryWithAlpha(alphaPlayer));
     }
-    
+
 }
