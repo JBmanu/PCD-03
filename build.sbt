@@ -82,3 +82,15 @@ lazy val sudokuRMI = (project in file("sudoku-rmi"))
     libraryDependencies ++= Seq(
     ),
     )
+
+lazy val simulationCar = (project in file("simulation-car"))
+  //  .dependsOn(sudokuGrid % "compile->compile", sudokuUI % "compile->compile")
+  .settings(commonSettings *)
+  .settings(
+    name := "simulation-car",
+    Compile / mainClass := Some("Main"),
+    assembly / assemblyJarName := "simulation-car.jar",
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka" %% "akka-actor-typed" % "2.8.8"
+      )
+    )
