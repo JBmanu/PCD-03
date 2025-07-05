@@ -10,7 +10,7 @@ object CarAgentBasic:
   private val CAR_NEAR_DIST = 15
   private val CAR_FAR_ENOUGH_DIST = 20
   private val MAX_WAITING_TIME = 2
-  
+
   private enum CarAgentState:
     case STOPPED, ACCELERATING, DECELERATING_BECAUSE_OF_A_CAR, WAIT_A_BIT, MOVING_CONSTANT_SPEED
 
@@ -18,7 +18,7 @@ object CarAgentBasic:
     val carAgentBasic = CarAgentBasicImpl(CarAgent.base(id, env, acc, dec, vmax), CarAgentState.STOPPED, 0)
     env.registerNewCar(carAgentBasic, road, initialPos)
     carAgentBasic
-    
+
   private case class CarAgentBasicImpl(base: BaseCarAgent,
                                        private var state: CarAgentState,
                                        private var waitingTime: Int) extends CarAgentBasic:
@@ -62,15 +62,12 @@ object CarAgentBasic:
     /* aux methods */
     private def detectedNearCar =
       val car = currentPercept.nearestCarInFront
-      if (car.isEmpty) false
-      else
-        val dist = car.get.pos - currentPercept.roadPos
-        dist < CAR_NEAR_DIST
+      car.exists(car =>
+                   val dist = car.pos - currentPercept.roadPos
+                   dist < CAR_NEAR_DIST)
 
     private def carFarEnough =
       val car = currentPercept.nearestCarInFront
-      if (car.isEmpty) true
-      else
-        val dist = car.get.pos - currentPercept.roadPos
-        dist > CAR_FAR_ENOUGH_DIST
-
+      car.forall(car =>
+                   val dist = car.pos - currentPercept.roadPos
+                   dist > CAR_FAR_ENOUGH_DIST)
