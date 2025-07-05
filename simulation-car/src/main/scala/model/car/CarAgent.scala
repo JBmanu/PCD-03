@@ -2,7 +2,7 @@ package model.car
 
 import model.road.{ Environment, Road, RoadEnv }
 import model.simulation.Command.Action.Action
-import model.simulation.Command.Percept.CarPercept
+import model.simulation.Command.Percept.{ CarPercept, Percept }
 import model.simulation.Command.{ Action, Percept }
 
 trait CarAgent extends Agent:
@@ -38,7 +38,9 @@ object CarAgent:
 
     def timeDt_=(dt: Int): Unit = _timerDt = dt
 
-    def currentPercepts: CarPercept = _currentPercept
+    def currentPercept: CarPercept = _currentPercept
+
+    def currentPercepts: Percept = env.currentPercepts(id)
 
     def init(env: Environment): Unit = _env = env
 
@@ -53,8 +55,12 @@ object CarAgent:
 
     def currentSpeed: Double = _currentSpeed
 
+    def currentSpeed_=(speed: Double): Unit = _currentSpeed = speed
+
     def currentPercept_=(percept: CarPercept): Unit = _currentPercept = percept
 
-
+    def maxSpeed: Double = _maxSpeed
+    def deceleration: Double = _deceleration
+    def acceleration: Double = _acceleration
 
 
