@@ -17,7 +17,6 @@ object LoopTimer:
 
     case class ActionAgent(timer: Time, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
 
-
     def apply(): Behavior[SimulationCommand] =
       def withState(counter: Int): Behavior[SimulationCommand] =
         Behaviors.setup: context =>

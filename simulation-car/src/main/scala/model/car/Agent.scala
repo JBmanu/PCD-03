@@ -6,17 +6,22 @@ import model.simulation.Command.Percept.Percept
 
 trait Agent:
   val id: String
-  val env: Environment
 
-  def init(env: Environment): Agent
+  def env: Environment
 
-  def step(dt: Int): Agent
+  def timeDt: Int
+
+  def timeDt_=(dt: Int): Unit
 
   def currentPercepts: Percept
 
-  def doAction(act: Action): Agent
+  def init(env: Environment): Unit
 
-  def setTimeDt(dt: Int): Agent
-  
+  def step(dt: Int): Unit
+
+  def doAction(act: Action): Unit
+
+
+
     
     

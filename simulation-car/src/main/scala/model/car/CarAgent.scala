@@ -1,40 +1,60 @@
 package model.car
 
-import model.road.{ Environment, RoadEnv }
-import model.road.unit.Road
+import model.road.{ Environment, Road, RoadEnv }
+import model.simulation.Command.Action.Action
+import model.simulation.Command.Percept.CarPercept
 import model.simulation.Command.{ Action, Percept }
 
 trait CarAgent extends Agent:
-  val currentSpeed: Double
 
-  def setTimeDt(dt: Int): CarAgent
+  def selectedAction: Option[Action]
 
-  def setCurrentSpeed(speed: Double): CarAgent
+  def selectedAction_=(action: Option[Action]): Unit
 
-  def decide: CarAgent
+  def currentSpeed: Double
 
+  def currentPercept_=(percept: CarPercept): Unit
+
+  def decide(): Unit
 
 
 object CarAgent:
+  def base(id: String, env: RoadEnv, acc: Double, dec: Double, vmax: Double): BaseCarAgent =
+    BaseCarAgent(id, env, 0, null, Option.empty, vmax, 0, acc, dec)
 
-  //  def apply(): CarAgent = CarAgentImpl()
 
-  private case class CarAgentImpl(id: String, env: RoadEnv, road: Road, initialPos: Double,
-                                  currentSpeed: Double, acceleration: Double, deceleration: Double, maxSpeed: Double) extends CarAgent:
+  case class BaseCarAgent(id: String,
+                          private var _env: Environment,
+                          private var _timerDt: Int,
+                          private var _currentPercept: CarPercept,
+                          private var _selectedAction: Option[Action],
+                          private var _maxSpeed: Double,
+                          private var _currentSpeed: Double,
+                          private var _acceleration: Double,
+                          private var _deceleration: Double):
+    def env: Environment = _env
 
-    override def setCurrentSpeed(speed: Double): CarAgent = ???
+    def timeDt: Int = _timerDt
 
-    override def setTimeDt(dt: Int): CarAgent = ???
+    def timeDt_=(dt: Int): Unit = _timerDt = dt
 
-    override def init(env: Environment): Agent = ???
+    def currentPercepts: CarPercept = _currentPercept
 
-    override def step(dt: Int): Agent = ???
+    def init(env: Environment): Unit = _env = env
 
-    override def currentPercepts: Percept.Percept = ???
+    def step(dt: Int): Unit = ()
 
-    override def doAction(act: Action.Action): Agent = ???
+    def doAction(act: Action): Unit = env.doAction(id, act)
 
-    override def decide: CarAgent = ???
 
-    
-  
+    def selectedAction: Option[Action] = _selectedAction
+
+    def selectedAction_=(action: Option[Action]): Unit = _selectedAction = action
+
+    def currentSpeed: Double = _currentSpeed
+
+    def currentPercept_=(percept: CarPercept): Unit = _currentPercept = percept
+
+
+
+
