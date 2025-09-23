@@ -1,5 +1,6 @@
 import sbt.*
 import sbt.Keys.*
+import sbt.internal.inc.Analysis
 import sbtassembly.AssemblyPlugin
 import sbtassembly.AssemblyPlugin.autoImport.*
 
@@ -93,4 +94,30 @@ lazy val simulationCar = (project in file("simulation-car"))
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-actor-typed" % "2.8.8"
       )
+    )
+
+lazy val guessNumber = (project in file("guess-number"))
+  .settings(
+    name := "guess-number",
+    Compile / compile := {
+      val log = streams.value.log
+      log.info("Building Go project...")
+      val result = sys.process.Process("go build", baseDirectory.value).!
+      if (result != 0) sys.error("Go build failed")
+      Analysis.Empty
+    },
+    run := {
+      val log = streams.value.log
+      log.info("Running Go project...")
+      val result = sys.process.Process("go run main.go", baseDirectory.value).!
+      if (result != 0) sys.error("Go run failed")
+      ()
+    },
+    Test / test := {
+      val log = streams.value.log
+      log.info("Running Go tests...")
+      val result = sys.process.Process("go test ./...", baseDirectory.value).!
+      if (result != 0) sys.error("Go tests failed")
+      ()
+    }
     )
