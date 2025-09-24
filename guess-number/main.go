@@ -12,47 +12,69 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+type Message struct {
+	From string
+	Text string
+}
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	secret := rand.Intn(100) + 1
-	attempts := 0
 
-	// creo l'app
+	// creo l'app UNA SOLA VOLTA
 	myApp := app.New()
-	myWindow := myApp.NewWindow("Guess the Number")
 
-	// label per messaggi
-	message := widget.NewLabel("Indovina un numero tra 1 e 100!")
+	// canale per scambio messaggi
+	chat := make(chan Message)
+
+	// creo due finestre giocatore con lo stesso app
+	createPlayerWindow(myApp, "Giocatore 1", secret, chat)
+	createPlayerWindow(myApp, "Giocatore 2", secret, chat)
+
+	// goroutine che ascolta i messaggi e li distribuisce
+	go func() {
+		for msg := range chat {
+			fmt.Printf("[%s]: %s\n", msg.From, msg.Text) // log console
+			// 🔹 qui puoi anche aggiornare una chat condivisa tra finestre
+		}
+	}()
+
+	myApp.Run() // parte il loop dell'app
+}
+
+func createPlayerWindow(myApp fyne.App, name string, secret int, chat chan<- Message) {
+	myWindow := myApp.NewWindow(name)
+
+	status := widget.NewLabel("Indovina un numero tra 1 e 100!")
 	input := widget.NewEntry()
 	input.SetPlaceHolder("Scrivi qui il tuo numero...")
 
-	// bottone per controllare il numero
 	button := widget.NewButton("Prova", func() {
 		guess, err := strconv.Atoi(input.Text)
 		if err != nil {
-			message.SetText("Inserisci un numero valido!")
+			status.SetText("Inserisci un numero valido!")
 			return
 		}
 
-		attempts++
-
 		if guess < secret {
-			message.SetText("Troppo basso!")
+			status.SetText("Troppo basso!")
+			chat <- Message{From: name, Text: fmt.Sprintf("Ho provato %d, troppo basso!", guess)}
 		} else if guess > secret {
-			message.SetText("Troppo alto!")
+			status.SetText("Troppo alto!")
+			chat <- Message{From: name, Text: fmt.Sprintf("Ho provato %d, troppo alto!", guess)}
 		} else {
-			message.SetText(fmt.Sprintf("Bravo! Hai indovinato in %d tentativi!", attempts))
+			status.SetText(fmt.Sprintf("Bravo %s! Numero corretto!", name))
+			chat <- Message{From: name, Text: "Ho indovinato il numero! 🎉"}
 		}
 	})
 
-	// layout verticale
 	content := container.NewVBox(
-		message,
+		status,
 		input,
 		button,
 	)
 
 	myWindow.SetContent(content)
 	myWindow.Resize(fyne.NewSize(300, 150))
-	myWindow.ShowAndRun()
+	myWindow.Show()
 }
