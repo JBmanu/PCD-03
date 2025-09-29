@@ -6,12 +6,8 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/widget"
 )
-
-type Message struct {
-	From string
-	Text string
-}
 
 func main() {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -22,20 +18,32 @@ func main() {
 	// creo l'app UNA SOLA VOLTA
 	myApp := app.New()
 
-	// canale per scambio messaggi
-	chat := make(chan Message)
+	// dati
+	count := 3
+	var players []*Player
+	var uis []*widget.Label
 
-	// creo due finestre giocatore con lo stesso app
-	NewUI(myApp, "Giocatore 1", secret)
-	NewUI(myApp, "Giocatore 2", secret)
+	// creo i giocatori
+	for i := 0; i < count; i++ {
+		players = append(players, &Player{fmt.Sprintf("p%d", i), secret, make(chan Message)})
+	}
 
-	// goroutine che ascolta i messaggi e li distribuisce
-	go func() {
-		for msg := range chat {
-			fmt.Printf("[%s]: %s\n", msg.From, msg.Text) // log console
-			// 🔹 qui puoi anche aggiornare una chat condivisa tra finestre
-		}
-	}()
+	// estraggo i canali
+	channels := make([]chan Message, len(players))
+	for i, player := range players {
+		channels[i] = player.channel
+	}
 
-	myApp.Run() // parte il loop dell'app
+	// creo le finestre
+	for _, player := range players {
+		uis = append(uis, NewPlayerUI(myApp, player, players))
+	}
+
+	// attivare le goroutine per ogni giocatore
+	for i, player := range players {
+		go playerListenChanel(player, uis[i])
+	}
+
+	// parte il loop dell'app
+	myApp.Run()
 }

@@ -14,32 +14,26 @@ const PLAYER = "Player : "
 const BUTTON = "Check"
 const EMPTY = ""
 
-func onCheckButton(secretNumber int, input *widget.Entry, status *widget.Label) {
+func safetyUIFun(fun func()) {
+	fyne.Do(fun)
+}
+
+func onCheckButton(player *Player, players []*Player, input *widget.Entry, status *widget.Label) {
 	number, err := strconv.Atoi(input.Text)
 	if err != nil {
 		status.SetText("Insert a correct number !!")
 		return
 	}
-
-	if number < secretNumber {
-		status.SetText("Too small !")
-		//chat <- Message{From: name, Text: fmt.Sprintf("Ho provato %d, troppo basso!", guess)}
-	} else if number > secretNumber {
-		status.SetText("Too High !")
-		//chat <- Message{From: name, Text: fmt.Sprintf("Ho provato %d, troppo alto!", guess)}
-	} else {
-		status.SetText("Correct !!")
-		//chat <- Message{From: name, Text: "Ho indovinato il numero! 🎉"}
-	}
+	playerSendIntoChanel(player, number, players)
 }
 
-func NewUI(myApp fyne.App, name string, secretNumer int) {
-	ui := myApp.NewWindow(PLAYER + name)
+func NewPlayerUI(myApp fyne.App, player *Player, players []*Player) *widget.Label {
+	ui := myApp.NewWindow(PLAYER + player.Name)
 	title := widget.NewLabel(TITLE)
 	status := widget.NewLabel(EMPTY)
 	input := widget.NewEntry()
 
-	safetyClick := func() { fyne.Do(func() { onCheckButton(secretNumer, input, status) }) }
+	safetyClick := func() { fyne.Do(func() { onCheckButton(player, players, input, status) }) }
 
 	button := widget.NewButton(BUTTON, safetyClick)
 	content := container.NewVBox(title, status, input, button)
@@ -47,6 +41,20 @@ func NewUI(myApp fyne.App, name string, secretNumer int) {
 	input.SetPlaceHolder(INPUT)
 
 	ui.SetContent(content)
-	//ui.Resize(fyne.NewSize(300, 150))
+	ui.Show()
+
+	return status
+}
+
+func NewMenuUI(myApp fyne.App) {
+	ui := myApp.NewWindow("Guess a number")
+	title := widget.NewLabel("Choose a player number")
+	input := widget.NewEntry()
+	button := widget.NewButton("Go !!", func() {})
+
+	content := container.NewVBox(title, input, button)
+
+	input.SetPlaceHolder("Number")
+	ui.SetContent(content)
 	ui.Show()
 }
