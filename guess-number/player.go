@@ -6,26 +6,28 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// Message it's the structure of player message
 type Message struct {
 	Name   string
 	Number int
 }
 
+// Player Structure of the player
 type Player struct {
 	Name    string
 	Secret  int
 	channel chan Message
 }
 
-// allow to send
-func playerSendIntoChanel(player *Player, number int, players []*Player) {
-	for _, p := range players {
+// PlayerSendMessage Allow player to send message
+func PlayerSendMessage(player Player, number int, players []Player) {
+	Foreach(players, func(p Player) {
 		p.channel <- Message{player.Name, number}
-	}
+	})
 }
 
-// allow to reactive
-func playerListenChanel(player *Player, status *widget.Label) {
+// PlayerReceiveMessage Allow player to receive message
+func PlayerReceiveMessage(player Player, status *widget.Label) {
 	for msg := range player.channel {
 		number := msg.Number
 		var statusStr = msg.Name + " choose " + strconv.Itoa(number) + " "
@@ -38,6 +40,6 @@ func playerListenChanel(player *Player, status *widget.Label) {
 			statusStr += "It's correct !!"
 		}
 
-		safetyUIFun(func() { status.SetText(statusStr) })
+		SafelyUICall(func() { status.SetText(statusStr) })
 	}
 }

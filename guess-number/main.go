@@ -18,31 +18,23 @@ func main() {
 	// creo l'app UNA SOLA VOLTA
 	myApp := app.New()
 
-	// dati
-	count := 3
-	var players []*Player
-	var uis []*widget.Label
+	NewMenuUI(myApp, func(count int) {
+		// dati
+		var players []Player
 
-	// creo i giocatori
-	for i := 0; i < count; i++ {
-		players = append(players, &Player{fmt.Sprintf("p%d", i), secret, make(chan Message)})
-	}
+		// creo i giocatori
+		for i := 0; i < count; i++ {
+			players = append(players, Player{fmt.Sprintf("p%d", i), secret, make(chan Message)})
+		}
 
-	// estraggo i canali
-	channels := make([]chan Message, len(players))
-	for i, player := range players {
-		channels[i] = player.channel
-	}
+		// creo le finestre
+		uis := Map(players, func(player Player) *widget.Label { return NewPlayerUI(myApp, player, players) })
 
-	// creo le finestre
-	for _, player := range players {
-		uis = append(uis, NewPlayerUI(myApp, player, players))
-	}
-
-	// attivare le goroutine per ogni giocatore
-	for i, player := range players {
-		go playerListenChanel(player, uis[i])
-	}
+		// attivare le goroutine per ogni giocatore
+		for i, player := range players {
+			go PlayerReceiveMessage(player, uis[i])
+		}
+	})
 
 	// parte il loop dell'app
 	myApp.Run()
