@@ -7,18 +7,16 @@ import (
 )
 
 func main() {
-	// creo l'app UNA SOLA VOLTA
 	myApp := app.New()
 
 	// Oracle view
 	NewMenuUI(myApp, func(maxValue int, numberPlayers int) {
 		// create entities
-		oracle := NewOracle(maxValue)
+		oracle := NewOracle(numberPlayers, maxValue)
 		players := NewPlayerFrom(numberPlayers)
-		fmt.Println("Guess number is: ", oracle.secretNumber)
-
-		// create players UI
 		uis := Map(players, func(player Player) PlayerUI { return NewPlayerUI(myApp, oracle, player) })
+
+		fmt.Println("Guess number is: ", oracle.SecretNumber)
 
 		// activate oracle goroutine
 		go ReceiveTryMessage(oracle)
@@ -31,7 +29,7 @@ func main() {
 
 		// init game
 		DisableAllPlayers(players)
-		EnablePlayer(oracle, players)
+		EnableNextPlayer(oracle, players)
 	})
 
 	// parte il loop dell'app

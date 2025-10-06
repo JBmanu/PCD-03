@@ -45,6 +45,11 @@ func DisableAllPlayers(players []Player) {
 	})
 }
 
+// SendSentenceMessage Send sentence at player
+func SendSentenceMessage(player Player, answer Answer) {
+	player.SentenceChannel <- SentenceMessage{answer}
+}
+
 // ReceiveEnableMessage Receive enable message and enable o disable
 func ReceiveEnableMessage(player Player, ui PlayerUI) {
 	for message := range player.EnableChannel {

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"math/rand"
 	"strconv"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
@@ -33,6 +35,12 @@ func SafelyUIFunc(fun func()) func() {
 	return func() {
 		SafelyUICall(fun)
 	}
+}
+
+// ComputeRandomNumber compute random value from maxValue
+func ComputeRandomNumber(maxValue int) int {
+	seed := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return seed.Intn(maxValue) + 1
 }
 
 // ToString convert Answer to string

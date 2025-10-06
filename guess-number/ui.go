@@ -24,10 +24,19 @@ type PlayerUI struct {
 
 func onCheckButton(oracle Oracle, player Player, ui PlayerUI) {
 	CheckNumberInput(ui.Number,
-		func(number int) {
-			SendTryNumberMessage(oracle, player, number)
-		},
-		SafelyUIFunc(func() { ui.Info.SetText("Insert a correct number !!") }))
+		func(number int) { SendTryNumberMessage(oracle, player, number) },
+		func() { ui.Info.SetText("Insert a correct number !!") })
+}
+
+// SetInteractionsUI set interactions of player ui
+func SetInteractionsUI(ui PlayerUI, enable bool) {
+	SafelyUICall(func() {
+		if enable {
+			ui.TryButton.Enable()
+		} else {
+			ui.TryButton.Disable()
+		}
+	})
 }
 
 // NewPlayerUI create UI of the player
@@ -46,17 +55,6 @@ func NewPlayerUI(myApp fyne.App, oracle Oracle, player Player) PlayerUI {
 	ui.Window.Show()
 
 	return ui
-}
-
-// SetInteractionsUI set interactions of player ui
-func SetInteractionsUI(ui PlayerUI, enable bool) {
-	SafelyUICall(func() {
-		if enable {
-			ui.TryButton.Enable()
-		} else {
-			ui.TryButton.Disable()
-		}
-	})
 }
 
 func checkCountPlayer(ui MenuUI, startGameClick func(maxRandom int, numberPlayers int)) {
