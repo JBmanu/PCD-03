@@ -28,17 +28,6 @@ func onCheckButton(oracle Oracle, player Player, ui PlayerUI) {
 		func() { ui.Info.SetText("Insert a correct number !!") })
 }
 
-// SetInteractionsUI set interactions of player ui
-func SetInteractionsUI(ui PlayerUI, enable bool) {
-	SafelyUICall(func() {
-		if enable {
-			ui.TryButton.Enable()
-		} else {
-			ui.TryButton.Disable()
-		}
-	})
-}
-
 // NewPlayerUI create UI of the player
 func NewPlayerUI(myApp fyne.App, oracle Oracle, player Player) PlayerUI {
 	var ui PlayerUI
@@ -55,6 +44,25 @@ func NewPlayerUI(myApp fyne.App, oracle Oracle, player Player) PlayerUI {
 	ui.Window.Show()
 
 	return ui
+}
+
+// SetInteractionsUI set interactions of player ui
+func SetInteractionsUI(ui PlayerUI, enable bool) {
+	SafelyUICall(func() {
+		if enable {
+			ui.TryButton.Enable()
+		} else {
+			ui.TryButton.Disable()
+		}
+	})
+}
+
+// WhenPlayerReceiveAnswer Disable button and show answer
+func WhenPlayerReceiveAnswer(ui PlayerUI, answer Answer) {
+	SafelyUICall(func() {
+		ui.TryButton.Disable()
+		ui.Info.SetText(ToString(answer))
+	})
 }
 
 func checkCountPlayer(ui MenuUI, startGameClick func(maxRandom int, numberPlayers int)) {

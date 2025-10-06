@@ -12,7 +12,7 @@ const (
 	Correct
 )
 
-type SentenceMessage struct {
+type AnswerMessage struct {
 	Answer Answer
 }
 
@@ -22,32 +22,32 @@ type EnableMessage struct {
 
 // Player Structure of the player
 type Player struct {
-	Name            string
-	EnableChannel   chan EnableMessage
-	SentenceChannel chan SentenceMessage
+	Name          string
+	EnableChannel chan EnableMessage
+	AnswerChannel chan AnswerMessage
 }
 
-// NewPlayerFrom create players from number
+// NewPlayerFrom Create players from number
 func NewPlayerFrom(number int) []Player {
 	var players []Player
 	for i := 0; i < number; i++ {
 		players = append(players, Player{fmt.Sprintf("p%d", i),
 			make(chan EnableMessage),
-			make(chan SentenceMessage)})
+			make(chan AnswerMessage)})
 	}
 	return players
 }
 
-// DisableAllPlayers disable all players
+// DisableAllPlayers Disable all players
 func DisableAllPlayers(players []Player) {
 	Foreach(players, func(player Player) {
 		player.EnableChannel <- EnableMessage{Enable: false}
 	})
 }
 
-// SendSentenceMessage Send sentence at player
-func SendSentenceMessage(player Player, answer Answer) {
-	player.SentenceChannel <- SentenceMessage{answer}
+// SendAnswerMessage Send answer at player
+func SendAnswerMessage(player Player, answer Answer) {
+	player.AnswerChannel <- AnswerMessage{answer}
 }
 
 // ReceiveEnableMessage Receive enable message and enable o disable
@@ -57,13 +57,9 @@ func ReceiveEnableMessage(player Player, ui PlayerUI) {
 	}
 }
 
-// ReceiveSentenceMessage Allow player to receive message
-func ReceiveSentenceMessage(player Player, ui PlayerUI) {
-	for message := range player.SentenceChannel {
-		println("CIAO " + ToString(message.Answer))
-		SafelyUICall(func() {
-			ui.TryButton.Disable()
-			ui.Info.SetText(ToString(message.Answer))
-		})
+// ReceiveAnswerMessage Allow player to receive answer message
+func ReceiveAnswerMessage(player Player, ui PlayerUI) {
+	for message := range player.AnswerChannel {
+		WhenPlayerReceiveAnswer(ui, message.Answer)
 	}
 }

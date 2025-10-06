@@ -39,8 +39,19 @@ func SafelyUIFunc(fun func()) func() {
 
 // ComputeRandomNumber compute random value from maxValue
 func ComputeRandomNumber(maxValue int) int {
-	seed := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return seed.Intn(maxValue) + 1
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return random.Intn(maxValue) + 1
+}
+
+// Shuffle To shuffle array
+func Shuffle[T any](in []T) []T {
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	out := make([]T, len(in))
+	copy(out, in)
+	random.Shuffle(len(in), func(i, j int) {
+		in[i], in[j] = in[j], in[i]
+	})
+	return out
 }
 
 // ToString convert Answer to string

@@ -7,7 +7,7 @@ type TryMessage struct {
 }
 
 type Oracle struct {
-	CountPlayer    int
+	SortPlayers    []int
 	SecretNumber   int
 	MaxRandomValue int
 	TryChannel     chan TryMessage
@@ -15,13 +15,18 @@ type Oracle struct {
 
 // NewOracle create a new Oracle
 func NewOracle(countPlayer int, maxValue int) Oracle {
-	return Oracle{countPlayer, ComputeRandomNumber(maxValue), maxValue, make(chan TryMessage)}
+	orderedPlayer := make([]int, countPlayer)
+	for i := 0; i < countPlayer; i++ {
+		orderedPlayer[i] = i
+	}
+	return Oracle{Shuffle(orderedPlayer), ComputeRandomNumber(maxValue), maxValue, make(chan TryMessage)}
 }
 
 // EnableNextPlayer oracle choose next random player and it enables
 func EnableNextPlayer(oracle Oracle, players []Player) {
-	randomIndex := ComputeRandomNumber(len(players) - 1)
-	players[randomIndex].EnableChannel <- EnableMessage{Enable: true}
+	lastValue := oracle.SortPlayers[len(oracle.SortPlayers)-1]
+	players[lastValue].EnableChannel <- EnableMessage{Enable: true}
+	oracle.SortPlayers = oracle.SortPlayers[:len(oracle.SortPlayers)-1]
 }
 
 // SendTryNumberMessage Allow player to send message
@@ -41,6 +46,6 @@ func ReceiveTryMessage(oracle Oracle) {
 			answer = Correct
 		}
 
-		SendSentenceMessage(message.Player, answer)
+		SendAnswerMessage(message.Player, answer)
 	}
 }
