@@ -2,38 +2,36 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
 
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
-	secret := rand.Intn(100) + 1
-
-	fmt.Println("Guess number is: ", secret)
-
 	// creo l'app UNA SOLA VOLTA
 	myApp := app.New()
 
-	NewMenuUI(myApp, func(count int) {
-		// dati
-		var players []Player
+	// Oracle view
+	NewMenuUI(myApp, func(maxValue int, numberPlayers int) {
+		// create entities
+		oracle := NewOracle(maxValue)
+		players := NewPlayerFrom(numberPlayers)
+		fmt.Println("Guess number is: ", oracle.secretNumber)
 
-		// creo i giocatori
-		for i := 0; i < count; i++ {
-			players = append(players, Player{fmt.Sprintf("p%d", i), secret, make(chan Message)})
-		}
+		// create players UI
+		uis := Map(players, func(player Player) PlayerUI { return NewPlayerUI(myApp, oracle, player) })
 
-		// creo le finestre
-		uis := Map(players, func(player Player) *widget.Label { return NewPlayerUI(myApp, player, players) })
+		// activate oracle goroutine
+		go ReceiveTryMessage(oracle)
 
-		// attivare le goroutine per ogni giocatore
+		// activate all players goroutine
 		for i, player := range players {
-			go PlayerReceiveMessage(player, uis[i])
+			go ReceiveEnableMessage(player, uis[i])
+			go ReceiveSentenceMessage(player, uis[i])
 		}
+
+		// init game
+		DisableAllPlayers(players)
+		EnablePlayer(oracle, players)
 	})
 
 	// parte il loop dell'app

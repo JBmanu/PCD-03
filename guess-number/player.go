@@ -1,45 +1,64 @@
 package main
 
 import (
-	"strconv"
-
-	"fyne.io/fyne/v2/widget"
+	"fmt"
 )
 
-// Message it's the structure of player message
-type Message struct {
-	Name   string
-	Number int
+type Answer int
+
+const (
+	TooSmall Answer = iota
+	TooBig
+	Correct
+)
+
+type SentenceMessage struct {
+	Answer Answer
+}
+
+type EnableMessage struct {
+	Enable bool
 }
 
 // Player Structure of the player
 type Player struct {
-	Name    string
-	Secret  int
-	channel chan Message
+	Name            string
+	EnableChannel   chan EnableMessage
+	SentenceChannel chan SentenceMessage
 }
 
-// PlayerSendMessage Allow player to send message
-func PlayerSendMessage(player Player, number int, players []Player) {
-	Foreach(players, func(p Player) {
-		p.channel <- Message{player.Name, number}
+// NewPlayerFrom create players from number
+func NewPlayerFrom(number int) []Player {
+	var players []Player
+	for i := 0; i < number; i++ {
+		players = append(players, Player{fmt.Sprintf("p%d", i),
+			make(chan EnableMessage),
+			make(chan SentenceMessage)})
+	}
+	return players
+}
+
+// DisableAllPlayers disable all players
+func DisableAllPlayers(players []Player) {
+	Foreach(players, func(player Player) {
+		player.EnableChannel <- EnableMessage{Enable: false}
 	})
 }
 
-// PlayerReceiveMessage Allow player to receive message
-func PlayerReceiveMessage(player Player, status *widget.Label) {
-	for msg := range player.channel {
-		number := msg.Number
-		var statusStr = msg.Name + " choose " + strconv.Itoa(number) + " "
+// ReceiveEnableMessage Receive enable message and enable o disable
+func ReceiveEnableMessage(player Player, ui PlayerUI) {
+	for message := range player.EnableChannel {
+		SetInteractionsUI(ui, message.Enable)
+	}
+}
 
-		if number < player.Secret {
-			statusStr += "Too small !"
-		} else if number > player.Secret {
-			statusStr += "Too High !"
-		} else {
-			statusStr += "It's correct !!"
-		}
-
-		SafelyUICall(func() { status.SetText(statusStr) })
+// ReceiveSentenceMessage Allow player to receive message
+func ReceiveSentenceMessage(player Player, ui PlayerUI) {
+	for message := range player.SentenceChannel {
+		println("CIAO " + ToString(message.Answer))
+		SafelyUICall(func() {
+			ui.TryButton.Disable()
+			ui.InfoLabel.SetText(ToString(message.Answer))
+		})
 	}
 }

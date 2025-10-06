@@ -6,52 +6,80 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func onCheckButton(player Player, players []Player, input *widget.Entry, status *widget.Label) {
+type PlayerUI struct {
+	TitleLabel  *widget.Label
+	InfoLabel   *widget.Label
+	InputNumber *widget.Entry
+	TryButton   *widget.Button
+}
+
+func onCheckButton(oracle Oracle, player Player, input *widget.Entry, status *widget.Label) {
 	CheckNumberInput(input,
-		func(number int) { PlayerSendMessage(player, number, players) },
-		func() { status.SetText("Insert a correct number !!") })
+		func(number int) {
+			SendTryNumberMessage(oracle, player, number)
+		},
+		SafelyUIFunc(func() { status.SetText("Insert a correct number !!") }))
 }
 
 // NewPlayerUI create UI of the player
-func NewPlayerUI(myApp fyne.App, player Player, players []Player) *widget.Label {
+func NewPlayerUI(myApp fyne.App, oracle Oracle, player Player) PlayerUI {
 	ui := myApp.NewWindow("Player : " + player.Name)
 	title := widget.NewLabel("Guess a number between 1 and 100 !!!")
-	statusLabel := widget.NewLabel("")
-	input := widget.NewEntry()
+	infoLabel := widget.NewLabel("")
+	inputNumber := widget.NewEntry()
 
-	button := widget.NewButton("Guess",
-		SafelyUIFunc(func() {
-			onCheckButton(player, players, input, statusLabel)
-		}))
+	button := widget.NewButton("Try",
+		func() { onCheckButton(oracle, player, inputNumber, infoLabel) },
+	)
 
-	content := container.NewVBox(title, statusLabel, input, button)
-	input.SetPlaceHolder("Enter your number here...")
+	inputNumber.SetPlaceHolder("Enter your number here...")
+
+	content := container.NewVBox(title, infoLabel, inputNumber, button)
 	ui.SetContent(content)
 	ui.Show()
 
-	return statusLabel
+	return PlayerUI{title, infoLabel, inputNumber, button}
 }
 
-func checkCountPlayer(input *widget.Entry, startGameClick func(count int)) {
-	CheckNumberInput(input,
-		func(number int) { startGameClick(number) },
-		func() { input.SetPlaceHolder("Insert a correct number !!") })
+// SetInteractionsUI set interactions of player ui
+func SetInteractionsUI(ui PlayerUI, enable bool) {
+	SafelyUICall(func() {
+		if enable {
+			ui.TryButton.Enable()
+		} else {
+			ui.TryButton.Disable()
+		}
+	})
+}
+
+func checkCountPlayer(inputMaxRandom *widget.Entry, inputNumberPlayers *widget.Entry, startGameClick func(maxRandom int, numberPlayers int)) {
+	CheckNumbersInputs(
+		func(values ...int) { startGameClick(values[0], values[1]) },
+		func() { inputNumberPlayers.SetPlaceHolder("Insert a correct number !!") },
+		inputMaxRandom, inputNumberPlayers)
 }
 
 // NewMenuUI create menu to start game
-func NewMenuUI(myApp fyne.App, startGameClick func(count int)) {
+func NewMenuUI(myApp fyne.App, startGameClick func(maxValue int, numberPlayers int)) {
 	ui := myApp.NewWindow("Guess a number play")
-	title := widget.NewLabel("Choose a player number")
-	input := widget.NewEntry()
+	title := widget.NewLabel("Choose parameters:")
+	inputMaxRandom := widget.NewEntry()
+	inputNumberPlayers := widget.NewEntry()
 
 	button := widget.NewButton("Go !!",
-		SafelyUIFunc(func() {
+		//SafelyUIFunc(
+		func() {
 			ui.Hide()
-			checkCountPlayer(input, startGameClick)
-		}))
+			checkCountPlayer(inputMaxRandom, inputNumberPlayers, startGameClick)
+		})
+	//)
 
-	content := container.NewVBox(title, input, button)
-	input.SetPlaceHolder("Number")
+	inputMaxRandom.SetPlaceHolder("Max value random")
+	inputNumberPlayers.SetPlaceHolder("TryNumber player")
+
+	inputContent := container.NewHSplit(inputMaxRandom, inputNumberPlayers)
+	content := container.NewVBox(title, inputContent, button)
 	ui.SetContent(content)
+	ui.Resize(fyne.Size{Width: 300, Height: 100})
 	ui.Show()
 }

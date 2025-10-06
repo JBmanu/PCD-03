@@ -35,6 +35,12 @@ func SafelyUIFunc(fun func()) func() {
 	}
 }
 
+// ToString convert Answer to string
+func ToString(answer Answer) string {
+	var answerString = [...]string{"It's Too small.", "It's too big.", "It's correct."}
+	return answerString[answer]
+}
+
 // CheckNumberInput check if input is a number and do something
 func CheckNumberInput(input *widget.Entry, trueFun func(number int), falseFun func()) {
 	number, err := strconv.Atoi(input.Text)
@@ -42,5 +48,21 @@ func CheckNumberInput(input *widget.Entry, trueFun func(number int), falseFun fu
 		falseFun()
 	} else {
 		trueFun(number)
+	}
+}
+
+// CheckNumbersInputs check if all inputs are a number and do something
+func CheckNumbersInputs(trueFun func(values ...int), falseFun func(), inputs ...*widget.Entry) {
+	var numbers []int
+	for _, input := range inputs {
+		if number, err := strconv.Atoi(input.Text); err == nil {
+			numbers = append(numbers, number)
+		}
+	}
+
+	if len(numbers) == len(inputs) {
+		trueFun(numbers[:]...)
+	} else {
+		falseFun()
 	}
 }
