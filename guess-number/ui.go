@@ -6,39 +6,46 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type PlayerUI struct {
-	TitleLabel  *widget.Label
-	InfoLabel   *widget.Label
-	InputNumber *widget.Entry
-	TryButton   *widget.Button
+type MenuUI struct {
+	Window        fyne.Window
+	Title         *widget.Label
+	MaxRandom     *widget.Entry
+	NumberPlayers *widget.Entry
+	GoButton      *widget.Button
 }
 
-func onCheckButton(oracle Oracle, player Player, input *widget.Entry, status *widget.Label) {
-	CheckNumberInput(input,
+type PlayerUI struct {
+	Window    fyne.Window
+	Title     *widget.Label
+	Info      *widget.Label
+	Number    *widget.Entry
+	TryButton *widget.Button
+}
+
+func onCheckButton(oracle Oracle, player Player, ui PlayerUI) {
+	CheckNumberInput(ui.Number,
 		func(number int) {
 			SendTryNumberMessage(oracle, player, number)
 		},
-		SafelyUIFunc(func() { status.SetText("Insert a correct number !!") }))
+		SafelyUIFunc(func() { ui.Info.SetText("Insert a correct number !!") }))
 }
 
 // NewPlayerUI create UI of the player
 func NewPlayerUI(myApp fyne.App, oracle Oracle, player Player) PlayerUI {
-	ui := myApp.NewWindow("Player : " + player.Name)
-	title := widget.NewLabel("Guess a number between 1 and 100 !!!")
-	infoLabel := widget.NewLabel("")
-	inputNumber := widget.NewEntry()
+	var ui PlayerUI
+	ui.Window = myApp.NewWindow("Player : " + player.Name)
+	ui.Title = widget.NewLabel("Guess a number between 1 and 100 !!!")
+	ui.Info = widget.NewLabel("")
+	ui.Number = widget.NewEntry()
+	ui.TryButton = widget.NewButton("Try", func() { onCheckButton(oracle, player, ui) })
 
-	button := widget.NewButton("Try",
-		func() { onCheckButton(oracle, player, inputNumber, infoLabel) },
-	)
+	ui.Number.SetPlaceHolder("Enter your number here...")
 
-	inputNumber.SetPlaceHolder("Enter your number here...")
+	content := container.NewVBox(ui.Title, ui.Info, ui.Number, ui.TryButton)
+	ui.Window.SetContent(content)
+	ui.Window.Show()
 
-	content := container.NewVBox(title, infoLabel, inputNumber, button)
-	ui.SetContent(content)
-	ui.Show()
-
-	return PlayerUI{title, infoLabel, inputNumber, button}
+	return ui
 }
 
 // SetInteractionsUI set interactions of player ui
@@ -52,34 +59,31 @@ func SetInteractionsUI(ui PlayerUI, enable bool) {
 	})
 }
 
-func checkCountPlayer(inputMaxRandom *widget.Entry, inputNumberPlayers *widget.Entry, startGameClick func(maxRandom int, numberPlayers int)) {
+func checkCountPlayer(ui MenuUI, startGameClick func(maxRandom int, numberPlayers int)) {
 	CheckNumbersInputs(
-		func(values ...int) { startGameClick(values[0], values[1]) },
-		func() { inputNumberPlayers.SetPlaceHolder("Insert a correct number !!") },
-		inputMaxRandom, inputNumberPlayers)
+		func(values ...int) {
+			SafelyUICall(func() { ui.Window.Hide() })
+			startGameClick(values[0], values[1])
+		},
+		func() { ui.MaxRandom.SetPlaceHolder("Insert a correct number !!") },
+		ui.MaxRandom, ui.NumberPlayers)
 }
 
 // NewMenuUI create menu to start game
 func NewMenuUI(myApp fyne.App, startGameClick func(maxValue int, numberPlayers int)) {
-	ui := myApp.NewWindow("Guess a number play")
-	title := widget.NewLabel("Choose parameters:")
-	inputMaxRandom := widget.NewEntry()
-	inputNumberPlayers := widget.NewEntry()
+	var ui MenuUI
+	ui.Window = myApp.NewWindow("Guess a number play")
+	ui.Title = widget.NewLabel("Choose parameters:")
+	ui.MaxRandom = widget.NewEntry()
+	ui.NumberPlayers = widget.NewEntry()
+	ui.GoButton = widget.NewButton("Go !!", func() { checkCountPlayer(ui, startGameClick) })
 
-	button := widget.NewButton("Go !!",
-		//SafelyUIFunc(
-		func() {
-			ui.Hide()
-			checkCountPlayer(inputMaxRandom, inputNumberPlayers, startGameClick)
-		})
-	//)
+	ui.MaxRandom.SetPlaceHolder("Max value random")
+	ui.NumberPlayers.SetPlaceHolder("Number players")
 
-	inputMaxRandom.SetPlaceHolder("Max value random")
-	inputNumberPlayers.SetPlaceHolder("TryNumber player")
-
-	inputContent := container.NewHSplit(inputMaxRandom, inputNumberPlayers)
-	content := container.NewVBox(title, inputContent, button)
-	ui.SetContent(content)
-	ui.Resize(fyne.Size{Width: 300, Height: 100})
-	ui.Show()
+	inputContent := container.NewHSplit(ui.MaxRandom, ui.NumberPlayers)
+	content := container.NewVBox(ui.Title, inputContent, ui.GoButton)
+	ui.Window.SetContent(content)
+	ui.Window.Resize(fyne.Size{Width: 300, Height: 100})
+	ui.Window.Show()
 }

@@ -58,7 +58,7 @@ func ReceiveSentenceMessage(player Player, ui PlayerUI) {
 		println("CIAO " + ToString(message.Answer))
 		SafelyUICall(func() {
 			ui.TryButton.Disable()
-			ui.InfoLabel.SetText(ToString(message.Answer))
+			ui.Info.SetText(ToString(message.Answer))
 		})
 	}
 }
