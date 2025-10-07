@@ -32,7 +32,7 @@ func SendTryNumberMessage(oracle Oracle, turn TurnMessage, number int) {
 }
 
 // ReceiveTryMessage Allow to receive try player message
-func ReceiveTryMessage(oracle Oracle) {
+func ReceiveTryMessage(oracle Oracle, startPlayers []Player) {
 	for message := range oracle.TryChannel {
 		var answer Answer
 		if message.Number < oracle.SecretNumber {
@@ -43,6 +43,10 @@ func ReceiveTryMessage(oracle Oracle) {
 			answer = Correct
 		}
 		SendAnswerMessage(message, answer)
-		StartGame(message.Turn.PlayersNotPlay)
+		if len(message.Turn.PlayersNotPlay) == 0 {
+			StartGame(startPlayers)
+		} else {
+			StartGame(message.Turn.PlayersNotPlay)
+		}
 	}
 }

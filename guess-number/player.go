@@ -78,7 +78,7 @@ func ReceiveTurnMessage(player Player, oracle Oracle, ui PlayerUI) {
 }
 
 // ReceiveAnswerMessage Allow player to receive answer message
-func ReceiveAnswerMessage(player Player, oracle Oracle, ui PlayerUI) {
+func ReceiveAnswerMessage(player Player, ui PlayerUI) {
 	for message := range player.AnswerChannel {
 		WhenPlayerReceiveAnswer(ui, message.Answer)
 	}

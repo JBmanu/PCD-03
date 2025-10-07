@@ -19,13 +19,13 @@ func main() {
 		fmt.Println("Guess number is: ", oracle.SecretNumber)
 
 		// activate oracle goroutine
-		go ReceiveTryMessage(oracle)
+		go ReceiveTryMessage(oracle, players)
 
 		// activate all players goroutine
 		for i, player := range players {
 			go ReceiveEnableMessage(player, uis[i])
 			go ReceiveTurnMessage(player, oracle, uis[i])
-			go ReceiveAnswerMessage(player, oracle, uis[i])
+			go ReceiveAnswerMessage(player, uis[i])
 		}
 
 		// init game
