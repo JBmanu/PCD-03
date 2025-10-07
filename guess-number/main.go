@@ -20,11 +20,12 @@ func main() {
 
 		// activate oracle goroutine
 		go ReceiveTryMessage(oracle)
+		go ReceivePlayerReceiveAnswerMessage(oracle, players)
 
 		// activate all players goroutine
 		for i, player := range players {
 			go ReceiveEnableMessage(player, uis[i])
-			go ReceiveAnswerMessage(player, uis[i])
+			go ReceiveAnswerMessage(oracle, player, uis[i])
 		}
 
 		// init game

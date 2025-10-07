@@ -40,9 +40,12 @@ func NewPlayerFrom(number int) []Player {
 
 // DisableAllPlayers Disable all players
 func DisableAllPlayers(players []Player) {
-	Foreach(players, func(player Player) {
-		player.EnableChannel <- EnableMessage{Enable: false}
-	})
+	Foreach(players, func(player Player) { SendEnablePlayer(player, false) })
+}
+
+// SendEnablePlayer Set enable player interactions
+func SendEnablePlayer(player Player, enable bool) {
+	player.EnableChannel <- EnableMessage{Enable: enable}
 }
 
 // SendAnswerMessage Send answer at player
@@ -58,8 +61,9 @@ func ReceiveEnableMessage(player Player, ui PlayerUI) {
 }
 
 // ReceiveAnswerMessage Allow player to receive answer message
-func ReceiveAnswerMessage(player Player, ui PlayerUI) {
+func ReceiveAnswerMessage(oracle Oracle, player Player, ui PlayerUI) {
 	for message := range player.AnswerChannel {
 		WhenPlayerReceiveAnswer(ui, message.Answer)
+		SendPlayerReceiveAnswerMessage(oracle, player)
 	}
 }

@@ -60,8 +60,8 @@ func SetInteractionsUI(ui PlayerUI, enable bool) {
 // WhenPlayerReceiveAnswer Disable button and show answer
 func WhenPlayerReceiveAnswer(ui PlayerUI, answer Answer) {
 	SafelyUICall(func() {
-		ui.TryButton.Disable()
 		ui.Info.SetText(ToString(answer))
+		ui.TryButton.Disable()
 	})
 }
 
