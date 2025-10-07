@@ -12,7 +12,7 @@ func main() {
 	// Oracle view
 	NewMenuUI(myApp, func(maxValue int, numberPlayers int) {
 		// create entities
-		oracle := NewOracle(numberPlayers, maxValue)
+		oracle := NewOracle(maxValue)
 		players := NewPlayerFrom(numberPlayers)
 		uis := Map(players, func(player Player) PlayerUI { return NewPlayerUI(myApp, oracle, player) })
 
@@ -20,17 +20,16 @@ func main() {
 
 		// activate oracle goroutine
 		go ReceiveTryMessage(oracle)
-		go ReceivePlayerReceiveAnswerMessage(oracle, players)
 
 		// activate all players goroutine
 		for i, player := range players {
 			go ReceiveEnableMessage(player, uis[i])
-			go ReceiveAnswerMessage(oracle, player, uis[i])
+			go ReceiveTurnMessage(player, oracle, uis[i])
+			go ReceiveAnswerMessage(player, oracle, uis[i])
 		}
 
 		// init game
-		DisableAllPlayers(players)
-		EnableNextPlayer(oracle, players)
+		StartGame(players)
 	})
 
 	// parte il loop dell'app

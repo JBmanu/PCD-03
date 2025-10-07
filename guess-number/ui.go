@@ -22,10 +22,12 @@ type PlayerUI struct {
 	TryButton *widget.Button
 }
 
-func onCheckButton(oracle Oracle, player Player, ui PlayerUI) {
-	CheckNumberInput(ui.Number,
-		func(number int) { SendTryNumberMessage(oracle, player, number) },
-		func() { ui.Info.SetText("Insert a correct number !!") })
+func BuildClickButton(oracle Oracle, turn TurnMessage, ui PlayerUI) {
+	ui.TryButton.OnTapped = func() {
+		CheckNumberInput(ui.Number,
+			func(number int) { SendTryNumberMessage(oracle, turn, number) },
+			func() { ui.Info.SetText("Insert a correct number !!") })
+	}
 }
 
 // NewPlayerUI create UI of the player
@@ -35,7 +37,7 @@ func NewPlayerUI(myApp fyne.App, oracle Oracle, player Player) PlayerUI {
 	ui.Title = widget.NewLabel("Guess a number between 1 and 100 !!!")
 	ui.Info = widget.NewLabel("")
 	ui.Number = widget.NewEntry()
-	ui.TryButton = widget.NewButton("Try", func() { onCheckButton(oracle, player, ui) })
+	ui.TryButton = widget.NewButton("Try", nil)
 
 	ui.Number.SetPlaceHolder("Enter your number here...")
 

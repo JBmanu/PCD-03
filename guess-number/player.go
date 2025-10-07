@@ -12,7 +12,13 @@ const (
 	Correct
 )
 
+type TurnMessage struct {
+	PlayerInPlay   Player
+	PlayersNotPlay []Player
+}
+
 type AnswerMessage struct {
+	Try    TryMessage
 	Answer Answer
 }
 
@@ -23,6 +29,7 @@ type EnableMessage struct {
 // Player Structure of the player
 type Player struct {
 	Name          string
+	TurnChannel   chan TurnMessage
 	EnableChannel chan EnableMessage
 	AnswerChannel chan AnswerMessage
 }
@@ -32,15 +39,11 @@ func NewPlayerFrom(number int) []Player {
 	var players []Player
 	for i := 0; i < number; i++ {
 		players = append(players, Player{fmt.Sprintf("p%d", i),
+			make(chan TurnMessage),
 			make(chan EnableMessage),
 			make(chan AnswerMessage)})
 	}
 	return players
-}
-
-// DisableAllPlayers Disable all players
-func DisableAllPlayers(players []Player) {
-	Foreach(players, func(player Player) { SendEnablePlayer(player, false) })
 }
 
 // SendEnablePlayer Set enable player interactions
@@ -48,9 +51,14 @@ func SendEnablePlayer(player Player, enable bool) {
 	player.EnableChannel <- EnableMessage{Enable: enable}
 }
 
+// SendTurnMessage Allow to send at player his turn
+func SendTurnMessage(playerInPlay Player, playerNotPlay []Player) {
+	playerInPlay.TurnChannel <- TurnMessage{playerInPlay, playerNotPlay}
+}
+
 // SendAnswerMessage Send answer at player
-func SendAnswerMessage(player Player, answer Answer) {
-	player.AnswerChannel <- AnswerMessage{answer}
+func SendAnswerMessage(try TryMessage, answer Answer) {
+	try.Turn.PlayerInPlay.AnswerChannel <- AnswerMessage{try, answer}
 }
 
 // ReceiveEnableMessage Receive enable message and enable o disable
@@ -60,10 +68,18 @@ func ReceiveEnableMessage(player Player, ui PlayerUI) {
 	}
 }
 
+// ReceiveTurnMessage Allow to
+func ReceiveTurnMessage(player Player, oracle Oracle, ui PlayerUI) {
+	for message := range player.TurnChannel {
+		Foreach(message.PlayersNotPlay, func(player Player) { SendEnablePlayer(player, false) })
+		SendEnablePlayer(message.PlayerInPlay, true)
+		BuildClickButton(oracle, message, ui)
+	}
+}
+
 // ReceiveAnswerMessage Allow player to receive answer message
-func ReceiveAnswerMessage(oracle Oracle, player Player, ui PlayerUI) {
+func ReceiveAnswerMessage(player Player, oracle Oracle, ui PlayerUI) {
 	for message := range player.AnswerChannel {
 		WhenPlayerReceiveAnswer(ui, message.Answer)
-		SendPlayerReceiveAnswerMessage(oracle, player)
 	}
 }
