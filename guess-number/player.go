@@ -7,8 +7,10 @@ import (
 	"fyne.io/fyne/v2"
 )
 
+// Answer Type of response
 type Answer int
 
+// Constant value of Answer
 const (
 	TooSmall Answer = iota
 	TooBig
@@ -16,11 +18,13 @@ const (
 	Winner
 )
 
+// TurnMessage Struct of the game progress
 type TurnMessage struct {
 	PlayerInPlay   Player
 	MissingPlayers []Player
 }
 
+// AnswerMessage Struct of the response message
 type AnswerMessage struct {
 	Try    TryMessage
 	Info   string
@@ -54,18 +58,18 @@ func SetEnable(player Player, enable bool) {
 	SetInteractionsUI(player.UI, enable)
 }
 
-// SendTurnMessage Allow to send at player his turn
+// SendTurnMessage Allow to send at player the current turn
 func SendTurnMessage(playerInPlay Player, playerNotPlay []Player) {
 	playerInPlay.TurnChannel <- TurnMessage{playerInPlay, playerNotPlay}
 }
 
-// SendAnswerMessage Send answer at player
+// SendAnswerMessage Allow to send answer at player
 func SendAnswerMessage(try TryMessage, answer Answer) {
 	info := strconv.Itoa(try.Number) + ". "
 	try.Turn.PlayerInPlay.AnswerChannel <- AnswerMessage{try, info, answer}
 }
 
-// SendWinnerOtherPlayerNotInPlay Allow to send message
+// SendWinnerOtherPlayerNotInPlay Allow to send the winner
 func SendWinnerOtherPlayerNotInPlay(losers []Player, try TryMessage, answer Answer) {
 	info := try.Turn.PlayerInPlay.Name + ". "
 	Foreach(losers, func(player Player) {
@@ -73,14 +77,14 @@ func SendWinnerOtherPlayerNotInPlay(losers []Player, try TryMessage, answer Answ
 	})
 }
 
-// ReceiveTurnMessage Allow to
+// ReceiveTurnMessage Receive the current turn
 func ReceiveTurnMessage(player Player, oracle Oracle) {
 	for message := range player.TurnChannel {
 		BuildClickButton(oracle, message, player.UI)
 	}
 }
 
-// ReceiveAnswerMessage Allow player to receive answer message
+// ReceiveAnswerMessage Receive the answer
 func ReceiveAnswerMessage(player Player) {
 	for message := range player.AnswerChannel {
 		infoMessage := message.Info + ToString(message.Answer)

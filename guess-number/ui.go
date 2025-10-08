@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// MenuUI Struct of a menu
 type MenuUI struct {
 	Window        fyne.Window
 	Title         *widget.Label
@@ -14,6 +15,7 @@ type MenuUI struct {
 	GoButton      *widget.Button
 }
 
+// PlayerUI Struct of ui player
 type PlayerUI struct {
 	Window    fyne.Window
 	Title     *widget.Label
@@ -22,15 +24,16 @@ type PlayerUI struct {
 	TryButton *widget.Button
 }
 
+// BuildClickButton Build the function on click
 func BuildClickButton(oracle Oracle, turn TurnMessage, ui PlayerUI) {
 	ui.TryButton.OnTapped = func() {
 		CheckNumberInput(ui.Number,
 			func(number int) { SendTryNumberMessage(oracle, turn, number) },
-			func() { ui.Info.SetText("Insert a correct number !!") })
+			func() { ui.Info.SetText("Insert a number !!") })
 	}
 }
 
-// NewPlayerUI create UI of the player
+// NewPlayerUI Create UI of the player
 func NewPlayerUI(myApp fyne.App, player Player) PlayerUI {
 	var ui PlayerUI
 	ui.Window = myApp.NewWindow("Player : " + player.Name)
@@ -48,7 +51,7 @@ func NewPlayerUI(myApp fyne.App, player Player) PlayerUI {
 	return ui
 }
 
-// SetInteractionsUI set interactions of player ui
+// SetInteractionsUI Set interactions of player ui
 func SetInteractionsUI(ui PlayerUI, enable bool) {
 	SafelyUICall(func() {
 		if enable {
@@ -59,7 +62,7 @@ func SetInteractionsUI(ui PlayerUI, enable bool) {
 	})
 }
 
-// WhenPlayerReceiveAnswer Disable button and show answer
+// WhenPlayerReceiveAnswer Disable button and show answer when receive answer
 func WhenPlayerReceiveAnswer(ui PlayerUI, infoMessage string) {
 	SafelyUICall(func() {
 		ui.Info.SetText(infoMessage)
@@ -77,7 +80,7 @@ func checkCountPlayer(ui MenuUI, startGameClick func(maxRandom int, numberPlayer
 		ui.MaxRandom, ui.NumberPlayers)
 }
 
-// NewMenuUI create menu to start game
+// NewMenuUI Create menu to start game
 func NewMenuUI(myApp fyne.App, startGameClick func(maxValue int, numberPlayers int)) {
 	var ui MenuUI
 	ui.Window = myApp.NewWindow("Guess a number play")
