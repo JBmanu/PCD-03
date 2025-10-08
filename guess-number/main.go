@@ -14,7 +14,7 @@ func main() {
 		oracle := NewOracle(maxValue)
 		players := NewPlayerFrom(myApp, numberPlayers)
 
-		fmt.Println("Guess number is: ", oracle.SecretNumber)
+		fmt.Println("Guess number : ", oracle.SecretNumber)
 
 		// activate oracle goroutine
 		go ReceiveTryMessage(oracle, players)

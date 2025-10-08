@@ -46,12 +46,12 @@ func ComputeRandomNumber(maxValue int) int {
 // Shuffle To shuffle array
 func Shuffle[T any](in []T) []T {
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
-	out := make([]T, len(in))
-	copy(out, in)
-	random.Shuffle(len(in), func(i, j int) {
-		in[i], in[j] = in[j], in[i]
-	})
-	return out
+	shuffledArray := append([]T(nil), in...)
+	for i := range shuffledArray {
+		j := random.Intn(i + 1)
+		shuffledArray[i], shuffledArray[j] = shuffledArray[j], shuffledArray[i]
+	}
+	return shuffledArray
 }
 
 func RemovePlayerFromList(players []Player, removePlayer Player) []Player {

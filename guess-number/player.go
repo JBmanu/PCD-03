@@ -89,5 +89,10 @@ func ReceiveAnswerMessage(player Player) {
 	for message := range player.AnswerChannel {
 		infoMessage := message.Info + ToString(message.Answer)
 		WhenPlayerReceiveAnswer(player.UI, infoMessage)
+		if message.Answer == Winner || message.Answer == Correct {
+			close(player.TurnChannel)
+			close(player.AnswerChannel)
+		}
 	}
+	println("Closed " + player.Name + " channels")
 }
