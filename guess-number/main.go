@@ -13,8 +13,7 @@ func main() {
 	NewMenuUI(myApp, func(maxValue int, numberPlayers int) {
 		// create entities
 		oracle := NewOracle(maxValue)
-		players := NewPlayerFrom(numberPlayers)
-		uis := Map(players, func(player Player) PlayerUI { return NewPlayerUI(myApp, oracle, player) })
+		players := NewPlayerFrom(myApp, numberPlayers)
 
 		fmt.Println("Guess number is: ", oracle.SecretNumber)
 
@@ -22,11 +21,10 @@ func main() {
 		go ReceiveTryMessage(oracle, players)
 
 		// activate all players goroutine
-		for i, player := range players {
-			go ReceiveEnableMessage(player, uis[i])
-			go ReceiveTurnMessage(player, oracle, uis[i])
-			go ReceiveAnswerMessage(player, uis[i])
-		}
+		Foreach(players, func(player Player) {
+			go ReceiveTurnMessage(player, oracle)
+			go ReceiveAnswerMessage(player)
+		})
 
 		// init game
 		StartGame(players)

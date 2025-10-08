@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+
+	"fyne.io/fyne/v2"
 )
 
 type Answer int
@@ -22,33 +24,26 @@ type AnswerMessage struct {
 	Answer Answer
 }
 
-type EnableMessage struct {
-	Enable bool
-}
-
 // Player Structure of the player
 type Player struct {
 	Name          string
+	UI            PlayerUI
 	TurnChannel   chan TurnMessage
-	EnableChannel chan EnableMessage
 	AnswerChannel chan AnswerMessage
 }
 
 // NewPlayerFrom Create players from number
-func NewPlayerFrom(number int) []Player {
+func NewPlayerFrom(myApp fyne.App, number int) []Player {
 	var players []Player
 	for i := 0; i < number; i++ {
-		players = append(players, Player{fmt.Sprintf("p%d", i),
-			make(chan TurnMessage),
-			make(chan EnableMessage),
-			make(chan AnswerMessage)})
+		var player Player
+		player.Name = fmt.Sprintf("p%d", i)
+		player.TurnChannel = make(chan TurnMessage)
+		player.AnswerChannel = make(chan AnswerMessage)
+		player.UI = NewPlayerUI(myApp, player)
+		players = append(players, player)
 	}
 	return players
-}
-
-// SendEnablePlayer Set enable player interactions
-func SendEnablePlayer(player Player, enable bool) {
-	player.EnableChannel <- EnableMessage{Enable: enable}
 }
 
 // SendTurnMessage Allow to send at player his turn
@@ -61,25 +56,18 @@ func SendAnswerMessage(try TryMessage, answer Answer) {
 	try.Turn.PlayerInPlay.AnswerChannel <- AnswerMessage{try, answer}
 }
 
-// ReceiveEnableMessage Receive enable message and enable o disable
-func ReceiveEnableMessage(player Player, ui PlayerUI) {
-	for message := range player.EnableChannel {
-		SetInteractionsUI(ui, message.Enable)
-	}
-}
-
 // ReceiveTurnMessage Allow to
-func ReceiveTurnMessage(player Player, oracle Oracle, ui PlayerUI) {
+func ReceiveTurnMessage(player Player, oracle Oracle) {
 	for message := range player.TurnChannel {
-		Foreach(message.PlayersNotPlay, func(player Player) { SendEnablePlayer(player, false) })
-		SendEnablePlayer(message.PlayerInPlay, true)
-		BuildClickButton(oracle, message, ui)
+		Foreach(message.PlayersNotPlay, func(player Player) { SetInteractionsUI(player.UI, false) })
+		SetInteractionsUI(player.UI, true)
+		BuildClickButton(oracle, message, player.UI)
 	}
 }
 
 // ReceiveAnswerMessage Allow player to receive answer message
-func ReceiveAnswerMessage(player Player, ui PlayerUI) {
+func ReceiveAnswerMessage(player Player) {
 	for message := range player.AnswerChannel {
-		WhenPlayerReceiveAnswer(ui, message.Answer)
+		WhenPlayerReceiveAnswer(player.UI, message.Answer)
 	}
 }

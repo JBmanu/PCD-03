@@ -31,7 +31,7 @@ func BuildClickButton(oracle Oracle, turn TurnMessage, ui PlayerUI) {
 }
 
 // NewPlayerUI create UI of the player
-func NewPlayerUI(myApp fyne.App, oracle Oracle, player Player) PlayerUI {
+func NewPlayerUI(myApp fyne.App, player Player) PlayerUI {
 	var ui PlayerUI
 	ui.Window = myApp.NewWindow("Player : " + player.Name)
 	ui.Title = widget.NewLabel("Guess a number between 1 and 100 !!!")
