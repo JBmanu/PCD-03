@@ -9,7 +9,6 @@ import (
 func main() {
 	myApp := app.New()
 
-	// Oracle view
 	NewMenuUI(myApp, func(maxValue int, numberPlayers int) {
 		// create entities
 		oracle := NewOracle(maxValue)
@@ -30,6 +29,5 @@ func main() {
 		StartGame(players)
 	})
 
-	// parte il loop dell'app
 	myApp.Run()
 }

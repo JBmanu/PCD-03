@@ -37,7 +37,7 @@ func NewPlayerUI(myApp fyne.App, player Player) PlayerUI {
 	ui.Title = widget.NewLabel("Guess a number between 1 and 100 !!!")
 	ui.Info = widget.NewLabel("")
 	ui.Number = widget.NewEntry()
-	ui.TryButton = widget.NewButton("Try", nil)
+	ui.TryButton = widget.NewButton("Try", func() {})
 
 	ui.Number.SetPlaceHolder("Enter your number here...")
 
@@ -60,9 +60,9 @@ func SetInteractionsUI(ui PlayerUI, enable bool) {
 }
 
 // WhenPlayerReceiveAnswer Disable button and show answer
-func WhenPlayerReceiveAnswer(ui PlayerUI, answer Answer) {
+func WhenPlayerReceiveAnswer(ui PlayerUI, infoMessage string) {
 	SafelyUICall(func() {
-		ui.Info.SetText(ToString(answer))
+		ui.Info.SetText(infoMessage)
 		ui.TryButton.Disable()
 	})
 }

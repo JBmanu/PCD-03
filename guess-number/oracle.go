@@ -17,13 +17,18 @@ func NewOracle(maxValue int) Oracle {
 	return Oracle{ComputeRandomNumber(maxValue), maxValue, make(chan TryMessage)}
 }
 
+func callNextPlayer(players []Player) {
+	lenPlayers := len(players) - 1
+	playerInPlay := players[lenPlayers]
+	playersNotPlay := players[:lenPlayers]
+	SetEnable(playerInPlay, true)
+	Foreach(playersNotPlay, func(player Player) { SetEnable(player, false) })
+	SendTurnMessage(playerInPlay, playersNotPlay)
+}
+
 // StartGame Oracle call first player that play
 func StartGame(players []Player) {
-	lenPlayers := len(players) - 1
-	shufflePlayers := Shuffle(players)
-	playerInPlay := shufflePlayers[lenPlayers]
-	playersNotPlay := shufflePlayers[:lenPlayers]
-	SendTurnMessage(playerInPlay, playersNotPlay)
+	callNextPlayer(Shuffle(players))
 }
 
 // SendTryNumberMessage Allow player to send message
@@ -35,18 +40,27 @@ func SendTryNumberMessage(oracle Oracle, turn TurnMessage, number int) {
 func ReceiveTryMessage(oracle Oracle, startPlayers []Player) {
 	for message := range oracle.TryChannel {
 		var answer Answer
-		if message.Number < oracle.SecretNumber {
+		switch {
+		case message.Number < oracle.SecretNumber:
 			answer = TooSmall
-		} else if message.Number > oracle.SecretNumber {
+		case message.Number > oracle.SecretNumber:
 			answer = TooBig
-		} else {
+		default:
 			answer = Correct
 		}
-		SendAnswerMessage(message, answer)
-		if len(message.Turn.PlayersNotPlay) == 0 {
-			StartGame(startPlayers)
+
+		if answer == Correct {
+			SetEnable(message.Turn.PlayerInPlay, false)
+			losers := RemovePlayerFromList(startPlayers, message.Turn.PlayerInPlay)
+			SendWinnerOtherPlayerNotInPlay(losers, message, Winner)
+			SendAnswerMessage(message, answer)
 		} else {
-			StartGame(message.Turn.PlayersNotPlay)
+			SendAnswerMessage(message, answer)
+			if len(message.Turn.MissingPlayers) == 0 {
+				StartGame(startPlayers)
+			} else {
+				callNextPlayer(message.Turn.MissingPlayers)
+			}
 		}
 	}
 }

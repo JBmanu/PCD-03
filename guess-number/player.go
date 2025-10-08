@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	"fyne.io/fyne/v2"
 )
@@ -12,15 +13,17 @@ const (
 	TooSmall Answer = iota
 	TooBig
 	Correct
+	Winner
 )
 
 type TurnMessage struct {
 	PlayerInPlay   Player
-	PlayersNotPlay []Player
+	MissingPlayers []Player
 }
 
 type AnswerMessage struct {
 	Try    TryMessage
+	Info   string
 	Answer Answer
 }
 
@@ -46,6 +49,11 @@ func NewPlayerFrom(myApp fyne.App, number int) []Player {
 	return players
 }
 
+// SetEnable Set if player can do an action
+func SetEnable(player Player, enable bool) {
+	SetInteractionsUI(player.UI, enable)
+}
+
 // SendTurnMessage Allow to send at player his turn
 func SendTurnMessage(playerInPlay Player, playerNotPlay []Player) {
 	playerInPlay.TurnChannel <- TurnMessage{playerInPlay, playerNotPlay}
@@ -53,14 +61,21 @@ func SendTurnMessage(playerInPlay Player, playerNotPlay []Player) {
 
 // SendAnswerMessage Send answer at player
 func SendAnswerMessage(try TryMessage, answer Answer) {
-	try.Turn.PlayerInPlay.AnswerChannel <- AnswerMessage{try, answer}
+	info := strconv.Itoa(try.Number) + ". "
+	try.Turn.PlayerInPlay.AnswerChannel <- AnswerMessage{try, info, answer}
+}
+
+// SendWinnerOtherPlayerNotInPlay Allow to send message
+func SendWinnerOtherPlayerNotInPlay(losers []Player, try TryMessage, answer Answer) {
+	info := try.Turn.PlayerInPlay.Name + ". "
+	Foreach(losers, func(player Player) {
+		player.AnswerChannel <- AnswerMessage{try, info, answer}
+	})
 }
 
 // ReceiveTurnMessage Allow to
 func ReceiveTurnMessage(player Player, oracle Oracle) {
 	for message := range player.TurnChannel {
-		Foreach(message.PlayersNotPlay, func(player Player) { SetInteractionsUI(player.UI, false) })
-		SetInteractionsUI(player.UI, true)
 		BuildClickButton(oracle, message, player.UI)
 	}
 }
@@ -68,6 +83,7 @@ func ReceiveTurnMessage(player Player, oracle Oracle) {
 // ReceiveAnswerMessage Allow player to receive answer message
 func ReceiveAnswerMessage(player Player) {
 	for message := range player.AnswerChannel {
-		WhenPlayerReceiveAnswer(player.UI, message.Answer)
+		infoMessage := message.Info + ToString(message.Answer)
+		WhenPlayerReceiveAnswer(player.UI, infoMessage)
 	}
 }
