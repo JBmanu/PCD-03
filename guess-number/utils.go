@@ -57,7 +57,7 @@ func Shuffle[T any](in []T) []T {
 func RemovePlayerFromList(players []Player, removePlayer Player) []Player {
 	var newPlayers []Player
 	for _, player := range players {
-		if player != removePlayer {
+		if player.Name != removePlayer.Name {
 			newPlayers = append(newPlayers, player)
 		}
 	}
@@ -66,7 +66,7 @@ func RemovePlayerFromList(players []Player, removePlayer Player) []Player {
 
 // ToString convert Answer to string
 func ToString(answer Answer) string {
-	var answerString = [...]string{"It's Too small.", "It's too big.", "It's correct.", "It's winner."}
+	var answerString = [...]string{"It's Too small.", "It's too big.", "It's correct, you win.", "It's winner, you lose."}
 	return answerString[answer]
 }
 

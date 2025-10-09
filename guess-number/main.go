@@ -12,7 +12,7 @@ func main() {
 	NewMenuUI(myApp, func(maxValue int, numberPlayers int) {
 		// create entities
 		oracle := NewOracle(maxValue)
-		players := NewPlayerFrom(myApp, numberPlayers)
+		players := NewPlayerFrom(myApp, oracle, numberPlayers)
 
 		fmt.Println("Guess number : ", oracle.SecretNumber)
 
@@ -21,7 +21,7 @@ func main() {
 
 		// activate all players goroutine
 		Foreach(players, func(player Player) {
-			go ReceiveTurnMessage(player, oracle)
+			go ReceiveWeakUpMessage(player)
 			go ReceiveAnswerMessage(player)
 		})
 

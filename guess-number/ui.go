@@ -24,23 +24,22 @@ type PlayerUI struct {
 	TryButton *widget.Button
 }
 
-// BuildClickButton Build the function on click
-func BuildClickButton(oracle Oracle, turn TurnMessage, ui PlayerUI) {
-	ui.TryButton.OnTapped = func() {
+func clickTryButton(oracle Oracle, player Player, ui PlayerUI) func() {
+	return func() {
 		CheckNumberInput(ui.Number,
-			func(number int) { SendTryNumberMessage(oracle, turn, number) },
+			func(number int) { SendTryNumberMessage(oracle, player, number) },
 			func() { ui.Info.SetText("Insert a number !!") })
 	}
 }
 
 // NewPlayerUI Create UI of the player
-func NewPlayerUI(myApp fyne.App, player Player) PlayerUI {
+func NewPlayerUI(myApp fyne.App, player Player, oracle Oracle) PlayerUI {
 	var ui PlayerUI
 	ui.Window = myApp.NewWindow("Player : " + player.Name)
 	ui.Title = widget.NewLabel("Guess a number between 1 and 100 !!!")
 	ui.Info = widget.NewLabel("")
 	ui.Number = widget.NewEntry()
-	ui.TryButton = widget.NewButton("Try", func() {})
+	ui.TryButton = widget.NewButton("Try", clickTryButton(oracle, player, ui))
 
 	ui.Number.SetPlaceHolder("Enter your number here...")
 

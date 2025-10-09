@@ -2,7 +2,7 @@ package main
 
 // TryMessage Struct of the try message
 type TryMessage struct {
-	Turn   TurnMessage
+	Player Player
 	Number int
 }
 
@@ -18,27 +18,21 @@ func NewOracle(maxValue int) Oracle {
 	return Oracle{ComputeRandomNumber(maxValue), maxValue, make(chan TryMessage)}
 }
 
-func callNextPlayer(players []Player) {
-	lenPlayers := len(players) - 1
-	playerInPlay := players[lenPlayers]
-	playersNotPlay := players[:lenPlayers]
-	SetEnable(playerInPlay, true)
-	Foreach(playersNotPlay, func(player Player) { SetEnable(player, false) })
-	SendTurnMessage(playerInPlay, playersNotPlay)
-}
-
 // StartGame Oracle call first player that play
 func StartGame(players []Player) {
-	callNextPlayer(Shuffle(players))
+	Foreach(Shuffle(players), func(player Player) {
+		SendWeakUpMessage(player, true)
+	})
 }
 
 // SendTryNumberMessage Allow to send message of try at the Oracle
-func SendTryNumberMessage(oracle Oracle, turn TurnMessage, number int) {
-	oracle.TryChannel <- TryMessage{turn, number}
+func SendTryNumberMessage(oracle Oracle, player Player, number int) {
+	oracle.TryChannel <- TryMessage{player, number}
 }
 
 // ReceiveTryMessage Receive the try messages
 func ReceiveTryMessage(oracle Oracle, startPlayers []Player) {
+	countPlayerThatTried := 0
 	for message := range oracle.TryChannel {
 		var answer Answer
 		switch {
@@ -47,19 +41,19 @@ func ReceiveTryMessage(oracle Oracle, startPlayers []Player) {
 		case message.Number > oracle.SecretNumber:
 			answer = TooBig
 		default:
-			answer = Correct
+			answer = Winner
 		}
 
 		SendAnswerMessage(message, answer)
-		if answer == Correct {
-			SetEnable(message.Turn.PlayerInPlay, false)
-			losers := RemovePlayerFromList(startPlayers, message.Turn.PlayerInPlay)
-			SendWinnerOtherPlayerNotInPlay(losers, message, Winner)
+		countPlayerThatTried += 1
+		if answer == Winner {
+			losers := RemovePlayerFromList(startPlayers, message.Player)
+			Foreach(losers, func(loser Player) { SendLoserPlayers(message, loser, Loser) })
+			close(oracle.TryChannel)
 		} else {
-			if len(message.Turn.MissingPlayers) == 0 {
+			if countPlayerThatTried == len(startPlayers) {
+				countPlayerThatTried = 0
 				StartGame(startPlayers)
-			} else {
-				callNextPlayer(message.Turn.MissingPlayers)
 			}
 		}
 	}

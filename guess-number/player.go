@@ -14,14 +14,13 @@ type Answer int
 const (
 	TooSmall Answer = iota
 	TooBig
-	Correct
 	Winner
+	Loser
 )
 
-// TurnMessage Struct of the game progress
-type TurnMessage struct {
-	PlayerInPlay   Player
-	MissingPlayers []Player
+// WakeUpMessage Struct of the game progress
+type WakeUpMessage struct {
+	WeakUp bool
 }
 
 // AnswerMessage Struct of the response message
@@ -35,52 +34,45 @@ type AnswerMessage struct {
 type Player struct {
 	Name          string
 	UI            PlayerUI
-	TurnChannel   chan TurnMessage
+	WeakUpChannel chan WakeUpMessage
 	AnswerChannel chan AnswerMessage
 }
 
 // NewPlayerFrom Create players from number
-func NewPlayerFrom(myApp fyne.App, number int) []Player {
+func NewPlayerFrom(myApp fyne.App, oracle Oracle, number int) []Player {
 	var players []Player
 	for i := 0; i < number; i++ {
 		var player Player
 		player.Name = fmt.Sprintf("p%d", i)
-		player.TurnChannel = make(chan TurnMessage)
+		player.WeakUpChannel = make(chan WakeUpMessage)
 		player.AnswerChannel = make(chan AnswerMessage)
-		player.UI = NewPlayerUI(myApp, player)
+		player.UI = NewPlayerUI(myApp, player, oracle)
 		players = append(players, player)
 	}
 	return players
 }
 
-// SetEnable Set if player can do an action
-func SetEnable(player Player, enable bool) {
-	SetInteractionsUI(player.UI, enable)
-}
-
-// SendTurnMessage Allow to send at player the current turn
-func SendTurnMessage(playerInPlay Player, playerNotPlay []Player) {
-	playerInPlay.TurnChannel <- TurnMessage{playerInPlay, playerNotPlay}
+// SendWeakUpMessage Allow to send at player the current turn
+func SendWeakUpMessage(player Player, weakUp bool) {
+	player.WeakUpChannel <- WakeUpMessage{weakUp}
 }
 
 // SendAnswerMessage Allow to send answer at player
 func SendAnswerMessage(try TryMessage, answer Answer) {
 	info := strconv.Itoa(try.Number) + ". "
-	try.Turn.PlayerInPlay.AnswerChannel <- AnswerMessage{try, info, answer}
+	try.Player.AnswerChannel <- AnswerMessage{try, info, answer}
 }
 
-// SendWinnerOtherPlayerNotInPlay Allow to send the winner
-func SendWinnerOtherPlayerNotInPlay(losers []Player, try TryMessage, answer Answer) {
-	info := try.Turn.PlayerInPlay.Name + ". "
-	Foreach(losers, func(player Player) {
-		player.AnswerChannel <- AnswerMessage{try, info, answer}
-	})
+// SendLoserPlayers Allow to send the winner
+func SendLoserPlayers(try TryMessage, loser Player, answer Answer) {
+	info := try.Player.Name + ". "
+	loser.AnswerChannel <- AnswerMessage{try, info, answer}
 }
 
-// ReceiveTurnMessage Receive the current turn
-func ReceiveTurnMessage(player Player, oracle Oracle) {
-	for message := range player.TurnChannel {
-		BuildClickButton(oracle, message, player.UI)
+// ReceiveWeakUpMessage Receive the current turn
+func ReceiveWeakUpMessage(player Player) {
+	for message := range player.WeakUpChannel {
+		SetInteractionsUI(player.UI, message.WeakUp)
 	}
 }
 
@@ -89,8 +81,8 @@ func ReceiveAnswerMessage(player Player) {
 	for message := range player.AnswerChannel {
 		infoMessage := message.Info + ToString(message.Answer)
 		WhenPlayerReceiveAnswer(player.UI, infoMessage)
-		if message.Answer == Winner || message.Answer == Correct {
-			close(player.TurnChannel)
+		if message.Answer == Loser || message.Answer == Winner {
+			close(player.WeakUpChannel)
 			close(player.AnswerChannel)
 		}
 	}
