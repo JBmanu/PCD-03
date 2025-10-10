@@ -70,9 +70,13 @@ func SendLoserPlayers(try TryMessage, loser Player, answer Answer) {
 }
 
 // ReceiveWeakUpMessage Receive the current turn
-func ReceiveWeakUpMessage(player Player) {
+func ReceiveWeakUpMessage(player Player, oracle Oracle) {
 	for message := range player.WeakUpChannel {
-		SetInteractionsUI(player.UI, message.WeakUp)
+		if player.UI.CheckerBot.Checked {
+			MindNumber(player, oracle)
+		} else {
+			SetInteractionsUI(player.UI, message.WeakUp)
+		}
 	}
 }
 

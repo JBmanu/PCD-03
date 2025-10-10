@@ -10,6 +10,7 @@ func main() {
 	myApp := app.New()
 
 	NewMenuUI(myApp, func(maxValue int, numberPlayers int) {
+
 		// create entities
 		oracle := NewOracle(maxValue)
 		players := NewPlayerFrom(myApp, oracle, numberPlayers)
@@ -21,7 +22,7 @@ func main() {
 
 		// activate all players goroutine
 		Foreach(players, func(player Player) {
-			go ReceiveWeakUpMessage(player)
+			go ReceiveWeakUpMessage(player, oracle)
 			go ReceiveAnswerMessage(player)
 		})
 

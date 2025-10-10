@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -17,11 +19,20 @@ type MenuUI struct {
 
 // PlayerUI Struct of ui player
 type PlayerUI struct {
-	Window    fyne.Window
-	Title     *widget.Label
-	Info      *widget.Label
-	Number    *widget.Entry
-	TryButton *widget.Button
+	Window     fyne.Window
+	Title      *widget.Label
+	Info       *widget.Label
+	CheckerBot *widget.Check
+	Number     *widget.Entry
+	TryButton  *widget.Button
+}
+
+func MindNumber(player Player, oracle Oracle) {
+	WaitRandomTimeAndDoAction(3, 5, func() {
+		randomNumber := ComputeRandomNumber(oracle.SecretNumber) + 1
+		SafelyUICall(func() { player.UI.Number.SetText(strconv.Itoa(randomNumber)) })
+		SendTryNumberMessage(oracle, player, randomNumber)
+	})
 }
 
 func clickTryButton(oracle Oracle, player Player, ui PlayerUI) func() {
@@ -40,10 +51,12 @@ func NewPlayerUI(myApp fyne.App, player Player, oracle Oracle) PlayerUI {
 	ui.Info = widget.NewLabel("")
 	ui.Number = widget.NewEntry()
 	ui.TryButton = widget.NewButton("Try", clickTryButton(oracle, player, ui))
+	ui.CheckerBot = widget.NewCheck("Automatic", func(_ bool) {})
 
 	ui.Number.SetPlaceHolder("Enter your number here...")
+	ui.CheckerBot.SetChecked(true)
 
-	content := container.NewVBox(ui.Title, ui.Info, ui.Number, ui.TryButton)
+	content := container.NewVBox(ui.Title, ui.Info, ui.CheckerBot, ui.Number, ui.TryButton)
 	ui.Window.SetContent(content)
 	ui.Window.Show()
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"time"
@@ -35,6 +36,17 @@ func SafelyUIFunc(fun func()) func() {
 	return func() {
 		SafelyUICall(fun)
 	}
+}
+
+// WaitRandomTimeAndDoAction Wait a random time that go from value to value and do action
+func WaitRandomTimeAndDoAction(from int, to int, f func()) {
+	go func() {
+		waitTime := ComputeRandomNumber(to) + from
+		fmt.Printf("[Timer] Wait %d second...\n", waitTime)
+		time.Sleep(time.Duration(waitTime) * time.Second)
+		fmt.Println("[Timer] Do action 👋")
+		f()
+	}()
 }
 
 // ComputeRandomNumber compute random value from maxValue
