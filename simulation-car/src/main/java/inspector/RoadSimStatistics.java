@@ -1,4 +1,4 @@
-package inspector.road;
+package inspector;
 
 import car.CarAgent;
 import simulation.InspectorSimulation;

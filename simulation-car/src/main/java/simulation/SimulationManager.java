@@ -1,5 +1,7 @@
 package simulation;
 
+import view.simulation.SimulationView;
+
 public class SimulationManager {
     private SimulationType simulationType;
     private final SimulationView view;

@@ -1,9 +1,9 @@
-package inspector;
+package view.inspector.setting;
 
 import simulation.InspectorSimulation;
 import simulation.SimulationManager;
 import simulation.SimulationType;
-import utils.ViewUtils;
+import view.ViewUtils;
 
 import javax.swing.*;
 import java.awt.*;

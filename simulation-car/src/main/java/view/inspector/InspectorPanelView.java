@@ -1,11 +1,11 @@
-package inspector;
+package view.inspector;
 
-import inspector.road.RoadStatisticView;
-import inspector.stepper.StepperView;
-import inspector.timeStatistics.TimeStatisticsView;
 import simulation.InspectorSimulation;
 import simulation.SimulationManager;
-import utils.ViewUtils;
+import view.*;
+import view.inspector.setting.InspectorSimulationView;
+import view.inspector.setting.MasterWorkerView;
+import view.inspector.setting.StartStopView;
 
 import javax.swing.*;
 import java.awt.*;

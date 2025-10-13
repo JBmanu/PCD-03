@@ -1,8 +1,9 @@
-package inspector.stepper;
+package view.inspector;
 
-import inspector.StartStopViewListener;
+import inspector.Stepper;
 import simulation.InspectorSimulation;
-import utils.ViewUtils;
+import view.ViewUtils;
+import view.inspector.setting.StartStopViewListener;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,6 +1,7 @@
-package inspector.timeStatistics;
+package view.inspector;
 
-import utils.ViewUtils;
+import inspector.TimeStatistics;
+import view.ViewUtils;
 
 import javax.swing.*;
 

@@ -1,9 +1,9 @@
 package simulation;
 
 import car.AbstractAgent;
-import inspector.road.RoadSimStatistics;
-import inspector.stepper.Stepper;
-import inspector.timeStatistics.TimeStatistics;
+import inspector.RoadSimStatistics;
+import inspector.Stepper;
+import inspector.TimeStatistics;
 import road.AbstractEnvironment;
 import synchronizers.monitor.startStop.StartStopMonitor;
 import synchronizers.worker.master.MasterWorker;

@@ -1,10 +1,10 @@
-package simulation;
+package view.simulation;
 
-import inspector.InspectorPanelView;
-import road.RoadPanelView;
+import simulation.InspectorSimulation;
+import simulation.SimulationManager;
 import road.RoadsEnv;
-import simulation.listener.ViewSimulationListener;
-import utils.ViewUtils;
+import view.ViewUtils;
+import view.inspector.InspectorPanelView;
 
 import javax.swing.*;
 import java.awt.*;

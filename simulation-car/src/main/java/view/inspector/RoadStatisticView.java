@@ -1,6 +1,7 @@
-package inspector.road;
+package view.inspector;
 
-import utils.ViewUtils;
+import inspector.RoadSimStatistics;
+import view.ViewUtils;
 
 import javax.swing.*;
 import java.text.DecimalFormat;

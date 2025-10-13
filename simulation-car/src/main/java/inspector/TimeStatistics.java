@@ -1,4 +1,4 @@
-package inspector.timeStatistics;
+package inspector;
 
 public class TimeStatistics {
     private long currentWallTime;

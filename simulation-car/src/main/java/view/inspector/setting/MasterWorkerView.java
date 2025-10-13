@@ -1,11 +1,11 @@
-package inspector;
+package view.inspector.setting;
 
 import simulation.InspectorSimulation;
 import synchronizers.service.ExecutorType;
 import synchronizers.worker.master.MultiWorkerGeneric;
 import synchronizers.worker.master.MultiWorkerSpecific;
 import synchronizers.worker.master.WorkerType;
-import utils.ViewUtils;
+import view.ViewUtils;
 
 import javax.swing.*;
 import java.awt.*;

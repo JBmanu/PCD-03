@@ -1,4 +1,4 @@
-package inspector;
+package view.inspector.setting;
 
 import simulation.InspectorSimulation;
 

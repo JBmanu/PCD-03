@@ -1,4 +1,4 @@
-package inspector.stepper;
+package inspector;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;

@@ -1,6 +1,7 @@
-package road;
+package view.simulation;
 
 import car.CarAgentInfo;
+import road.Road;
 import road.core.V2d;
 import road.trafficLight.TrafficLight;
 
@@ -8,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-import static utils.ViewUtils.CAR_SIZE;
+import static view.ViewUtils.CAR_SIZE;
 
 public class RoadPanelView extends JPanel {
 

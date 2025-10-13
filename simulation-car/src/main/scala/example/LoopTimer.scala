@@ -1,8 +1,10 @@
-import Agent.AgentCommand
-import LoopTimer.Simulation.SimulationCommand
+package example
+
 import akka.actor.typed.*
 import akka.actor.typed.scaladsl.*
 import model.core.Times.Time
+import example.Agent.AgentCommand
+import example.LoopTimer.Simulation.SimulationCommand
 
 import scala.concurrent.duration.*
 

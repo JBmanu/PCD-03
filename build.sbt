@@ -92,7 +92,8 @@ lazy val simulationCar = (project in file("simulation-car"))
     Compile / mainClass := Some("Main"),
     assembly / assemblyJarName := "simulation-car.jar",
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-actor-typed" % "2.8.8"
+      "com.typesafe.akka" %% "akka-actor-typed" % "2.8.8",
+      "com.typesafe.akka" %% "akka-slf4j" % "2.8.8"
       )
     )
 
