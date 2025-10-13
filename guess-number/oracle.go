@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // TryMessage Struct of the try message
 type TryMessage struct {
 	Player Player
@@ -18,7 +20,7 @@ func NewOracle(maxValue int) Oracle {
 	return Oracle{ComputeRandomNumber(maxValue), maxValue, make(chan TryMessage)}
 }
 
-// StartGame Oracle call first player that play
+// StartGame Oracle shuffle and weakUp the players
 func StartGame(players []Player) {
 	Foreach(Shuffle(players), func(player Player) {
 		SendWeakUpMessage(player, true)
@@ -27,6 +29,11 @@ func StartGame(players []Player) {
 
 // SendTryNumberMessage Allow to send message of try at the Oracle
 func SendTryNumberMessage(oracle Oracle, player Player, number int) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("[Closed Channel]", r)
+		}
+	}()
 	oracle.TryChannel <- TryMessage{player, number}
 }
 
@@ -57,4 +64,5 @@ func ReceiveTryMessage(oracle Oracle, startPlayers []Player) {
 			}
 		}
 	}
+	println("Closed Oracle")
 }

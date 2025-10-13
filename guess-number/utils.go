@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"strconv"
 	"time"
@@ -39,20 +38,19 @@ func SafelyUIFunc(fun func()) func() {
 }
 
 // WaitRandomTimeAndDoAction Wait a random time that go from value to value and do action
-func WaitRandomTimeAndDoAction(from int, to int, f func()) {
+func WaitRandomTimeAndDoAction(from int, to int, startAction func(waitTime int), endAction func()) {
 	go func() {
 		waitTime := ComputeRandomNumber(to) + from
-		fmt.Printf("[Timer] Wait %d second...\n", waitTime)
+		startAction(waitTime)
 		time.Sleep(time.Duration(waitTime) * time.Second)
-		fmt.Println("[Timer] Do action 👋")
-		f()
+		endAction()
 	}()
 }
 
 // ComputeRandomNumber compute random value from maxValue
 func ComputeRandomNumber(maxValue int) int {
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return random.Intn(maxValue) + 1
+	return random.Intn(maxValue + 1)
 }
 
 // Shuffle To shuffle array
@@ -64,16 +62,6 @@ func Shuffle[T any](in []T) []T {
 		shuffledArray[i], shuffledArray[j] = shuffledArray[j], shuffledArray[i]
 	}
 	return shuffledArray
-}
-
-func RemovePlayerFromList(players []Player, removePlayer Player) []Player {
-	var newPlayers []Player
-	for _, player := range players {
-		if player.Name != removePlayer.Name {
-			newPlayers = append(newPlayers, player)
-		}
-	}
-	return newPlayers
 }
 
 // ToString convert Answer to string

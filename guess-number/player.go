@@ -52,6 +52,17 @@ func NewPlayerFrom(myApp fyne.App, oracle Oracle, number int) []Player {
 	return players
 }
 
+// RemovePlayerFromList Remove a player with same name from list
+func RemovePlayerFromList(players []Player, removePlayer Player) []Player {
+	var newPlayers []Player
+	for _, player := range players {
+		if player.Name != removePlayer.Name {
+			newPlayers = append(newPlayers, player)
+		}
+	}
+	return newPlayers
+}
+
 // SendWeakUpMessage Allow to send at player the current turn
 func SendWeakUpMessage(player Player, weakUp bool) {
 	player.WeakUpChannel <- WakeUpMessage{weakUp}
@@ -63,13 +74,13 @@ func SendAnswerMessage(try TryMessage, answer Answer) {
 	try.Player.AnswerChannel <- AnswerMessage{try, info, answer}
 }
 
-// SendLoserPlayers Allow to send the winner
+// SendLoserPlayers Allow to send the winner at loser
 func SendLoserPlayers(try TryMessage, loser Player, answer Answer) {
 	info := try.Player.Name + ". "
 	loser.AnswerChannel <- AnswerMessage{try, info, answer}
 }
 
-// ReceiveWeakUpMessage Receive the current turn
+// ReceiveWeakUpMessage Receive the weakUp message
 func ReceiveWeakUpMessage(player Player, oracle Oracle) {
 	for message := range player.WeakUpChannel {
 		if player.UI.CheckerBot.Checked {
@@ -88,6 +99,7 @@ func ReceiveAnswerMessage(player Player) {
 		if message.Answer == Loser || message.Answer == Winner {
 			close(player.WeakUpChannel)
 			close(player.AnswerChannel)
+			Close(player.UI)
 		}
 	}
 	println("Closed " + player.Name + " channels")

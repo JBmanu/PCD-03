@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 
 	"fyne.io/fyne/v2"
@@ -27,19 +28,28 @@ type PlayerUI struct {
 	TryButton  *widget.Button
 }
 
+// MindNumber Mind a random number to guess
 func MindNumber(player Player, oracle Oracle) {
-	WaitRandomTimeAndDoAction(3, 5, func() {
-		randomNumber := ComputeRandomNumber(oracle.SecretNumber) + 1
-		SafelyUICall(func() { player.UI.Number.SetText(strconv.Itoa(randomNumber)) })
-		SendTryNumberMessage(oracle, player, randomNumber)
-	})
+	WaitRandomTimeAndDoAction(3, 5,
+		func(waitTime int) {
+			SafelyUICall(func() { player.UI.Number.SetText("") })
+			fmt.Println("[" + player.Name + "] Think for " + strconv.Itoa(waitTime) + " s")
+		},
+		func() {
+			randomNumber := ComputeRandomNumber(oracle.SecretNumber) + 1
+			fmt.Println("[" + player.Name + "] Thought about the " + strconv.Itoa(randomNumber) + " 👋")
+			SafelyUICall(func() {
+				player.UI.Number.SetText(strconv.Itoa(randomNumber))
+				player.UI.TryButton.OnTapped()
+			})
+		})
 }
 
 func clickTryButton(oracle Oracle, player Player, ui PlayerUI) func() {
 	return func() {
 		CheckNumberInput(ui.Number,
 			func(number int) { SendTryNumberMessage(oracle, player, number) },
-			func() { ui.Info.SetText("Insert a number !!") })
+			SafelyUIFunc(func() { ui.Info.SetText("Insert a number !!") }))
 	}
 }
 
@@ -74,6 +84,11 @@ func SetInteractionsUI(ui PlayerUI, enable bool) {
 	})
 }
 
+// Close Exit and close player ui
+func Close(ui PlayerUI) {
+	WaitRandomTimeAndDoAction(2, 2, func(waitTime int) {}, SafelyUIFunc(func() { ui.Window.Close() }))
+}
+
 // WhenPlayerReceiveAnswer Disable button and show answer when receive answer
 func WhenPlayerReceiveAnswer(ui PlayerUI, infoMessage string) {
 	SafelyUICall(func() {
@@ -85,8 +100,8 @@ func WhenPlayerReceiveAnswer(ui PlayerUI, infoMessage string) {
 func checkCountPlayer(ui MenuUI, startGameClick func(maxRandom int, numberPlayers int)) {
 	CheckNumbersInputs(
 		func(values ...int) {
-			SafelyUICall(func() { ui.Window.Hide() })
 			startGameClick(values[0], values[1])
+			SafelyUICall(func() { ui.Window.Close() })
 		},
 		func() { ui.MaxRandom.SetPlaceHolder("Insert a correct number !!") },
 		ui.MaxRandom, ui.NumberPlayers)
