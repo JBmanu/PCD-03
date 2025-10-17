@@ -1,7 +1,7 @@
 package model.simulation
 
 import model.car.Agent
-import model.inspector.RoadSimStatistics
+import model.inspector.{ RoadSimStatistics, Stepper }
 
 object Simulations:
 
@@ -21,7 +21,8 @@ object Simulations:
       private var dt: Int = 0
       private var t0: Int = 0
 
-      private var roadStatistics: RoadSimStatistics = ???
+      private val roadStatistics: RoadSimStatistics = RoadSimStatistics()
+      private val stepper: Stepper = Stepper()
 
 // simulation listeners
 // per il model

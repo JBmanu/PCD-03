@@ -7,7 +7,7 @@ trait Stepper:
 
   def totalStep_=(totalStep: Int): Unit
 
-  def increaseStep(): Unit
+  def increaseCurrentSteps(): Unit
 
   def hasMoreSteps(): Boolean
 
@@ -26,6 +26,6 @@ object Stepper:
 
     override def totalStep_=(totalStep: Int): Unit = _totalStep = totalStep
 
-    override def increaseStep(): Unit = _currentSteps += 1
+    override def increaseCurrentSteps(): Unit = _currentSteps += 1
 
     override def hasMoreSteps(): Boolean = currentStep < totalStep
