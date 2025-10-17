@@ -1,9 +1,9 @@
 package model.car
 
 import model.road.{ Environment, Road, RoadEnv }
-import model.simulation.Command.Action.Action
-import model.simulation.Command.Percept.{ CarPercept, Percept }
-import model.simulation.Command.{ Action, Percept }
+import model.simulation.SimCommand.Action.Action
+import model.simulation.SimCommand.Percept.{ CarPercept, Percept }
+import model.simulation.SimCommand.{ Action, Percept }
 
 trait CarAgent extends Agent:
 

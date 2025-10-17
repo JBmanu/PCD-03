@@ -1,7 +1,7 @@
 package model.road
 
-import model.simulation.Command.Action.Action
-import model.simulation.Command.Percept.Percept
+import model.simulation.SimCommand.Action.Action
+import model.simulation.SimCommand.Percept.Percept
 
 trait Environment:
   val id: String

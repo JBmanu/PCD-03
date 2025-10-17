@@ -2,7 +2,7 @@ package model.car
 
 import model.car.CarAgent.BaseCarAgent
 import model.road.{ Environment, Road, RoadEnv }
-import model.simulation.Command.Action.{ Action, MoveForward }
+import model.simulation.SimCommand.Action.{ Action, MoveForward }
 
 trait CarAgentExtended extends CarAgent
 

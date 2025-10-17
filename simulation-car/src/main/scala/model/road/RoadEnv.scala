@@ -3,8 +3,8 @@ package model.road
 import model.car.{ CarAgent, CarAgentInfo }
 import model.core.P2ds.P2d
 import model.road.TrafficLights.TrafficLight
-import model.simulation.Command.Percept.CarPercept
-import model.simulation.Command.{ Action, Percept }
+import model.simulation.SimCommand.Percept.CarPercept
+import model.simulation.SimCommand.{ Action, Percept }
 
 trait RoadEnv extends Environment:
   def roads: List[Road]

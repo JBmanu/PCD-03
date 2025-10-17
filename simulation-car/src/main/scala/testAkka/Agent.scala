@@ -1,10 +1,10 @@
-package example
+package testAkka
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ ActorRef, Behavior }
 import model.core.Times.Time
-import example.LoopTimer.Simulation
-import example.LoopTimer.Simulation.{ ActionAgent, SimulationCommand }
+import testAkka.LoopTimer.Simulation
+import testAkka.LoopTimer.Simulation.{ ActionAgent, SimulationCommand }
 
 object Agent:
 

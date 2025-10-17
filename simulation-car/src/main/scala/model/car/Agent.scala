@@ -1,8 +1,8 @@
 package model.car
 
 import model.road.Environment
-import model.simulation.Command.Action.Action
-import model.simulation.Command.Percept.Percept
+import model.simulation.SimCommand.Action.Action
+import model.simulation.SimCommand.Percept.Percept
 
 trait Agent:
   val id: String

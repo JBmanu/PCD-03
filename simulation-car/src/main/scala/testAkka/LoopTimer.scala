@@ -1,10 +1,10 @@
-package example
+package testAkka
 
 import akka.actor.typed.*
 import akka.actor.typed.scaladsl.*
 import model.core.Times.Time
-import example.Agent.AgentCommand
-import example.LoopTimer.Simulation.SimulationCommand
+import testAkka.Agent.AgentCommand
+import testAkka.LoopTimer.Simulation.SimulationCommand
 
 import scala.concurrent.duration.*
 
@@ -55,7 +55,7 @@ object LoopTimer:
 
 
   def main(args: Array[String]): Unit =
-    val agents: Set[ActorRef[AgentCommand]] = (1 to 5).map(i => ActorSystem(Agent(), s"AgentSystem$i")).toSet
+    val agents: Set[ActorRef[AgentCommand]] = (1 to 10).map(i => ActorSystem(Agent(), s"AgentSystem$i")).toSet
     val simulation: ActorRef[SimulationCommand] = ActorSystem(Simulation(), "SIMULATION")
     val timer: Time = Time(2, 100)
     simulation ! Simulation.Start(timer, agents)

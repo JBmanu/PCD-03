@@ -3,7 +3,7 @@ package model.simulation
 import model.car.CarAgentInfo
 import model.road.TrafficLightInfo
 
-object Command:
+object SimCommand:
 
   object Action:
     trait Action
