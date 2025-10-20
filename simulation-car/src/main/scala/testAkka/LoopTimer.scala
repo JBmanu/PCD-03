@@ -2,6 +2,7 @@ package testAkka
 
 import akka.actor.typed.*
 import akka.actor.typed.scaladsl.*
+import model.core.Engine
 import model.core.Times.TickScheduler
 import testAkka.Agent.AgentCommand
 import testAkka.LoopTimer.Simulation.SimulationCommand
@@ -40,8 +41,7 @@ object LoopTimer:
 
                 if newCounter equals agents.size then
                   context.log.info(s"[SIM] ALL AGENT FINISH")
-                  val newTimer = timer.nextStep.setSystemCurrentTime()
-
+                  val newTimer = timer.nextStep().setSystemCurrentTime()
                   timer.computeDelay match
                     case Some(value: Long) =>
                       context.log.info(s"[SIM] TICK con timer: $timer e delay: $value")
@@ -61,3 +61,5 @@ object LoopTimer:
     val simulation: ActorRef[SimulationCommand] = ActorSystem(Simulation(), "SIMULATION")
     val timer: TickScheduler = TickScheduler(1, 10)
     simulation ! Simulation.Start(timer, agents)
+
+    val engine: Engine = Engine()

@@ -1,7 +1,8 @@
 package model.simulation
 
 import model.car.Agent
-import model.inspector.{ RoadSimStatistics, Stepper, TimeStatistics }
+import model.core.Stepper
+import model.inspector.{ RoadSimStatistics, TimeStatistics }
 import model.road.Environment
 
 
@@ -37,7 +38,7 @@ object Simulation:
     // elements inspector
     override val roadSimStatistics: RoadSimStatistics = RoadSimStatistics()
     override val timeStatistics: TimeStatistics = TimeStatistics()
-    override val stepper: Stepper = Stepper()
+    override val stepper: Stepper = Stepper.zero()
 
     // simulation listeners
     private var _modelListener: List[ModelSimulationListener] = List.empty

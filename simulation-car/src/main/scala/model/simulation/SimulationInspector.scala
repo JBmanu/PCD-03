@@ -2,7 +2,8 @@ package model.simulation
 
 
 import model.car.Agent
-import model.inspector.{ RoadSimStatistics, Stepper, TimeStatistics }
+import model.core.Stepper
+import model.inspector.{ RoadSimStatistics, TimeStatistics }
 import model.road.Environment
 
 trait SimulationInspector:

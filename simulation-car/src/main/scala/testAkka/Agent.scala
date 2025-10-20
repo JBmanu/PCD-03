@@ -16,7 +16,7 @@ object Agent:
     Behaviors.setup: context =>
       Behaviors.receiveMessage:
         case Start(simulation, timer, agents) =>
-          context.log.info(s"[AGENT] received Start action and replay con timer $timer")
+//          context.log.info(s"[AGENT] received Start action and replay con timer $timer")
           simulation ! ActionAgent(timer, agents)
           Behaviors.same
         case _                        =>

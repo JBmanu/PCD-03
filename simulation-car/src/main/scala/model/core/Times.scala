@@ -1,7 +1,5 @@
 package model.core
 
-import model.inspector.Stepper
-
 object Times:
 
   trait TickScheduler:
@@ -12,20 +10,22 @@ object Times:
 
     def setSystemCurrentTime(): TickScheduler
 
-    def nextStep: TickScheduler
+    def nextStep(): TickScheduler
 
     def computeDelay: Option[Long]
 
   object TickScheduler:
     def apply(nStepPerSec: Int, delta: Int): TickScheduler =
       TickSchedulerImpl(System.currentTimeMillis(), nStepPerSec, delta, delta)
+      
+    def zero(): TickScheduler = TickScheduler(0, 0)
 
     private case class TickSchedulerImpl(currentTime: Long, nStepPerSec: Int,
                                          currentTick: Int, delta: Int) extends TickScheduler:
 
       override def setSystemCurrentTime(): TickScheduler = copy(currentTime = System.currentTimeMillis())
 
-      override def nextStep: TickScheduler = copy(currentTick = currentTick + delta)
+      override def nextStep(): TickScheduler = copy(currentTick = currentTick + delta)
 
       override def computeDelay: Option[Long] =
         val elapsed: Long = System.currentTimeMillis() - currentTime
@@ -33,38 +33,30 @@ object Times:
         Option.when(delay > 0)(delay)
 
   trait TimeStats:
+    val startTime: Long
+    val endTime: Long
+    val allTimeSpent: Long
 
-    def allTimeSpent: Long
+    def averageTimeFor(stepper: Stepper): Long
 
-    def averageTimeForStep: Double
+    def start(tickScheduler: TickScheduler): TimeStats
 
-    def updateStartTimeWithSystem(): Unit
-
-    def updateEndTimeWithSystem(): Unit
-
-    def averageTimeForStep_=(stepper: Stepper): Unit
+    def stop(tickScheduler: TickScheduler, stepper: Stepper): TimeStats
 
     def timeElapsedSinceStart(tickScheduler: TickScheduler): Long
 
-
   object TimeStats:
-    def apply(): TimeStats = TimeStatsImpl()
+    def apply(): TimeStats = TimeStatsImpl(0L, 0L)
 
-    private case class TimeStatsImpl() extends TimeStats:
-      private var _startTime = 0L
-      private var _endTime = 0L
-      private var _averageTimeForStep = 0d
+    private case class TimeStatsImpl(startTime: Long, endTime: Long) extends TimeStats:
 
-      override def allTimeSpent: Long = _endTime - _startTime
+      override val allTimeSpent: Long = endTime - startTime
 
-      override def averageTimeForStep: Double = _averageTimeForStep
+      override def averageTimeFor(stepper: Stepper): Long = allTimeSpent / stepper.totalStep
 
-      override def updateStartTimeWithSystem(): Unit = _startTime = System.currentTimeMillis()
+      override def start(scheduler: TickScheduler): TimeStats = copy(startTime = scheduler.currentTime)
 
-      override def updateEndTimeWithSystem(): Unit = _endTime = System.currentTimeMillis()
+      override def stop(scheduler: TickScheduler, stepper: Stepper): TimeStats = copy(endTime = scheduler.currentTime)
 
-      override def averageTimeForStep_=(stepper: Stepper): Unit = _averageTimeForStep = allTimeSpent / stepper.totalStep
-
-      override def timeElapsedSinceStart(tickScheduler: TickScheduler): Long = tickScheduler.currentTime - _startTime
-
+      override def timeElapsedSinceStart(scheduler: TickScheduler): Long = scheduler.currentTime - startTime
 
