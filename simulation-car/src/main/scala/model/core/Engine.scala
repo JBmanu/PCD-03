@@ -5,14 +5,11 @@ import model.core.Times.*
 trait Engine extends TickScheduler, Stepper:
   val startTime: Long
   val endTime: Long
-  val averageTimeForStep: Double
   val allTimeSpent: Long
 
   def start(nStepPerSec: Int, delta: Int, totalStep: Int): Engine
 
   def stop(): Engine
-
-  def timeElapsedSinceStart(): Long
 
   override def nextStep(): Engine
 
@@ -20,6 +17,9 @@ trait Engine extends TickScheduler, Stepper:
 
   override def setTotalStep(value: Int): Engine
 
+  def averageTimeForStep(): Double
+
+  def timeElapsedSinceStart(): Long
 
 object Engine:
 
@@ -30,8 +30,6 @@ object Engine:
     export stepper.{ setTotalStep => _, nextStep => _, _ }
     export timeStats.{ start => _, stop => _, averageTimeFor => _, _ }
 
-    val averageTimeForStep: Double = timeStats.averageTimeFor(stepper)
-
     override def start(nStepPerSec: Int, delta: Int, totalStep: Int): Engine =
       val newTickScheduler = TickScheduler(nStepPerSec, delta)
       copy(newTickScheduler, stepper.setTotalStep(totalStep), timeStats.start(newTickScheduler))
@@ -40,13 +38,16 @@ object Engine:
       val newTickScheduler = tickScheduler.setSystemCurrentTime()
       copy(newTickScheduler, timeStats = timeStats.stop(newTickScheduler, stepper))
 
-    override def timeElapsedSinceStart(): Long = timeStats.timeElapsedSinceStart(tickScheduler)
-
     override def nextStep(): Engine = copy(tickScheduler.nextStep(), stepper.nextStep())
 
     override def setSystemCurrentTime(): Engine = copy(tickScheduler.setSystemCurrentTime())
 
     override def setTotalStep(value: Int): Engine = copy(stepper = stepper.setTotalStep(value))
+
+    override def timeElapsedSinceStart(): Long = timeStats.timeElapsedSinceStart(tickScheduler)
+
+    override def averageTimeForStep(): Double = timeStats.averageTimeFor(stepper)
+
 
 
 

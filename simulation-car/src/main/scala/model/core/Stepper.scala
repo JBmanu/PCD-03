@@ -20,7 +20,7 @@ object Stepper:
 
   private case class StepperImpl(totalStep: Int, currentStep: Int) extends Stepper:
 
-    override def setTotalStep(value: Int): Stepper = copy(totalStep = totalStep)
+    override def setTotalStep(value: Int): Stepper = copy(totalStep = value)
 
     override def nextStep(): Stepper = copy(currentStep = currentStep + 1)
 
