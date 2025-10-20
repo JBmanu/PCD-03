@@ -25,7 +25,7 @@ object Simulation:
 
   private case class SimulationImpl() extends Simulation:
 
-    private var _environment: Environment = Nil
+    private var _environment: Environment = Nil.asInstanceOf[Environment]
     private var _agents: List[Agent] = List.empty
 
     // variables of control and manage simulation
@@ -66,7 +66,7 @@ object Simulation:
     override def run(): Unit = ???
 
     private def notifyReset(t0: Int): Unit =
-      _modelListener.foreach(_ notifyInit())
+      _modelListener.foreach(_ notifyInit(t0, this))
     // miss view listener
 
     private def notifyStepDone(t: Int): Unit =
@@ -77,10 +77,10 @@ object Simulation:
       _modelListener.foreach(_ notifyEnd this)
     // miss view listener
 
-    private def syncWithWallTime(): Unit = 
-      
-      
-    
-      
+    private def syncWithWallTime(): Unit = ???
+
+
+
+
 
 

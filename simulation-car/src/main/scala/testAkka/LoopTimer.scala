@@ -2,7 +2,7 @@ package testAkka
 
 import akka.actor.typed.*
 import akka.actor.typed.scaladsl.*
-import model.core.Times.Time
+import model.core.Times.TickScheduler
 import testAkka.Agent.AgentCommand
 import testAkka.LoopTimer.Simulation.SimulationCommand
 
@@ -13,11 +13,11 @@ object LoopTimer:
 
     sealed trait SimulationCommand
 
-    case class Start(timer: Time, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
+    case class Start(timer: TickScheduler, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
 
-    private case class Step(timer: Time, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
+    private case class Step(timer: TickScheduler, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
 
-    case class ActionAgent(timer: Time, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
+    case class ActionAgent(timer: TickScheduler, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
 
     def apply(): Behavior[SimulationCommand] =
       def withState(counter: Int): Behavior[SimulationCommand] =
@@ -25,7 +25,7 @@ object LoopTimer:
           Behaviors.withTimers: timers =>
             Behaviors.receiveMessage:
               case Start(timer, agents) =>
-                val newTimer = timer.setCurrentSystem
+                val newTimer = timer.setSystemCurrentTime()
                 context.log.info(s"[SIM] START ciclo con timer di $newTimer")
                 context.self ! Step(newTimer, agents)
                 Behaviors.same
@@ -37,9 +37,10 @@ object LoopTimer:
 
               case ActionAgent(timer, agents) =>
                 val newCounter = counter + 1
+//                context.log.info("COUNTER " + newCounter)
                 if newCounter equals agents.size then
                   context.log.info(s"[SIM] ALL AGENT FINISH")
-                  val newTimer = timer.nextStep.setCurrentSystem
+                  val newTimer = timer.nextStep.setSystemCurrentTime()
                   timer.computeDelay match
                     case Some(value: Long) =>
                       context.log.info(s"[SIM] TICK con timer: $timer e delay: $value")
@@ -55,7 +56,7 @@ object LoopTimer:
 
 
   def main(args: Array[String]): Unit =
-    val agents: Set[ActorRef[AgentCommand]] = (1 to 10).map(i => ActorSystem(Agent(), s"AgentSystem$i")).toSet
+    val agents: Set[ActorRef[AgentCommand]] = (1 to 5).map(i => ActorSystem(Agent(), s"AgentSystem$i")).toSet
     val simulation: ActorRef[SimulationCommand] = ActorSystem(Simulation(), "SIMULATION")
-    val timer: Time = Time(2, 100)
+    val timer: TickScheduler = TickScheduler(1, 10)
     simulation ! Simulation.Start(timer, agents)
