@@ -25,22 +25,23 @@ object LoopTimer:
           Behaviors.withTimers: timers =>
             Behaviors.receiveMessage:
               case Start(timer, agents) =>
-                val newTimer = timer.setSystemCurrentTime()
-                context.log.info(s"[SIM] START ciclo con timer di $newTimer")
-                context.self ! Step(newTimer, agents)
+                context.log.info(s"[SIM] START ciclo con timer di $timer")
+                context.self ! Step(timer, agents)
                 Behaviors.same
 
               case Step(timer, agents) =>
-                context.log.info(s"[SIM] STEP con timer di $timer")
-                agents.foreach(_ ! Agent.Start(context.self, timer, agents))
+                val newTimer = timer.setSystemCurrentTime()
+                context.log.info(s"[SIM] STEP con timer di $newTimer")
+                agents.foreach(_ ! Agent.Start(context.self, newTimer, agents))
                 Behaviors.same
 
               case ActionAgent(timer, agents) =>
                 val newCounter = counter + 1
-//                context.log.info("COUNTER " + newCounter)
+
                 if newCounter equals agents.size then
                   context.log.info(s"[SIM] ALL AGENT FINISH")
                   val newTimer = timer.nextStep.setSystemCurrentTime()
+
                   timer.computeDelay match
                     case Some(value: Long) =>
                       context.log.info(s"[SIM] TICK con timer: $timer e delay: $value")
