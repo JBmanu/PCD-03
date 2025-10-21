@@ -31,12 +31,10 @@ object Engine:
     export timeStats.{ start => _, stop => _, averageTimeFor => _, _ }
 
     override def start(nStepPerSec: Int, delta: Int, totalStep: Int): Engine =
-      val newTickScheduler = TickScheduler(nStepPerSec, delta)
-      copy(newTickScheduler, stepper.setTotalStep(totalStep), timeStats.start(newTickScheduler))
+      copy(TickScheduler(nStepPerSec, delta), stepper.setTotalStep(totalStep), timeStats.start())
 
     override def stop(): Engine =
-      val newTickScheduler = tickScheduler.setSystemCurrentTime()
-      copy(newTickScheduler, timeStats = timeStats.stop(newTickScheduler, stepper))
+      copy(tickScheduler.setSystemCurrentTime(), timeStats = timeStats.stop())
 
     override def nextStep(): Engine = copy(tickScheduler.nextStep(), stepper.nextStep())
 

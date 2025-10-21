@@ -33,7 +33,7 @@ object LoopFuture:
 
         case Tick(timer) =>
           context.log.info(s"[Tick] Ricevuto Tick con timer: $timer")
-          val delay = timer.computeDelay.getOrElse(0L)
+          val delay = timer.computeDelay().getOrElse(0L)
           context.log.info(s"[Tick] Ora: $delay")
           // Pianifica il prossimo Tick
           val future = akka.pattern.after(delay.millis)(Future.successful(Tick))

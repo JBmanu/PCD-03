@@ -17,6 +17,8 @@ object LoopTimer:
 
     private case class Step(engine: Engine, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
 
+    case class Pause(engine: Engine, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
+
     case class Stop(engine: Engine, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
 
     case class ActionAgent(engine: Engine, agents: Set[ActorRef[AgentCommand]]) extends SimulationCommand
@@ -37,6 +39,10 @@ object LoopTimer:
                 agents.foreach(_ ! Agent.Start(context.self, newEngine, agents))
                 Behaviors.same
 
+              case Pause(engine, agents) =>
+
+                Behaviors.same
+
               case Stop(engine, agents) =>
                 val newEngine = engine.stop()
                 context.log.info("FINAL ENGINE: " + newEngine)
@@ -49,7 +55,7 @@ object LoopTimer:
                   context.log.info(s"[SIM] ALL AGENT FINISH")
                   val newEngine = engine.nextStep().setSystemCurrentTime()
                   if newEngine.hasMoreSteps then
-                    engine.computeDelay match
+                    engine.computeDelay() match
                       case Some(value: Long) =>
                         context.log.info(s"[SIM] TICK con timer: $engine e delay: $value")
                         timers.startSingleTimer(Step(newEngine, agents), value.millis)
@@ -69,4 +75,4 @@ object LoopTimer:
     val agents: Set[ActorRef[AgentCommand]] = (1 to 5).map(i => ActorSystem(Agent(), s"AgentSystem$i")).toSet
     val simulation: ActorRef[SimulationCommand] = ActorSystem(Simulation(), "SIMULATION")
     val engine: Engine = Engine()
-    simulation ! Simulation.Start(engine.start(1, 100, 5), agents)
+    simulation ! Simulation.Start(engine.start(1, 100, 10), agents)
