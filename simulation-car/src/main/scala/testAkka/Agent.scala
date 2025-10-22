@@ -16,8 +16,8 @@ object Agent:
     Behaviors.setup: context =>
       Behaviors.receiveMessage:
         case Start(simulation, engine, agents) =>
-          //          context.log.info(s"[AGENT] received Start action and replay con timer $timer")
-          simulation ! ActionAgent(engine, agents)
+          context.log.info(s"[AGENT] received Start action and replay con timer ${System.currentTimeMillis()}")
+          simulation ! ActionAgent()
           Behaviors.same
         case _                                 =>
           context.log.warn("Received unknown action")

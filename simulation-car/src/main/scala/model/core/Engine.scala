@@ -23,7 +23,10 @@ trait Engine extends TickScheduler, Stepper:
 
 object Engine:
 
-  def apply(): Engine = EngineImpl(TickScheduler.zero(), Stepper.zero(), TimeStats())
+  def apply(nStepPerSec: Int, delta: Int, totalStep: Int): Engine =
+    EngineImpl(TickScheduler(nStepPerSec, delta), Stepper(totalStep), TimeStats())
+
+  def empty(): Engine = EngineImpl(TickScheduler.zero(), Stepper.zero(), TimeStats())
 
   private case class EngineImpl(tickScheduler: TickScheduler, stepper: Stepper, timeStats: TimeStats) extends Engine:
     export tickScheduler.{ setSystemCurrentTime => _, nextStep => _, _ }
