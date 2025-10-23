@@ -1,8 +1,8 @@
 package model.core
 
-import model.core.Times.*
+import model.core.Scheduler
 
-trait Engine extends TickScheduler, Stepper:
+trait Engine extends Scheduler, Stepper:
   val startTime: Long
   val endTime: Long
   val allTimeSpent: Long
@@ -10,15 +10,13 @@ trait Engine extends TickScheduler, Stepper:
 
   def build(nStepPerSec: Int, delta: Int, totalStep: Int): Engine
 
-  def start(): Engine
+  override def start(): Engine
 
   def pause(): Engine
 
-  def stop(): Engine
+  override def stop(): Engine
 
   override def nextStep(): Engine
-
-  override def setSystemCurrentTime(): Engine
 
   override def setTotalStep(value: Int): Engine
 
@@ -29,35 +27,29 @@ trait Engine extends TickScheduler, Stepper:
 object Engine:
 
   def apply(nStepPerSec: Int, delta: Int, totalStep: Int): Engine =
-    EngineImpl(TickScheduler(nStepPerSec, delta), Stepper(totalStep), TimeStats(), false)
+    EngineImpl(Scheduler(nStepPerSec, delta), Stepper(totalStep), false)
 
-  def empty(): Engine = EngineImpl(TickScheduler.zero(), Stepper.zero(), TimeStats(), false)
+  def empty(): Engine = EngineImpl(Scheduler.zero(), Stepper.zero(), false)
 
-  private case class EngineImpl(tickScheduler: TickScheduler, stepper: Stepper,
-                                timeStats: TimeStats, isInPause: Boolean) extends Engine:
+  private case class EngineImpl(scheduler: Scheduler, stepper: Stepper, isInPause: Boolean) extends Engine:
 
-    export tickScheduler.{ setSystemCurrentTime => _, nextStep => _, _ }
+    export scheduler.{ start => _, stop => _, setSystemCurrentTime => _, nextStep => _, _ }
     export stepper.{ setTotalStep => _, nextStep => _, _ }
-    export timeStats.{ start => _, stop => _, averageTimeFor => _, _ }
 
     override def build(nStepPerSec: Int, delta: Int, totalStep: Int): Engine =
-      copy(TickScheduler(nStepPerSec, delta), stepper.setTotalStep(totalStep), timeStats.start(), false)
+      copy(Scheduler(nStepPerSec, delta), stepper.setTotalStep(totalStep), false)
 
-    override def start(): Engine = copy(isInPause = false)
+    override def start(): Engine = copy(scheduler.start(), isInPause = false)
 
     override def pause(): Engine = copy(isInPause = true)
 
-    override def stop(): Engine = copy(tickScheduler.setSystemCurrentTime(), timeStats = timeStats.stop())
+    override def stop(): Engine = copy(scheduler.stop())
 
-    override def nextStep(): Engine = copy(tickScheduler.nextStep(), stepper.nextStep())
-
-    override def setSystemCurrentTime(): Engine = copy(tickScheduler.setSystemCurrentTime())
+    override def nextStep(): Engine = copy(scheduler.nextStep(), stepper.nextStep())
 
     override def setTotalStep(value: Int): Engine = copy(stepper = stepper.setTotalStep(value))
 
-    override def timeElapsedSinceStart(): Long = timeStats.timeElapsedSinceStart(tickScheduler)
-
-    override def averageTimeForStep(): Double = timeStats.averageTimeFor(stepper)
+    override def averageTimeForStep(): Double = scheduler.averageTimeFor(stepper)
 
 
 

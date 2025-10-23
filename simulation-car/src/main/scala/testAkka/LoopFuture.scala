@@ -1,11 +1,10 @@
 package testAkka
 
 
-
 import akka.actor.typed.*
 import akka.actor.typed.scaladsl.*
 import akka.actor.typed.scaladsl.adapter.*
-import model.core.Times.TickScheduler
+import model.core.Scheduler
 
 import scala.concurrent.Future
 import scala.concurrent.duration.*
@@ -17,9 +16,9 @@ object LoopFuture:
 
     sealed trait Command
 
-    case class Start(timer: TickScheduler) extends Command
+    case class Start(timer: Scheduler) extends Command
 
-    case class Tick(timer: TickScheduler) extends Command
+    case class Tick(timer: Scheduler) extends Command
 
     def apply(): Behavior[Command] = Behaviors.setup { context =>
       implicit val system: akka.actor.ClassicActorSystemProvider = context.system.toClassic.classicSystem
@@ -28,7 +27,7 @@ object LoopFuture:
         case Start(timer) =>
           context.log.info(s"Avvio ciclo con timer = $timer")
           val future = akka.pattern.after(0.millis)(Future.successful(Tick))
-          context.pipeToSelf(future)(_ => Tick(timer.setSystemCurrentTime()))
+          context.pipeToSelf(future)(_ => Tick(timer.start()))
           Behaviors.same
 
         case Tick(timer) =>
@@ -37,11 +36,11 @@ object LoopFuture:
           context.log.info(s"[Tick] Ora: $delay")
           // Pianifica il prossimo Tick
           val future = akka.pattern.after(delay.millis)(Future.successful(Tick))
-          context.pipeToSelf(future)(_ => Tick(timer.setSystemCurrentTime()))
+          context.pipeToSelf(future)(_ => Tick(timer.nextStep()))
           Behaviors.same
     }
 
   def main(args: Array[String]): Unit =
-    val timer: TickScheduler = TickScheduler(1, 100)
+    val timer: Scheduler = Scheduler(1, 100)
     val system = ActorSystem(Simulation(), "FutureLoop")
     system ! Simulation.Start(timer)

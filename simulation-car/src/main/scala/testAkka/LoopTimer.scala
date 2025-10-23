@@ -35,11 +35,9 @@ object LoopTimer:
                 withState(engine.start(), agents, counter)
 
               case Step() =>
-                val newEngine = engine.setSystemCurrentTime()
+                val newEngine = engine.nextStep()
                 context.log.info(s"[SIM] STEP con timer di $newEngine")
                 agents.foreach(_ ! Agent.Start(context.self, newEngine, agents))
-
-                // manca cambiare la variabiele is pause in true
                 withState(newEngine, agents, counter)
 
               case Pause() =>
@@ -54,9 +52,9 @@ object LoopTimer:
                 val newCounter = counter + 1
                 if newCounter equals agents.size then
                   context.log.info(s"[SIM] ALL AGENT FINISH")
-                  val newEngine = engine.nextStep().setSystemCurrentTime()
+                  //                  val newEngine = engine.nextStep()
                   if !engine.isInPause then
-                    if newEngine.hasMoreSteps then
+                    if engine.hasMoreSteps then
                       engine.computeDelay() match
                         case Some(value: Long) =>
                           context.log.info(s"[SIM] TICK con timer: $engine e delay: $value")
@@ -66,7 +64,7 @@ object LoopTimer:
                           context.self ! Step()
                     else
                       context.self ! Stop()
-                  withState(newEngine, agents, 0)
+                  withState(engine, agents, 0)
                 else
                   withState(engine, agents, newCounter)
 
