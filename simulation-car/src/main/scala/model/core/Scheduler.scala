@@ -33,7 +33,7 @@ object Scheduler:
                                    currentTick: Int, delta: Int) extends Scheduler:
 
     override val allTimeSpent: Long = endTime - startTime
-
+    
     override def start(): Scheduler =
       val systemCurrentTime = System.currentTimeMillis()
       copy(startTime = systemCurrentTime, currentTime = systemCurrentTime)

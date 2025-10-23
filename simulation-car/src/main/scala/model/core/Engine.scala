@@ -1,7 +1,5 @@
 package model.core
 
-import model.core.Scheduler
-
 trait Engine extends Scheduler, Stepper:
   val startTime: Long
   val endTime: Long
@@ -33,7 +31,7 @@ object Engine:
 
   private case class EngineImpl(scheduler: Scheduler, stepper: Stepper, isInPause: Boolean) extends Engine:
 
-    export scheduler.{ start => _, stop => _, setSystemCurrentTime => _, nextStep => _, _ }
+    export scheduler.{ start => _, stop => _, nextStep => _, _ }
     export stepper.{ setTotalStep => _, nextStep => _, _ }
 
     override def build(nStepPerSec: Int, delta: Int, totalStep: Int): Engine =
@@ -50,8 +48,4 @@ object Engine:
     override def setTotalStep(value: Int): Engine = copy(stepper = stepper.setTotalStep(value))
 
     override def averageTimeForStep(): Double = scheduler.averageTimeFor(stepper)
-
-
-
-
 
