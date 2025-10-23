@@ -23,7 +23,7 @@ object Agent:
         Behaviors.receiveMessage:
           case Start(simulation, engine, agents) =>
             context.log.info(s"[AGENT] activer at time ${System.currentTimeMillis()} e do command ${state.currentCommand}")
-            simulation ! ActionAgent()
+            simulation ! ActionAgent(state.currentCommand)
             withState(state.nextCommand())
           case _                                 =>
             context.log.warn("Received unknown action")

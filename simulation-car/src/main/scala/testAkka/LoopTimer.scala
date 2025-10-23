@@ -32,7 +32,7 @@ object LoopTimer:
 
     case class Stop() extends SimulationCommand
 
-    case class ActionAgent() extends SimulationCommand
+    case class ActionAgent(command: Int) extends SimulationCommand
 
     def apply(): Behavior[SimulationCommand] =
 
@@ -51,16 +51,18 @@ object LoopTimer:
                 state.agents.foreach(_ ! Agent.Start(context.self, newEngine, state.agents))
                 withState(state.updateEngine(_ => newEngine))
 
-              case Pause => withState(state.updateEngine(_.pause()))
+              case Pause =>
+                context.log.info(s"[SIM] CALL PAUSE ${state.engine}")
+                withState(state.updateEngine(_.pause()))
 
               case Stop() =>
                 val newEngine = state.engine.stop()
                 context.log.info("[SIM] END -> TOTAL TIME: " + newEngine.allTimeSpent + " AVERAGE TIME: " + newEngine.averageTimeForStep())
                 withState(state.updateEngine(_ => newEngine))
 
-              case ActionAgent() =>
+              case ActionAgent(command: Int) =>
                 val newCounter = state.counter + 1
-                if newCounter equals state. agents.size then
+                if newCounter equals state.agents.size then
                   context.log.info(s"[SIM] ALL AGENT FINISH")
                   if !state.engine.isInPause then
                     if state.engine.hasMoreSteps then
@@ -78,7 +80,7 @@ object LoopTimer:
                   withState(state.updateCounter(_ => newCounter))
 
       val agents: Set[ActorRef[AgentCommand]] = (1 to 5).map(i => ActorSystem(Agent(), s"AgentSystem$i")).toSet
-      withState(SimulationState(Engine(1, 100, 10), agents, 0))
+      withState(SimulationState(Engine(3, 100, 10 * 3), agents, 0))
 
 
   def main(args: Array[String]): Unit =
