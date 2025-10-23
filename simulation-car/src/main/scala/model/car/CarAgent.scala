@@ -62,8 +62,14 @@ object CarAgent:
     override def timeDt_=(dt: Int): Unit = _timeDt = dt
 
     override def step(dt: Int): Unit =
-      // dove mettere i comandi sense -> decide -> action
-      ()
+      // SENSE
+      currentPercept = currentPercepts.asInstanceOf[CarPercept]
+      // DECIDE - manca fare la parte di che il prof fa con l'ereditarietà
+      selectedAction = Option.empty
+      decide()
+      // ACTION
+      selectedAction.foreach(doAction)
+
 
     override def maxSpeed: Double = _maxSpeed
 
