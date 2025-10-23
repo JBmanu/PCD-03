@@ -35,6 +35,8 @@ public abstract class AbstractAgent {
      */
     abstract public void step(int dt);
 
+    public abstract void setTimeDt(final int dt);
+
     public String getId() {
         return this.myId;
     }
@@ -51,6 +53,5 @@ public abstract class AbstractAgent {
         this.env.doAction(this.myId, action);
     }
 
-    public abstract void setTimeDt(final int dt);
 
 }

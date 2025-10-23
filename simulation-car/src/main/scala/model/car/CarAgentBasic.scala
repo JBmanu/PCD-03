@@ -15,14 +15,14 @@ object CarAgentBasic:
     case STOPPED, ACCELERATING, DECELERATING_BECAUSE_OF_A_CAR, WAIT_A_BIT, MOVING_CONSTANT_SPEED
 
   def apply(id: String, env: RoadEnv, road: Road, initialPos: Double, acc: Double, dec: Double, vmax: Double): CarAgent =
-    val carAgentBasic = CarAgentBasicImpl(CarAgent.base(id, env, acc, dec, vmax), CarAgentState.STOPPED, 0)
-    env.registerNewCar(carAgentBasic, road, initialPos)
+    val carAgentBasic = CarAgentBasicImpl(CarAgent.base(id, env, road, initialPos, acc, dec, vmax), CarAgentState.STOPPED, 0)
+    //    env.registerNewCar(carAgentBasic, road, initialPos)
     carAgentBasic
 
   private case class CarAgentBasicImpl(base: BaseCarAgent,
                                        private var state: CarAgentState,
                                        private var waitingTime: Int) extends CarAgentBasic:
-    export base._
+    export base.{ decide => _, _ }
 
     override def decide(): Unit =
       val dt = timeDt
@@ -61,13 +61,13 @@ object CarAgentBasic:
 
     /* aux methods */
     private def detectedNearCar =
-      val car = currentPercept.nearestCarInFront
+      val car = base.currentPercept.nearestCarInFront
       car.exists(car =>
                    val dist = car.pos - currentPercept.roadPos
                    dist < CAR_NEAR_DIST)
 
     private def carFarEnough =
-      val car = currentPercept.nearestCarInFront
+      val car = base.currentPercept.nearestCarInFront
       car.forall(car =>
                    val dist = car.pos - currentPercept.roadPos
                    dist > CAR_FAR_ENOUGH_DIST)

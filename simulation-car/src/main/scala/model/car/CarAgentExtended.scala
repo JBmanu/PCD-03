@@ -18,14 +18,14 @@ object CarAgentExtended:
     WAIT_A_BIT, MOVING_CONSTANT_SPEED
 
   def apply(id: String, env: RoadEnv, road: Road, initialPos: Double, acc: Double, dec: Double, vmax: Double): CarAgent =
-    val carAgentExtended = CarAgentExtendedImpl(CarAgent.base(id, env, acc, dec, vmax), CarAgentState.STOPPED, 0)
-    env.registerNewCar(carAgentExtended, road, initialPos)
+    val carAgentExtended = CarAgentExtendedImpl(CarAgent.base(id, env, road, initialPos, acc, dec, vmax), CarAgentState.STOPPED, 0)
+    //    env.registerNewCar(carAgentExtended, road, initialPos)
     carAgentExtended
 
   private case class CarAgentExtendedImpl(base: BaseCarAgent,
                                           private var state: CarAgentState,
                                           private var waitingTime: Int) extends CarAgentExtended:
-    export base._
+    export base.{ decide => _, _ }
 
     override def decide(): Unit =
       val dt = timeDt
@@ -35,14 +35,14 @@ object CarAgentExtended:
         case CarAgentState.ACCELERATING                            =>
           if (detectedNearCar) state = CarAgentState.DECELERATING_BECAUSE_OF_A_CAR
           else {
-            if (detectedRedOrOrgangeSemNear) state = CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM
+            if (detectedRedOrOrangeSemNear) state = CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM
             else
               currentSpeed += acceleration * dt
               if (currentSpeed >= maxSpeed) state = CarAgentState.MOVING_CONSTANT_SPEED
           }
         case CarAgentState.MOVING_CONSTANT_SPEED                   =>
           if (detectedNearCar) state = CarAgentState.DECELERATING_BECAUSE_OF_A_CAR
-          else if (detectedRedOrOrgangeSemNear) state = CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM
+          else if (detectedRedOrOrangeSemNear) state = CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM
         case CarAgentState.DECELERATING_BECAUSE_OF_A_CAR           =>
           currentSpeed -= deceleration * dt
           if (currentSpeed <= 0) state = CarAgentState.STOPPED
@@ -52,7 +52,7 @@ object CarAgentExtended:
         case CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM =>
           currentSpeed -= deceleration * dt
           if (currentSpeed <= 0) state = CarAgentState.WAITING_FOR_GREEN_SEM
-          else if (!detectedRedOrOrgangeSemNear) state = CarAgentState.ACCELERATING
+          else if (!detectedRedOrOrangeSemNear) state = CarAgentState.ACCELERATING
         case CarAgentState.WAIT_A_BIT                              =>
           waitingTime += dt
           if (waitingTime > MAX_WAITING_TIME) state = CarAgentState.ACCELERATING
@@ -67,7 +67,7 @@ object CarAgentExtended:
                    val dist = car.pos - this.currentPercept.roadPos
                    dist < CAR_NEAR_DIST)
 
-    private def detectedRedOrOrgangeSemNear: Boolean =
+    private def detectedRedOrOrangeSemNear: Boolean =
       val sem = this.currentPercept.nearestSem
       sem.exists(sem =>
                    val dist: Double = sem.roadPos - this.currentPercept.roadPos

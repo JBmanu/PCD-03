@@ -16,7 +16,7 @@ object CarAgentInfo:
 
   private case class CarAgentInfoImpl(car: CarAgent, road: Road,
                                       private var _pos: Double) extends CarAgentInfo:
-    
+
     override def pos: Double = _pos
 
     override def pos_=(newPos: Double): Unit = _pos = newPos
