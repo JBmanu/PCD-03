@@ -60,7 +60,7 @@ object LoopTimer:
 
               case ActionAgent() =>
                 val newCounter = state.counter + 1
-                if newCounter equals state.agents.size then
+                if newCounter equals state. agents.size then
                   context.log.info(s"[SIM] ALL AGENT FINISH")
                   if !state.engine.isInPause then
                     if state.engine.hasMoreSteps then

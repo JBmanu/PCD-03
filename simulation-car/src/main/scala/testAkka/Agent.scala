@@ -8,17 +8,25 @@ import testAkka.LoopTimer.Simulation.{ ActionAgent, SimulationCommand }
 
 object Agent:
 
+  case class AgentState(currentCommand: Int, commands: List[Int]):
+
+    def nextCommand(): AgentState = copy(commands((currentCommand + 1) % commands.size))
+
   sealed trait AgentCommand
 
   case class Start(simulation: ActorRef[SimulationCommand], engine: Engine, agents: Set[ActorRef[AgentCommand]]) extends AgentCommand
 
   def apply(): Behavior[AgentCommand] =
-    Behaviors.setup: context =>
-      Behaviors.receiveMessage:
-        case Start(simulation, engine, agents) =>
-          context.log.info(s"[AGENT] received Start action and replay con timer ${System.currentTimeMillis()}")
-          simulation ! ActionAgent()
-          Behaviors.same
-        case _                                 =>
-          context.log.warn("Received unknown action")
-          Behaviors.unhandled
+
+    def withState(state: AgentState): Behavior[AgentCommand] =
+      Behaviors.setup: context =>
+        Behaviors.receiveMessage:
+          case Start(simulation, engine, agents) =>
+            context.log.info(s"[AGENT] activer at time ${System.currentTimeMillis()} e do command ${state.currentCommand}")
+            simulation ! ActionAgent()
+            withState(state.nextCommand())
+          case _                                 =>
+            context.log.warn("Received unknown action")
+            Behaviors.unhandled
+
+    withState(AgentState(0, List(0, 1, 2)))
