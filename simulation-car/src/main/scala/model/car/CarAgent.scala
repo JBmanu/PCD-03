@@ -1,6 +1,6 @@
 package model.car
 
-import model.road.{ Environment, Road, RoadEnv }
+import model.road.{ Road, RoadEnv }
 import model.simulation.SimCommand.Action.Action
 import model.simulation.SimCommand.Percept.CarPercept
 import model.simulation.SimCommand.{ Action, Percept }
@@ -16,10 +16,10 @@ abstract case class CarAgent(private[this] val id: String,
   private var _currentSpeed: Double = 0D
   
   private var _timeDt: Int = 0
-  private var _currentPercept: CarPercept = Nil.asInstanceOf[CarPercept]
+  private var _currentPercept: CarPercept = _
   private var _selectedAction: Option[Action] = Option.empty
 
-  env.registerNewCar(this, road, initialPos)
+//  env.registerNewCar(this, road, initialPos)
 
   override def timeDt: Int = _timeDt
 
@@ -58,24 +58,5 @@ abstract case class CarAgent(private[this] val id: String,
 
   def currentPercept_=(percept: CarPercept): Unit = _currentPercept = percept
 
-  def decide(): Unit = println("CIAO")
-
-
-object Test:
-
-  class A(id: String, env: RoadEnv, road: Road,
-          initialPos: Double, acc: Double, dec: Double, vmax: Double) extends
-    CarAgent(id, env, road, initialPos, acc, dec, vmax):
-    
-    override def decide(): Unit = println("COME")
-
-
-def main(args: Array[String]): Unit = 
-  import Test._
-  val a: A = A("d", Nil.asInstanceOf[RoadEnv], Nil.asInstanceOf[Road],
-               0D, 0D, 0D, 0D)
-
-  
-
-
+  def decide(): Unit
 

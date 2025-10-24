@@ -5,7 +5,7 @@ import model.simulation.SimCommand.Action.Action
 import model.simulation.SimCommand.Percept.Percept
 
 abstract class Agent(val id: String):
-  private var _env: Environment = Nil.asInstanceOf[Environment]
+  private var _env: Environment = _
 
   def env: Environment = _env
 
