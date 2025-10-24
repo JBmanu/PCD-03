@@ -1,8 +1,7 @@
 package model.car
 
-import model.car.CarAgent.BaseCarAgent
-import model.road.{ Environment, Road, RoadEnv }
-import model.simulation.SimCommand.Action.{ Action, MoveForward }
+import model.road.{ Road, RoadEnv }
+import model.simulation.SimCommand.Action.MoveForward
 
 trait CarAgentExtended extends CarAgent
 
@@ -17,46 +16,50 @@ object CarAgentExtended:
     DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM, WAITING_FOR_GREEN_SEM,
     WAIT_A_BIT, MOVING_CONSTANT_SPEED
 
-  def apply(id: String, env: RoadEnv, road: Road, initialPos: Double, acc: Double, dec: Double, vmax: Double): CarAgent =
-    val carAgentExtended = CarAgentExtendedImpl(CarAgent.base(id, env, road, initialPos, acc, dec, vmax), CarAgentState.STOPPED, 0)
-    //    env.registerNewCar(carAgentExtended, road, initialPos)
-    carAgentExtended
+  def apply(id: String, env: RoadEnv, road: Road,
+            initialPos: Double, acc: Double, dec: Double, vmax: Double): CarAgentExtended =
+    CarAgentExtendedImpl(id, env, road, initialPos, acc, dec, vmax)
 
-  private case class CarAgentExtendedImpl(base: BaseCarAgent,
-                                          private var state: CarAgentState,
-                                          private var waitingTime: Int) extends CarAgentExtended:
-    export base.{ decide => _, _ }
+  private class CarAgentExtendedImpl(private[this] val id: String,
+                                          private[this] val env: RoadEnv, private[this] val road: Road,
+                                          private[this] val initialPos: Double,
+                                          private[this] val acc: Double,
+                                          private[this] val dec: Double,
+                                          private[this] val vmax: Double,
+                                          private var _state: CarAgentState = CarAgentState.STOPPED,
+                                          private var _waitingTime: Int = 0)
+    extends CarAgent(id, env, road, initialPos, acc, dec, vmax) with CarAgentExtended:
 
     override def decide(): Unit =
       val dt = timeDt
 
-      state match
-        case CarAgentState.STOPPED                                 => if (!detectedNearCar) state = CarAgentState.ACCELERATING
+      _state match
+        case CarAgentState.STOPPED                                 => if (!detectedNearCar) _state = CarAgentState.ACCELERATING
         case CarAgentState.ACCELERATING                            =>
-          if (detectedNearCar) state = CarAgentState.DECELERATING_BECAUSE_OF_A_CAR
+          if (detectedNearCar) _state = CarAgentState.DECELERATING_BECAUSE_OF_A_CAR
           else {
-            if (detectedRedOrOrangeSemNear) state = CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM
+            if (detectedRedOrOrangeSemNear) _state = CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM
             else
               currentSpeed += acceleration * dt
-              if (currentSpeed >= maxSpeed) state = CarAgentState.MOVING_CONSTANT_SPEED
+              if (currentSpeed >= maxSpeed) _state = CarAgentState.MOVING_CONSTANT_SPEED
           }
         case CarAgentState.MOVING_CONSTANT_SPEED                   =>
-          if (detectedNearCar) state = CarAgentState.DECELERATING_BECAUSE_OF_A_CAR
-          else if (detectedRedOrOrangeSemNear) state = CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM
+          if (detectedNearCar) _state = CarAgentState.DECELERATING_BECAUSE_OF_A_CAR
+          else if (detectedRedOrOrangeSemNear) _state = CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM
         case CarAgentState.DECELERATING_BECAUSE_OF_A_CAR           =>
           currentSpeed -= deceleration * dt
-          if (currentSpeed <= 0) state = CarAgentState.STOPPED
+          if (currentSpeed <= 0) _state = CarAgentState.STOPPED
           else if (carFarEnough)
-            state = CarAgentState.WAIT_A_BIT
-            waitingTime = 0
+            _state = CarAgentState.WAIT_A_BIT
+            _waitingTime = 0
         case CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM =>
           currentSpeed -= deceleration * dt
-          if (currentSpeed <= 0) state = CarAgentState.WAITING_FOR_GREEN_SEM
-          else if (!detectedRedOrOrangeSemNear) state = CarAgentState.ACCELERATING
+          if (currentSpeed <= 0) _state = CarAgentState.WAITING_FOR_GREEN_SEM
+          else if (!detectedRedOrOrangeSemNear) _state = CarAgentState.ACCELERATING
         case CarAgentState.WAIT_A_BIT                              =>
-          waitingTime += dt
-          if (waitingTime > MAX_WAITING_TIME) state = CarAgentState.ACCELERATING
-        case CarAgentState.WAITING_FOR_GREEN_SEM                   => if (detectedGreenSem) state = CarAgentState.ACCELERATING
+          _waitingTime += dt
+          if (_waitingTime > MAX_WAITING_TIME) _state = CarAgentState.ACCELERATING
+        case CarAgentState.WAITING_FOR_GREEN_SEM                   => if (detectedGreenSem) _state = CarAgentState.ACCELERATING
 
       if (currentSpeed > 0) selectedAction = Option(MoveForward(currentSpeed * dt))
 

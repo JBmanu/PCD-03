@@ -4,18 +4,18 @@ import model.road.Environment
 import model.simulation.SimCommand.Action.Action
 import model.simulation.SimCommand.Percept.Percept
 
-trait Agent:
-  val id: String
-  
-  def env: Environment
+abstract class Agent(val id: String):
+  private var _env: Environment = Nil.asInstanceOf[Environment]
 
-  def env_=(env: Environment): Unit
+  def env: Environment = _env
+
+  private def env_=(env: Environment): Unit = _env = env
 
   def timeDt: Int
 
   def timeDt_=(dt: Int): Unit
 
-  def init(newEnv: Environment): Unit = env = newEnv 
+  def init(newEnv: Environment): Unit = env = newEnv
 
   def step(dt: Int): Unit
 
