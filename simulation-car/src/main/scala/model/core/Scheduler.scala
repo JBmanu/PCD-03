@@ -23,17 +23,21 @@ trait Scheduler:
   def computeDelay(): Option[Long]
 
 object Scheduler:
-  def apply(nStepPerSec: Int, delta: Int): Scheduler =
-    SchedulerImpl(0L, 0L, System.currentTimeMillis(), nStepPerSec, delta, delta)
 
-  def zero(): Scheduler = Scheduler(0, 0)
+  def zero(): Scheduler = Scheduler(0, 0, 0)
+
+  def default(nStepPerSec: Int, delta: Int): Scheduler = Scheduler(nStepPerSec, 0, delta)
+
+  def apply(nStepPerSec: Int, initTick: Int, delta: Int): Scheduler =
+    SchedulerImpl(0L, 0L, System.currentTimeMillis(), nStepPerSec, initTick, delta)
+
 
   private case class SchedulerImpl(startTime: Long, endTime: Long,
                                    currentTime: Long, nStepPerSec: Int,
                                    currentTick: Int, delta: Int) extends Scheduler:
 
     override val allTimeSpent: Long = endTime - startTime
-    
+
     override def start(): Scheduler =
       val systemCurrentTime = System.currentTimeMillis()
       copy(startTime = systemCurrentTime, currentTime = systemCurrentTime)
@@ -46,7 +50,7 @@ object Scheduler:
 
     override def timeElapsedSinceStart(): Long = currentTime - startTime
 
-    override def nextStep(): Scheduler = 
+    override def nextStep(): Scheduler =
       copy(currentTime = System.currentTimeMillis(), currentTick = currentTick + delta)
 
     override def computeDelay(): Option[Long] =

@@ -2,7 +2,7 @@ package testAkka
 
 import akka.actor.typed.*
 import akka.actor.typed.scaladsl.*
-import model.core.Engine
+import model.core.{ Engine, Scheduler, Stepper }
 import testAkka.Agent.AgentCommand
 import testAkka.LoopTimer.Simulation.SimulationCommand
 
@@ -80,7 +80,10 @@ object LoopTimer:
                   withState(state.updateCounter(_ => newCounter))
 
       val agents: Set[ActorRef[AgentCommand]] = (1 to 5).map(i => ActorSystem(Agent(), s"AgentSystem$i")).toSet
-      withState(SimulationState(Engine(3, 100, 10 * 3), agents, 0))
+
+      val scheduler = Scheduler(3, 0, 100)
+      val stepper = Stepper(10 * 3)
+      withState(SimulationState(Engine(scheduler, stepper), agents, 0))
 
 
   def main(args: Array[String]): Unit =

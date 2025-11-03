@@ -41,6 +41,6 @@ object LoopFuture:
     }
 
   def main(args: Array[String]): Unit =
-    val timer: Scheduler = Scheduler(1, 100)
+    val timer: Scheduler = Scheduler(1, 0, 100)
     val system = ActorSystem(Simulation(), "FutureLoop")
     system ! Simulation.Start(timer)

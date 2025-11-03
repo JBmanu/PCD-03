@@ -6,7 +6,11 @@ trait Engine extends Scheduler, Stepper:
   val allTimeSpent: Long
   val isInPause: Boolean
 
-  def build(nStepPerSec: Int, delta: Int, totalStep: Int): Engine
+  def buildSchedule(scheduler: Scheduler): Engine
+
+  def buildStepper(stepper: Stepper): Engine
+
+  def build(scheduler: Scheduler, stepper: Stepper): Engine
 
   override def start(): Engine
 
@@ -24,18 +28,21 @@ trait Engine extends Scheduler, Stepper:
 
 object Engine:
 
-  def apply(nStepPerSec: Int, delta: Int, totalStep: Int): Engine =
-    EngineImpl(Scheduler(nStepPerSec, delta), Stepper(totalStep), false)
+  def empty(): Engine = Engine(Scheduler.zero(), Stepper.zero())
 
-  def empty(): Engine = EngineImpl(Scheduler.zero(), Stepper.zero(), false)
+  def apply(scheduler: Scheduler, stepper: Stepper): Engine = EngineImpl(scheduler, stepper, false)
+  
 
   private case class EngineImpl(scheduler: Scheduler, stepper: Stepper, isInPause: Boolean) extends Engine:
 
     export scheduler.{ start => _, stop => _, nextStep => _, _ }
     export stepper.{ setTotalStep => _, nextStep => _, _ }
 
-    override def build(nStepPerSec: Int, delta: Int, totalStep: Int): Engine =
-      copy(Scheduler(nStepPerSec, delta), stepper.setTotalStep(totalStep), false)
+    override def buildSchedule(scheduler: Scheduler): Engine = copy(scheduler, isInPause = false)
+
+    override def buildStepper(stepper: Stepper): Engine = copy(stepper = stepper, isInPause = false)
+
+    override def build(scheduler: Scheduler, stepper: Stepper): Engine = copy(scheduler, stepper, false)
 
     override def start(): Engine = copy(scheduler.start(), isInPause = false)
 

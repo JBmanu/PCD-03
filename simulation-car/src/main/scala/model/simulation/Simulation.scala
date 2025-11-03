@@ -1,13 +1,13 @@
 package model.simulation
 
 import model.car.Agent
-import model.core.Stepper
+import model.core.{ Engine, Scheduler, Stepper }
 import model.inspector.{ RoadSimStatistics, TimeStatistics }
 import model.road.Environment
 
 
 trait Simulation extends SimulationInspector:
-  def setupTimings(t0: Int, dt: Int): Unit
+  def setupTimings(scheduler: Scheduler): Unit
 
   def setupEnvironment(env: Environment): Unit
 
@@ -26,19 +26,25 @@ object Simulation:
 
   private case class SimulationImpl() extends Simulation:
 
-    private var _environment: Environment = Nil.asInstanceOf[Environment]
+    private var _environment: Environment = _
     private var _agents: List[Agent] = List.empty
 
     // variables of control and manage simulation
     private var _toBeInSyncWithWallTime: Boolean = false
     private var _nStepsPerSec: Int = 0
-    private var _dt: Int = 0
-    private var _t0: Int = 0
+
+    private var _engine: Engine = Engine.empty()
+
+    // Tutto questo per engine
+    //    private var _dt: Int = 0
+    //    private var _t0: Int = 0
+    // NON CI VANNO, ASPETTO A TOGLIERLI PER PULIZIA
+    override val timeStatistics: TimeStatistics = TimeStatistics()
+    override val stepper: Stepper = Stepper.zero()
+
 
     // elements inspector
     override val roadSimStatistics: RoadSimStatistics = RoadSimStatistics()
-    override val timeStatistics: TimeStatistics = TimeStatistics()
-    override val stepper: Stepper = Stepper.zero()
 
     // simulation listeners
     private var _modelListener: List[ModelSimulationListener] = List.empty
@@ -51,9 +57,7 @@ object Simulation:
 
     override def setup(): Unit = {}
 
-    override def setupTimings(t0: Int, dt: Int): Unit =
-      _t0 = t0
-      _dt = dt
+    override def setupTimings(scheduler: Scheduler): Unit = _engine = _engine.buildSchedule(scheduler)
 
     override def setupEnvironment(env: Environment): Unit = _environment = env
 
@@ -64,7 +68,8 @@ object Simulation:
     override def addModelListener(listener: ModelSimulationListener): Unit =
       _modelListener = _modelListener appended listener
 
-    override def run(): Unit = ???
+    override def run(): Unit =
+      println("GO SIMULATION")
 
     private def notifyReset(t0: Int): Unit =
       _modelListener.foreach(_ notifyInit(t0, this))
