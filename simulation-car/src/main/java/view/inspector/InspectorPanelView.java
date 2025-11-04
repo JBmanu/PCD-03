@@ -4,7 +4,6 @@ import simulation.InspectorSimulation;
 import simulation.SimulationManager;
 import view.*;
 import view.inspector.setting.InspectorSimulationView;
-import view.inspector.setting.MasterWorkerView;
 import view.inspector.setting.StartStopView;
 
 import javax.swing.*;
@@ -16,7 +15,6 @@ public class InspectorPanelView extends JPanel {
     private final StepperView stepperView;
     private final TimeStatisticsView timeStatisticsView;
     private final RoadStatisticView roadStatisticView;
-    private final MasterWorkerView masterWorkerView;
     private final InspectorSimulationView simulationView;
     private final BorderLayout layoutManager;
 
@@ -25,7 +23,6 @@ public class InspectorPanelView extends JPanel {
         this.stepperView = new StepperView();
         this.timeStatisticsView = new TimeStatisticsView();
         this.roadStatisticView = new RoadStatisticView();
-        this.masterWorkerView = new MasterWorkerView();
         this.simulationView = new InspectorSimulationView(simulationManager);
 
         this.layoutManager = new BorderLayout();
@@ -44,7 +41,6 @@ public class InspectorPanelView extends JPanel {
         final JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         rightPanel.setOpaque(false);
         rightPanel.add(this.simulationView);
-        rightPanel.add(this.masterWorkerView);
         this.add(rightPanel, BorderLayout.EAST);
 
         final FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT);
@@ -60,7 +56,6 @@ public class InspectorPanelView extends JPanel {
 
         this.startStopView.addListener(this.simulationView);
         this.startStopView.addListener(this.stepperView);
-        this.startStopView.addListener(this.masterWorkerView);
     }
 
     public void setupSimulation(final InspectorSimulation simulation) {

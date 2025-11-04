@@ -1,8 +1,5 @@
 package car;
 
-import car.command.CommandCar;
-import car.command.invoker.InvokerCarCommandImpl;
-import car.command.invoker.InvokerCommand;
 import road.Road;
 import road.RoadsEnv;
 import simulation.engineseq.Action;
@@ -23,7 +20,6 @@ public abstract class CarAgent extends AbstractAgent {
     private int timeDt;
     protected CarPercept currentPercept;
     protected Optional<Action> selectedAction;
-    private final InvokerCommand invokerCarCommand;
 
     public CarAgent(final String id, final RoadsEnv env, final Road road,
                     final double initialPos,
@@ -35,7 +31,6 @@ public abstract class CarAgent extends AbstractAgent {
         this.deceleration = dec;
         this.maxSpeed = vmax;
         env.registerNewCar(this, road, initialPos);
-        this.invokerCarCommand = new InvokerCarCommandImpl(this);
     }
 
     protected int timeDt() {
@@ -67,10 +62,14 @@ public abstract class CarAgent extends AbstractAgent {
      */
     @Override
     public void step(final int dt) {
-        this.invokerCarCommand.setup(dt);
-        this.invokerCarCommand.execute(CommandCar.SENSE);
-        this.invokerCarCommand.execute(CommandCar.DECIDE);
-        this.invokerCarCommand.execute(CommandCar.ACTION);
+        this.setTimeDt(dt);
+        // SENSE
+        this.setCurrentPercept((CarPercept) this.getCurrentPercepts());
+        // DECIDE
+        this.setSelectedAction(Optional.empty());
+        this.decide();
+        // ACT
+        this.selectedAction().ifPresent(this::doAction);
     }
 
     /**
