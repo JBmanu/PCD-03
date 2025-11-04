@@ -7,13 +7,15 @@ import model.road.Environment
 
 
 trait Simulation extends SimulationInspector:
-  def setupTimings(scheduler: Scheduler): Unit
+  def setup(scheduler: Scheduler, stepper: Stepper, environment: Environment, agents: List[Agent]): Unit
 
-  def setupEnvironment(env: Environment): Unit
+  def start(): Simulation
 
-  def addAgent(agent: Agent): Unit
+  def step(): Simulation
 
-  def syncWithTime(nCyclesPerSec: Int): Unit
+  def pause(): Simulation
+
+  def stop(): Simulation
 
   def addModelListener(listener: ModelSimulationListener): Unit
   // manca view
@@ -29,27 +31,22 @@ object Simulation:
     private var _environment: Environment = _
     private var _agents: List[Agent] = List.empty
 
-    // variables of control and manage simulation
-    private var _toBeInSyncWithWallTime: Boolean = false
-    private var _nStepsPerSec: Int = 0
-
+    // Tutto questo per engine
     private var _engine: Engine = Engine.empty()
 
-    // Tutto questo per engine
-    //    private var _dt: Int = 0
-    //    private var _t0: Int = 0
     // NON CI VANNO, ASPETTO A TOGLIERLI PER PULIZIA
-    override val timeStatistics: TimeStatistics = TimeStatistics()
-    override val stepper: Stepper = Stepper.zero()
-
-
-    // elements inspector
-    override val roadSimStatistics: RoadSimStatistics = RoadSimStatistics()
+    private var _timeStatistics: TimeStatistics = TimeStatistics()
+    private var _roadSimStatistics: RoadSimStatistics = RoadSimStatistics()
 
     // simulation listeners
     private var _modelListener: List[ModelSimulationListener] = List.empty
-    // per la view
+    // manca per la view
 
+    override def stepper(): Stepper = _engine.stepper
+
+    override def timeStatistics(): TimeStatistics = _timeStatistics
+
+    override def roadSimStatistics(): RoadSimStatistics = _roadSimStatistics
 
     override def environment(): Environment = _environment
 
@@ -57,13 +54,26 @@ object Simulation:
 
     override def setup(): Unit = {}
 
-    override def setupTimings(scheduler: Scheduler): Unit = _engine = _engine.buildSchedule(scheduler)
+    override def setup(scheduler: Scheduler, stepper: Stepper, environment: Environment, agents: List[Agent]): Unit =
+      _engine = _engine.build(scheduler, stepper)
+      _environment = environment
+      _agents = agents
 
-    override def setupEnvironment(env: Environment): Unit = _environment = env
+    override def start(): Simulation =
+      _engine = _engine.start()
+      this
 
-    override def addAgent(agent: Agent): Unit = _agents = _agents appended agent
+    override def step(): Simulation =
+      _engine = _engine.nextStep()
+      this
 
-    override def syncWithTime(nCyclesPerSec: Int): Unit = _nStepsPerSec = nCyclesPerSec
+    override def pause(): Simulation =
+      _engine = _engine.pause()
+      this
+
+    override def stop(): Simulation =
+      _engine = _engine.stop()
+      this
 
     override def addModelListener(listener: ModelSimulationListener): Unit =
       _modelListener = _modelListener appended listener
@@ -81,9 +91,11 @@ object Simulation:
 
     private def notifyEnd(): Unit =
       _modelListener.foreach(_ notifyEnd this)
-    // miss view listener
 
-    private def syncWithWallTime(): Unit = ???
+
+
+
+// miss view listener
 
 
 

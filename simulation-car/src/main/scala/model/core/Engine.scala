@@ -1,6 +1,9 @@
 package model.core
 
 trait Engine extends Scheduler, Stepper:
+  val scheduler: Scheduler
+  val stepper: Stepper
+  
   val startTime: Long
   val endTime: Long
   val allTimeSpent: Long
@@ -31,7 +34,7 @@ object Engine:
   def empty(): Engine = Engine(Scheduler.zero(), Stepper.zero())
 
   def apply(scheduler: Scheduler, stepper: Stepper): Engine = EngineImpl(scheduler, stepper, false)
-  
+
 
   private case class EngineImpl(scheduler: Scheduler, stepper: Stepper, isInPause: Boolean) extends Engine:
 
