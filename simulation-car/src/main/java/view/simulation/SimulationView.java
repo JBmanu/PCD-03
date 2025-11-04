@@ -47,7 +47,7 @@ public class SimulationView extends JFrame implements ViewSimulationListener {
 
     @Override
     public void notifyInit(final int t, final InspectorSimulation simulation) {
-        // TODO Auto-generated method stub
+        
     }
 
     @Override
