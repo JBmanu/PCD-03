@@ -5,7 +5,6 @@ import inspector.RoadSimStatistics;
 import inspector.Stepper;
 import inspector.TimeStatistics;
 import road.AbstractEnvironment;
-import synchronizers.monitor.startStop.StartStopMonitor;
 
 import java.util.List;
 

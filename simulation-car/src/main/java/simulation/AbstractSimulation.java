@@ -6,8 +6,6 @@ import inspector.Stepper;
 import inspector.TimeStatistics;
 import road.AbstractEnvironment;
 import simulation.listener.ModelSimulationListener;
-import synchronizers.monitor.startStop.StartStopMonitor;
-import synchronizers.monitor.startStop.StartStopMonitorImpl;
 import view.simulation.ViewSimulationListener;
 
 import java.util.ArrayList;
@@ -16,7 +14,7 @@ import java.util.List;
 /**
  * Base class for defining concrete simulations
  */
-public abstract class AbstractSimulation extends Thread implements InspectorSimulation {
+public abstract class AbstractSimulation extends Thread implements InspectorSimulation, StartStopMonitor {
 
     /* environment of the simulation */
     private AbstractEnvironment env;
@@ -40,10 +38,12 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
     private final List<ViewSimulationListener> viewListeners;
 
     // Model
-    private final StartStopMonitor startStopMonitorSimulation;
+//    private final StartStopMonitor startStopMonitorSimulation;
     private final RoadSimStatistics roadStatistics;
     private final TimeStatistics timeStatistics;
     private final Stepper stepper;
+    
+    private boolean isPause; 
 
 
     protected AbstractSimulation() {
@@ -51,15 +51,17 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
         this.modelListeners = new ArrayList<>();
         this.viewListeners = new ArrayList<>();
 
-        this.startStopMonitorSimulation = new StartStopMonitorImpl();
+//        this.startStopMonitorSimulation = new StartStopMonitorImpl();
         this.roadStatistics = new RoadSimStatistics();
         this.timeStatistics = new TimeStatistics();
         this.stepper = new Stepper();
 
+        this.isPause = true;
         this.toBeInSyncWithWallTime = false;
         this.setupModelListener();
-        this.startStopMonitorSimulation.pause();
+//        this.startStopMonitorSimulation.pause();
         this.start();
+        
     }
 
     /**
@@ -88,7 +90,7 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
 
     @Override
     public StartStopMonitor startStopMonitor() {
-        return this.startStopMonitorSimulation;
+        return this;
     }
 
     @Override
@@ -99,6 +101,16 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
     @Override
     public RoadSimStatistics roadStatistics() {
         return this.roadStatistics;
+    }
+
+    @Override
+    public void play() {
+        this.isPause = false;
+    }
+
+    @Override
+    public void pause() {
+        this.isPause = true;
     }
 
     public void init() {
@@ -141,14 +153,28 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
      */
     @Override
     public void run() {
-        this.startStopMonitorSimulation.awaitUntilPlay();
+        while (this.isPause) {
+            try {
+                Thread.sleep(10);
+            } catch (final InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+//        this.startStopMonitorSimulation.awaitUntilPlay();
         this.timeStatistics.setStartWallTime();
 
         /* initialize the env and the agents inside */
         this.init();
 
         while (this.stepper.hasMoreSteps()) {
-            this.startStopMonitorSimulation.awaitUntilPlay();
+            while (this.isPause) {
+                try {
+                    Thread.sleep(10);
+                } catch (final InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+//            this.startStopMonitorSimulation.awaitUntilPlay();
             this.nextStep();
             if (this.toBeInSyncWithWallTime) {
                 this.syncWithWallTime();
