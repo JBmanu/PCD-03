@@ -1,5 +1,7 @@
 package model.simulation
 
+import akka.actor.typed.ActorSystem
+import model.actors.ActorCar
 import model.car.Agent
 import model.core.{ Engine, Scheduler, Stepper }
 import model.inspector.{ RoadSimStatistics, TimeStatistics }
@@ -29,7 +31,8 @@ object Simulation:
   private case class SimulationImpl() extends Simulation:
 
     private var _environment: Environment = _
-    private var _agents: List[Agent] = List.empty
+    private var _cars: List[ActorSystem[ActorCar.Command]] = List.empty
+//    private var _agents: List[Agent] = List.empty
 
     // Tutto questo per engine
     private var _engine: Engine = Engine.empty()
