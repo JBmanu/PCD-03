@@ -42,18 +42,19 @@ object RoadSimStatistics:
       currentAverageSpeed = 0
       maxSpeed = -1d
       minSpeed = Double.MaxValue
-      val agents: List[Agent] = simulation.agents()
-
-      agents.foreach(agent => {
-        val car: CarAgent = agent.asInstanceOf[CarAgent]
-        val currSpeed = car.currentSpeed
-        currentAverageSpeed = currentAverageSpeed + currSpeed
-        if (currSpeed > maxSpeed) maxSpeed = currSpeed
-        else if (currSpeed < minSpeed) minSpeed = currSpeed
-      })
-
-      if (agents.nonEmpty) currentAverageSpeed = currentAverageSpeed / agents.size
-      log("average speed: " + currentAverageSpeed)
+      // RIATTIVARE LE STATISTICHE => devo cheidere tramite messaggi
+//      val agents: List[Agent] = simulation.agents()
+//
+//      agents.foreach(agent => {
+//        val car: CarAgent = agent.asInstanceOf[CarAgent]
+//        val currSpeed = car.currentSpeed
+//        currentAverageSpeed = currentAverageSpeed + currSpeed
+//        if (currSpeed > maxSpeed) maxSpeed = currSpeed
+//        else if (currSpeed < minSpeed) minSpeed = currSpeed
+//      })
+//
+//      if (agents.nonEmpty) currentAverageSpeed = currentAverageSpeed / agents.size
+//      log("average speed: " + currentAverageSpeed)
 
     override def notifyEnd(simulation: SimulationInspector): Unit = {}
 

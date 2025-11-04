@@ -17,8 +17,5 @@ trait SimulationInspector:
 
   def agents(): List[Agent]
 
-  def setup(): Unit
-
-
 
     
