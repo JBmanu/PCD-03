@@ -1,6 +1,6 @@
 package view.inspector;
 
-import model.core.Engine;
+import wrapper.Engine;
 import view.ViewUtils;
 
 import javax.swing.*;

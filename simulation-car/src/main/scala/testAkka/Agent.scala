@@ -2,9 +2,9 @@ package testAkka
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ ActorRef, Behavior }
-import model.core.Engine
 import testAkka.LoopTimer.Simulation
 import testAkka.LoopTimer.Simulation.{ ActionAgent, SimulationCommand }
+import wrapper.Engine
 
 object Agent:
 

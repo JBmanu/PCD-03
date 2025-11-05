@@ -1,4 +1,4 @@
-package model.core
+package wrapper
 
 trait Scheduler:
   val startTime: Long

@@ -1,3 +1,0 @@
-package model.simulation
-
-trait ModelSimulationListener extends SimulationListener

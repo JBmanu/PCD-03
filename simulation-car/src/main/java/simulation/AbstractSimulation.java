@@ -2,9 +2,8 @@ package simulation;
 
 import car.AbstractAgent;
 import inspector.RoadSimStatistics;
-import inspector.TimeStatistics;
-import model.core.Engine;
-import model.core.Scheduler;
+import wrapper.Engine;
+import wrapper.Scheduler;
 import road.AbstractEnvironment;
 import simulation.listener.ModelSimulationListener;
 import view.simulation.ViewSimulationListener;
@@ -25,15 +24,13 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 
     // engine to control simulation
     private Engine engine;
+    // Statistics cars
+    private final RoadSimStatistics roadStatistics;
 
     /* simulation listeners */
     private final List<ModelSimulationListener> modelListeners;
     private final List<ViewSimulationListener> viewListeners;
 
-    // Model
-//    private final StartStopMonitor startStopMonitorSimulation;
-    private final RoadSimStatistics roadStatistics;
-//    private final TimeStatistics timeStatistics;
 
     protected AbstractSimulation() {
         this.agents = new ArrayList<>();
@@ -74,11 +71,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         this.engine = this.engine.setTotalSteps(totalSteps);
     }
 
-//    @Override
-//    public TimeStatistics timeStatistics() {
-//        return this.timeStatistics;
-//    }
-
     @Override
     public RoadSimStatistics roadStatistics() {
         return this.roadStatistics;
@@ -99,7 +91,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     public void start() {
         /* initialize the env and the agents inside */
         this.engine = this.engine.start();
-
         this.env.init();
         this.agents.forEach(agent -> agent.init(this.env));
         this.notifyInit(this.engine.currentTick());
@@ -108,61 +99,17 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     public void nextStep() {
         /* make a step */
         this.env.step(this.engine.delta());
-        for (final var agent : this.agents) {
-            agent.step(this.engine.delta());
-        }
-
+        this.agents.forEach(agent -> agent.step(this.engine.delta()));
         this.engine = this.engine.nextStep();
         this.notifyStepDone(this.engine.currentTick());
-
-//        this.stepper.increaseStep();
-//        this.timePerStep += System.currentTimeMillis() - this.timeStatistics.currentWallTime();
     }
 
     public void end() {
         this.engine = this.engine.stop();
-//        this.timeStatistics.setAverageTimeForStep((double) this.engine.allTimeSpent() / this.stepper.totalStep());
-
         System.out.println("COMPLETED IN: " + this.engine.allTimeSpent() + " ms");
         System.out.println("AVERAGE TIME PER STEP: " + this.engine.averageTimeForStep() + " ms");
         this.notifyEnd();
     }
-
-    /**
-     * Method running the simulation for a number of steps,
-     * using a sequential approach
-     */
-//    @Override
-//    public void run() {
-//        while (this.isPause) {
-//            try {
-//                Thread.sleep(10);
-//            } catch (final InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-////        this.startStopMonitorSimulation.awaitUntilPlay();
-//
-//        /* initialize the env and the agents inside */
-//        this.init();
-//
-//        while (this.stepper.hasMoreSteps()) {
-//            while (this.isPause) {
-//                try {
-//                    Thread.sleep(10);
-//                } catch (final InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-////            this.startStopMonitorSimulation.awaitUntilPlay();
-//            this.nextStep();
-//            if (this.toBeInSyncWithWallTime) {
-//                this.syncWithWallTime();
-//            }
-//        }
-//
-//        this.end();
-//    }
 
     /* methods for configuring the simulation */
     protected void setupTimings(final int nCyclesPerSec, final int t0, final int dt) {
@@ -220,5 +167,5 @@ public abstract class AbstractSimulation implements InspectorSimulation {
             listener.notifyEnd(this);
         }
     }
-    
+
 }

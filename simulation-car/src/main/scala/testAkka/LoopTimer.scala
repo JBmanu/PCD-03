@@ -2,9 +2,9 @@ package testAkka
 
 import akka.actor.typed.*
 import akka.actor.typed.scaladsl.*
-import model.core.{ Engine, Scheduler, Stepper }
 import testAkka.Agent.AgentCommand
 import testAkka.LoopTimer.Simulation.SimulationCommand
+import wrapper.{ Engine, Scheduler, Stepper }
 
 import scala.concurrent.duration.*
 

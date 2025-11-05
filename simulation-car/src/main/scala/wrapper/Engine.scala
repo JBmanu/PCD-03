@@ -1,4 +1,4 @@
-package model.core
+package wrapper
 
 trait Engine extends Scheduler, Stepper:
   val scheduler: Scheduler

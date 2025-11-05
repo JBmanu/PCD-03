@@ -2,8 +2,7 @@ package simulation;
 
 import car.AbstractAgent;
 import inspector.RoadSimStatistics;
-import inspector.TimeStatistics;
-import model.core.Engine;
+import wrapper.Engine;
 import road.AbstractEnvironment;
 
 import java.util.List;
@@ -11,8 +10,6 @@ import java.util.List;
 public interface InspectorSimulation {
 
     Engine engine();
-
-//    TimeStatistics timeStatistics();
 
     RoadSimStatistics roadStatistics();
 

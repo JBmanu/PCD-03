@@ -34,7 +34,6 @@ public class RoadSimStatistics implements ModelSimulationListener {
 	
 	@Override
 	public void notifyInit(final int t, final InspectorSimulation simulation) {
-		// TODO Auto-generated method stub
 		// log("reset: " + t);
         this.averageSpeed = 0;
 		this.currentAverageSpeed = 0;
