@@ -26,7 +26,7 @@ object LoopTimer:
 
     object Start extends SimulationCommand
 
-    private case class Step() extends SimulationCommand
+    object Step extends SimulationCommand
 
     object Pause extends SimulationCommand
 
@@ -42,10 +42,10 @@ object LoopTimer:
             Behaviors.receiveMessage:
               case Start =>
                 context.log.info(s"[SIM] START ciclo con timer di ${state.engine}")
-                context.self ! Step()
+                context.self ! Step
                 withState(state.updateEngine(_.start()))
 
-              case Step() =>
+              case Step =>
                 val newEngine = state.engine.nextStep()
                 context.log.info(s"[SIM] STEP con timer di $newEngine")
                 state.agents.foreach(_ ! Agent.Start(context.self, newEngine, state.agents))
@@ -69,10 +69,10 @@ object LoopTimer:
                       state.engine.computeDelay() match
                         case Some(value: Long) =>
                           context.log.info(s"[SIM] TICK con timer: ${state.engine} e delay: $value")
-                          timers.startSingleTimer(Step(), value.millis)
+                          timers.startSingleTimer(Step, value.millis)
                         case None              =>
                           context.log.info(s"[SIM] TICK con timer: ${state.engine}, ma nessun delay calcolato")
-                          context.self ! Step()
+                          context.self ! Step
                     else
                       context.self ! Stop()
                   withState(state.updateCounter(_ => 0))

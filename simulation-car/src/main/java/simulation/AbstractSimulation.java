@@ -112,7 +112,7 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
     public void pause() {
         this.isPause = true;
     }
-    
+
     public boolean isPause() {
         return this.isPause;
     }
@@ -121,7 +121,7 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
         /* initialize the env and the agents inside */
         this.setup();
         this.play();
-        
+
         this.t = this.t0;
         this.timePerStep = 0;
         this.timeStatistics.setStartWallTime();
@@ -136,8 +136,10 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
 
         /* make a step */
         this.env.step(this.dt);
-        this.agents.forEach(car -> car.step(this.dt));
-        
+        for (final var agent : this.agents) {
+            agent.step(this.dt);
+        }
+
         this.t += this.dt;
 
         this.notifyStepDone(this.t);

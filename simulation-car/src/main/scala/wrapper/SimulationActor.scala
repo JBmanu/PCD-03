@@ -4,6 +4,8 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ ActorSystem, Behavior }
 import simulation.AbstractSimulation
 
+import scala.concurrent.duration.DurationInt
+
 
 object SimulationActor:
 
@@ -39,7 +41,7 @@ object SimulationActor:
 
           case NextStep =>
             simulation.nextStep()
-            if (!simulation.isPause) context.self ! NextStep
+            if (!simulation.isPause) timers.startSingleTimer(NextStep, 100.millis)
             Behaviors.same
 
           case Pause =>
