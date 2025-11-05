@@ -94,7 +94,6 @@ public class StartStopView extends JPanel {
 
             if (this.isSetup) {
                 this.inspectorSimulation.tell(Start$.MODULE$);
-//            this.inspectorSimulation.startStopMonitor().play();
                 System.out.println("PLAY");
                 this.switchStop();
             }
@@ -102,16 +101,13 @@ public class StartStopView extends JPanel {
         this.pauseResumeButton.addActionListener(e -> {
             if (this.pauseResumeButton.getText().equals(PAUSE)) {
                 this.inspectorSimulation.tell(Pause$.MODULE$);
-//                this.inspectorSimulation.startStopMonitor().pause();
                 this.pauseResumeButton.setText(RESUME);
             } else {
                 this.inspectorSimulation.tell(Resume$.MODULE$);
-//                this.inspectorSimulation.startStopMonitor().play();
                 this.pauseResumeButton.setText(PAUSE);
             }
         });
         this.stopButton.addActionListener(e -> {
-//            this.inspectorSimulation.startStopMonitor().pause();
             this.onEndSimulation();
             JOptionPane.showMessageDialog(this, "Simulation closed");
             System.exit(0);

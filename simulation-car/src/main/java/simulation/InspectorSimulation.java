@@ -12,8 +12,6 @@ public interface InspectorSimulation {
 
     Stepper stepper();
 
-    StartStopMonitor startStopMonitor();
-
     TimeStatistics timeStatistics();
 
     RoadSimStatistics roadStatistics();

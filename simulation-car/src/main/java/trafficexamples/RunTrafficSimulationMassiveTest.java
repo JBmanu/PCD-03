@@ -13,7 +13,9 @@ public class RunTrafficSimulationMassiveTest {
 		log("Running the simulation: " + numCars + " cars, for " + nSteps + " steps ...");
 
 		simulation.stepper().setTotalStep(nSteps);
-		simulation.startStopMonitor().play();
+        // ora non va più dato che è fatto con gli attori
+        // fai funzione per adattare
+//		simulation.play();
 	}
 	
 	private static void log(final String msg) {

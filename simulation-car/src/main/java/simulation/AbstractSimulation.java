@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Base class for defining concrete simulations
  */
-public abstract class AbstractSimulation extends Thread implements InspectorSimulation, StartStopMonitor {
+public abstract class AbstractSimulation implements InspectorSimulation {
 
     /* environment of the simulation */
     private AbstractEnvironment env;
@@ -60,8 +60,6 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
         this.toBeInSyncWithWallTime = false;
         this.setupModelListener();
 //        this.startStopMonitorSimulation.pause();
-        this.start();
-        
     }
 
     /**
@@ -89,11 +87,6 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
     }
 
     @Override
-    public StartStopMonitor startStopMonitor() {
-        return this;
-    }
-
-    @Override
     public TimeStatistics timeStatistics() {
         return this.timeStatistics;
     }
@@ -103,12 +96,10 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
         return this.roadStatistics;
     }
 
-    @Override
     public void play() {
         this.isPause = false;
     }
 
-    @Override
     public void pause() {
         this.isPause = true;
     }
@@ -119,7 +110,6 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
 
     public void init() {
         /* initialize the env and the agents inside */
-        this.setup();
         this.play();
 
         this.t = this.t0;
@@ -161,37 +151,37 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
      * Method running the simulation for a number of steps,
      * using a sequential approach
      */
-    @Override
-    public void run() {
-        while (this.isPause) {
-            try {
-                Thread.sleep(10);
-            } catch (final InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-//        this.startStopMonitorSimulation.awaitUntilPlay();
-
-        /* initialize the env and the agents inside */
-        this.init();
-
-        while (this.stepper.hasMoreSteps()) {
-            while (this.isPause) {
-                try {
-                    Thread.sleep(10);
-                } catch (final InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-//            this.startStopMonitorSimulation.awaitUntilPlay();
-            this.nextStep();
-            if (this.toBeInSyncWithWallTime) {
-                this.syncWithWallTime();
-            }
-        }
-        
-        this.end();
-    }
+//    @Override
+//    public void run() {
+//        while (this.isPause) {
+//            try {
+//                Thread.sleep(10);
+//            } catch (final InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+////        this.startStopMonitorSimulation.awaitUntilPlay();
+//
+//        /* initialize the env and the agents inside */
+//        this.init();
+//
+//        while (this.stepper.hasMoreSteps()) {
+//            while (this.isPause) {
+//                try {
+//                    Thread.sleep(10);
+//                } catch (final InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+////            this.startStopMonitorSimulation.awaitUntilPlay();
+//            this.nextStep();
+//            if (this.toBeInSyncWithWallTime) {
+//                this.syncWithWallTime();
+//            }
+//        }
+//        
+//        this.end();
+//    }
 
     /* methods for configuring the simulation */
     protected void setupTimings(final int t0, final int dt) {

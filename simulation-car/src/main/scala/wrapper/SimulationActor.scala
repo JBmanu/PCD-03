@@ -32,6 +32,7 @@ object SimulationActor:
         Behaviors.receiveMessage:
           case Setup(totalStep: Int) =>
             simulation.stepper().setTotalStep(totalStep)
+            simulation.setup()
             Behaviors.same
 
           case Start =>
