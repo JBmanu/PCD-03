@@ -25,7 +25,7 @@ trait Engine extends Scheduler, Stepper:
 
   override def nextStep(): Engine
 
-  override def setTotalStep(value: Int): Engine
+  override def setTotalSteps(value: Int): Engine
 
   def averageTimeForStep(): Double
 
@@ -41,7 +41,7 @@ object Engine:
   private case class EngineImpl(scheduler: Scheduler, stepper: Stepper, isInPause: Boolean) extends Engine:
 
     export scheduler.{ start => _, stop => _, nextStep => _, _ }
-    export stepper.{ setTotalStep => _, nextStep => _, _ }
+    export stepper.{ setTotalSteps => _, nextStep => _, _ }
 
     override def buildSchedule(scheduler: Scheduler): Engine = copy(scheduler, isInPause = false)
 
@@ -59,7 +59,7 @@ object Engine:
 
     override def nextStep(): Engine = copy(scheduler.nextStep(), stepper.nextStep())
 
-    override def setTotalStep(value: Int): Engine = copy(stepper = stepper.setTotalStep(value))
+    override def setTotalSteps(value: Int): Engine = copy(stepper = stepper.setTotalSteps(value))
 
     override def averageTimeForStep(): Double = scheduler.averageTimeFor(stepper)
 

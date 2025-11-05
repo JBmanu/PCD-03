@@ -21,7 +21,7 @@ public class TrafficSimulationSingleRoadWithTrafficLightTwoCars extends Abstract
 	
 	public void setup() {
 
-		this.setupTimings(0, 1);
+		this.setupTimings(25, 0, 1);
 		
 		final RoadsEnv env = new RoadsEnv();
 		this.setupEnvironment(env);
@@ -35,8 +35,6 @@ public class TrafficSimulationSingleRoadWithTrafficLightTwoCars extends Abstract
 		this.addAgent(car1);		
 		final CarAgent car2 = new CarAgentExtended("car-2", env, r, 100, 0.1, 0.3, 5);
 		this.addAgent(car2);
-
-		this.syncWithTime(25);
 	}	
 	
 }

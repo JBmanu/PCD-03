@@ -7,7 +7,7 @@ trait Stepper:
 
   val hasMoreSteps: Boolean
 
-  def setTotalStep(value: Int): Stepper
+  def setTotalSteps(value: Int): Stepper
 
   def nextStep(): Stepper
 
@@ -22,7 +22,7 @@ object Stepper:
   private case class StepperImpl(totalStep: Int, currentStep: Int) extends Stepper:
     override val hasMoreSteps: Boolean = currentStep < totalStep
 
-    override def setTotalStep(value: Int): Stepper = copy(totalStep = value)
+    override def setTotalSteps(value: Int): Stepper = copy(totalStep = value)
 
     override def nextStep(): Stepper = copy(currentStep = currentStep + 1)
 

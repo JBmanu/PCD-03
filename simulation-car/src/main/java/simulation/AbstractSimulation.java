@@ -2,7 +2,6 @@ package simulation;
 
 import car.AbstractAgent;
 import inspector.RoadSimStatistics;
-import inspector.Stepper;
 import inspector.TimeStatistics;
 import model.core.Engine;
 import model.core.Scheduler;
@@ -24,12 +23,8 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     /* list of the agents */
     private final List<AbstractAgent> agents;
 
-    // engine to control 
+    // engine to control simulation
     private Engine engine;
-
-    /* in the case of sync with wall-time */
-    private boolean toBeInSyncWithWallTime;
-    private int nStepsPerSec;
 
     /* simulation listeners */
     private final List<ModelSimulationListener> modelListeners;
@@ -39,7 +34,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 //    private final StartStopMonitor startStopMonitorSimulation;
     private final RoadSimStatistics roadStatistics;
     private final TimeStatistics timeStatistics;
-    private final Stepper stepper;
 
     protected AbstractSimulation() {
         this.agents = new ArrayList<>();
@@ -49,9 +43,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 
         this.roadStatistics = new RoadSimStatistics();
         this.timeStatistics = new TimeStatistics();
-        this.stepper = new Stepper();
 
-        this.toBeInSyncWithWallTime = false;
         this.setupModelListener();
     }
 
@@ -75,8 +67,12 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     }
 
     @Override
-    public Stepper stepper() {
-        return this.stepper;
+    public Engine engine() {
+        return this.engine;
+    }
+
+    public void setTotalSteps(final int totalSteps) {
+        this.engine = this.engine.setTotalSteps(totalSteps);
     }
 
     @Override
@@ -124,15 +120,15 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         this.engine = this.engine.nextStep();
         this.notifyStepDone(this.engine.currentTick());
 
-        this.stepper.increaseStep();
-        
+//        this.stepper.increaseStep();
 //        this.timePerStep += System.currentTimeMillis() - this.timeStatistics.currentWallTime();
     }
 
     public void end() {
         this.engine = this.engine.stop();
         this.timeStatistics.setEndWallTime(this.engine.endTime());
-        this.timeStatistics.setAverageTimeForStep((double) this.engine.allTimeSpent() / this.stepper.totalStep());
+        this.timeStatistics.setAverageTimeForStep(this.engine.averageTimeForStep());
+//        this.timeStatistics.setAverageTimeForStep((double) this.engine.allTimeSpent() / this.stepper.totalStep());
 
         System.out.println("COMPLETED IN: " + this.timeStatistics().totalWallTime() + " ms");
         System.out.println("AVERAGE TIME PER STEP: " + this.timeStatistics().averageTimeForStep() + " ms");
@@ -171,18 +167,13 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 //                this.syncWithWallTime();
 //            }
 //        }
-//        
+//
 //        this.end();
 //    }
 
     /* methods for configuring the simulation */
-    protected void setupTimings(final int t0, final int dt) {
-        this.engine = this.engine.buildSchedule(Scheduler.apply(0, t0, dt));
-    }
-
-    protected void syncWithTime(final int nCyclesPerSec) {
-        this.toBeInSyncWithWallTime = true;
-        this.nStepsPerSec = nCyclesPerSec;
+    protected void setupTimings(final int nCyclesPerSec, final int t0, final int dt) {
+        this.engine = this.engine.buildSchedule(Scheduler.apply(nCyclesPerSec, t0, dt));
     }
 
     protected void setupEnvironment(final AbstractEnvironment env) {
@@ -236,19 +227,5 @@ public abstract class AbstractSimulation implements InspectorSimulation {
             listener.notifyEnd(this);
         }
     }
-
-    /* method to sync with wall time at a specified step rate */
-//    private void syncWithWallTime() {
-//        try {
-//            final long newWallTime = System.currentTimeMillis();
-//            final long delay = 1000 / this.nStepsPerSec;
-//            final long wallTimeDT = newWallTime - this.timeStatistics.currentWallTime();
-//            if (wallTimeDT < delay) {
-//                Thread.sleep(delay - wallTimeDT);
-//            }
-//        } catch (final Exception ex) {
-//        }
-//    }
-
-
+    
 }

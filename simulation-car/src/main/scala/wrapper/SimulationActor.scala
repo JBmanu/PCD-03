@@ -1,10 +1,10 @@
 package wrapper
 
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ ActorSystem, Behavior }
 import simulation.AbstractSimulation
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.DurationLong
 
 
 object SimulationActor:
@@ -31,7 +31,7 @@ object SimulationActor:
       Behaviors.withTimers: timers =>
         Behaviors.receiveMessage:
           case Setup(totalStep: Int) =>
-            simulation.stepper().setTotalStep(totalStep)
+            simulation.setTotalSteps(totalStep)
             simulation.setup()
             Behaviors.same
 
@@ -42,10 +42,13 @@ object SimulationActor:
 
           case NextStep =>
             simulation.nextStep()
-            if (simulation.stepper().hasMoreSteps)
-              if (!simulation.isPause) timers.startSingleTimer(NextStep, 100.millis)
-            else
-              context.self ! Stop
+            if !simulation.isPause then
+              if simulation.engine.hasMoreSteps then
+                simulation.engine().computeDelay() match
+                  case Some(value) => timers.startSingleTimer(NextStep, value.millis)
+                  case None        => context.self ! NextStep
+              else
+                context.self ! Stop
             Behaviors.same
 
           case Pause =>

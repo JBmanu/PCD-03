@@ -54,8 +54,7 @@ public class StepperView extends JPanel implements StartStopViewListener {
         this.errorLabel.setText("");
     }
 
-    public void updateStepper(final Stepper stepper) {
-        final int currentStep = stepper.currentStep() + 1;
+    public void updateStepper(final int currentStep) {
         this.currentStepLabel.setText("Current Step: " + currentStep);
     }
 
