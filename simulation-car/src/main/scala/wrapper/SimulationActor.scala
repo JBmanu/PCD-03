@@ -36,13 +36,16 @@ object SimulationActor:
             Behaviors.same
 
           case Start =>
-            simulation.init()
+            simulation.start()
             context.self ! NextStep
             Behaviors.same
 
           case NextStep =>
             simulation.nextStep()
-            if (!simulation.isPause && simulation.stepper().hasMoreSteps) timers.startSingleTimer(NextStep, 100.millis)
+            if (simulation.stepper().hasMoreSteps)
+              if (!simulation.isPause) timers.startSingleTimer(NextStep, 100.millis)
+            else
+              context.self ! Stop
             Behaviors.same
 
           case Pause =>

@@ -4,6 +4,8 @@ import car.AbstractAgent;
 import inspector.RoadSimStatistics;
 import inspector.Stepper;
 import inspector.TimeStatistics;
+import model.core.Engine;
+import model.core.Scheduler;
 import road.AbstractEnvironment;
 import simulation.listener.ModelSimulationListener;
 import view.simulation.ViewSimulationListener;
@@ -22,12 +24,8 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     /* list of the agents */
     private final List<AbstractAgent> agents;
 
-    /* logical time step */
-    private int dt;
-    /* initial logical time */
-    private int t0;
-    private int t;
-    private long timePerStep;
+    // engine to control 
+    private Engine engine;
 
     /* in the case of sync with wall-time */
     private boolean toBeInSyncWithWallTime;
@@ -42,16 +40,16 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     private final RoadSimStatistics roadStatistics;
     private final TimeStatistics timeStatistics;
     private final Stepper stepper;
-    
-    private boolean isPause; 
+
+    private boolean isPause;
 
 
     protected AbstractSimulation() {
         this.agents = new ArrayList<>();
         this.modelListeners = new ArrayList<>();
         this.viewListeners = new ArrayList<>();
+        this.engine = Engine.empty();
 
-//        this.startStopMonitorSimulation = new StartStopMonitorImpl();
         this.roadStatistics = new RoadSimStatistics();
         this.timeStatistics = new TimeStatistics();
         this.stepper = new Stepper();
@@ -59,7 +57,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         this.isPause = true;
         this.toBeInSyncWithWallTime = false;
         this.setupModelListener();
-//        this.startStopMonitorSimulation.pause();
     }
 
     /**
@@ -108,45 +105,46 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         return this.isPause;
     }
 
-    public void init() {
+    public void start() {
         /* initialize the env and the agents inside */
         this.play();
 
-        this.t = this.t0;
-        this.timePerStep = 0;
+        this.engine = this.engine.start();
+//        this.timePerStep = 0;
         this.timeStatistics.setStartWallTime();
 
         this.env.init();
         this.agents.forEach(agent -> agent.init(this.env));
-        this.notifyInit(this.t);
+        this.notifyInit(this.engine.currentTick());
     }
-    
+
     public void nextStep() {
         this.timeStatistics.setCurrentWallTime(System.currentTimeMillis());
 
         /* make a step */
-        this.env.step(this.dt);
+        this.env.step(this.engine.delta());
         for (final var agent : this.agents) {
-            agent.step(this.dt);
+            agent.step(this.engine.delta());
         }
 
-        this.t += this.dt;
-
-        this.notifyStepDone(this.t);
+        this.engine = this.engine.nextStep();
+        this.notifyStepDone(this.engine.currentTick());
 
         this.stepper.increaseStep();
-        this.timePerStep += System.currentTimeMillis() - this.timeStatistics.currentWallTime();
+        
+//        this.timePerStep += System.currentTimeMillis() - this.timeStatistics.currentWallTime();
     }
-    
+
     public void end() {
-        this.timeStatistics.setEndWallTime(System.currentTimeMillis());
-        this.timeStatistics.setAverageTimeForStep((double) this.timePerStep / this.stepper.totalStep());
+        this.engine = this.engine.stop();
+        this.timeStatistics.setEndWallTime(this.engine.endTime());
+        this.timeStatistics.setAverageTimeForStep((double) this.engine.allTimeSpent() / this.stepper.totalStep());
 
         System.out.println("COMPLETED IN: " + this.timeStatistics().totalWallTime() + " ms");
         System.out.println("AVERAGE TIME PER STEP: " + this.timeStatistics().averageTimeForStep() + " ms");
         this.notifyEnd();
     }
-    
+
     /**
      * Method running the simulation for a number of steps,
      * using a sequential approach
@@ -185,8 +183,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 
     /* methods for configuring the simulation */
     protected void setupTimings(final int t0, final int dt) {
-        this.dt = dt;
-        this.t0 = t0;
+        this.engine = this.engine.buildSchedule(Scheduler.apply(0, t0, dt));
     }
 
     protected void syncWithTime(final int nCyclesPerSec) {
@@ -247,18 +244,17 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     }
 
     /* method to sync with wall time at a specified step rate */
-
-    private void syncWithWallTime() {
-        try {
-            final long newWallTime = System.currentTimeMillis();
-            final long delay = 1000 / this.nStepsPerSec;
-            final long wallTimeDT = newWallTime - this.timeStatistics.currentWallTime();
-            if (wallTimeDT < delay) {
-                Thread.sleep(delay - wallTimeDT);
-            }
-        } catch (final Exception ex) {
-        }
-    }
+//    private void syncWithWallTime() {
+//        try {
+//            final long newWallTime = System.currentTimeMillis();
+//            final long delay = 1000 / this.nStepsPerSec;
+//            final long wallTimeDT = newWallTime - this.timeStatistics.currentWallTime();
+//            if (wallTimeDT < delay) {
+//                Thread.sleep(delay - wallTimeDT);
+//            }
+//        } catch (final Exception ex) {
+//        }
+//    }
 
 
 }

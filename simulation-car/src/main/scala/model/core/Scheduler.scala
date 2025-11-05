@@ -56,6 +56,3 @@ object Scheduler:
     override def computeDelay(): Option[Long] =
       val elapsed: Long = System.currentTimeMillis() - currentTime
       nStepPerSec.map(value => (1000.0 / value).toLong - elapsed)
-
-//      val delay: Long = (1000.0 / nStepPerSec).toLong - elapsed
-//      Option.when(delay > 0)(delay)
