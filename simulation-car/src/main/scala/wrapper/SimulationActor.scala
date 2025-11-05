@@ -41,7 +41,7 @@ object SimulationActor:
 
           case NextStep =>
             simulation.nextStep()
-            if (!simulation.isPause) timers.startSingleTimer(NextStep, 100.millis)
+            if (!simulation.isPause && simulation.stepper().hasMoreSteps) timers.startSingleTimer(NextStep, 100.millis)
             Behaviors.same
 
           case Pause =>
