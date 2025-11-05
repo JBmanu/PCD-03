@@ -81,7 +81,7 @@ object LoopTimer:
 
       val agents: Set[ActorRef[AgentCommand]] = (1 to 5).map(i => ActorSystem(Agent(), s"AgentSystem$i")).toSet
 
-      val scheduler = Scheduler(3, 0, 100)
+      val scheduler = Scheduler(0, 0, 100)
       val stepper = Stepper(10 * 3)
       withState(SimulationState(Engine(scheduler, stepper), agents, 0))
 

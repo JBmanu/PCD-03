@@ -6,7 +6,7 @@ trait Scheduler:
   val allTimeSpent: Long
 
   val currentTime: Long
-  val nStepPerSec: Int
+  val nStepPerSec: Option[Int]
   val currentTick: Int
   val delta: Int
 
@@ -29,11 +29,11 @@ object Scheduler:
   def default(nStepPerSec: Int, delta: Int): Scheduler = Scheduler(nStepPerSec, 0, delta)
 
   def apply(nStepPerSec: Int, initTick: Int, delta: Int): Scheduler =
-    SchedulerImpl(0L, 0L, System.currentTimeMillis(), nStepPerSec, initTick, delta)
+    SchedulerImpl(0L, 0L, System.currentTimeMillis(), Option.when(nStepPerSec > 0)(nStepPerSec), initTick, delta)
 
 
   private case class SchedulerImpl(startTime: Long, endTime: Long,
-                                   currentTime: Long, nStepPerSec: Int,
+                                   currentTime: Long, nStepPerSec: Option[Int],
                                    currentTick: Int, delta: Int) extends Scheduler:
 
     override val allTimeSpent: Long = endTime - startTime
@@ -55,5 +55,7 @@ object Scheduler:
 
     override def computeDelay(): Option[Long] =
       val elapsed: Long = System.currentTimeMillis() - currentTime
-      val delay: Long = (1000.0 / nStepPerSec).toLong - elapsed
-      Option.when(delay > 0)(delay)
+      nStepPerSec.map(value => (1000.0 / value).toLong - elapsed)
+
+//      val delay: Long = (1000.0 / nStepPerSec).toLong - elapsed
+//      Option.when(delay > 0)(delay)
