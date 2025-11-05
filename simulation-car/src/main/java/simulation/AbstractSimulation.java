@@ -41,9 +41,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     private final TimeStatistics timeStatistics;
     private final Stepper stepper;
 
-    private boolean isPause;
-
-
     protected AbstractSimulation() {
         this.agents = new ArrayList<>();
         this.modelListeners = new ArrayList<>();
@@ -54,7 +51,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         this.timeStatistics = new TimeStatistics();
         this.stepper = new Stepper();
 
-        this.isPause = true;
         this.toBeInSyncWithWallTime = false;
         this.setupModelListener();
     }
@@ -93,22 +89,20 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         return this.roadStatistics;
     }
 
-    public void play() {
-        this.isPause = false;
+    public void pause() {
+        this.engine = this.engine.pause();
     }
 
-    public void pause() {
-        this.isPause = true;
+    public void resume() {
+        this.engine = this.engine.resume();
     }
 
     public boolean isPause() {
-        return this.isPause;
+        return this.engine.isInPause();
     }
 
     public void start() {
         /* initialize the env and the agents inside */
-        this.play();
-
         this.engine = this.engine.start();
 //        this.timePerStep = 0;
         this.timeStatistics.setStartWallTime();

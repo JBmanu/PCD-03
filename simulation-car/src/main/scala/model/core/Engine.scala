@@ -19,6 +19,8 @@ trait Engine extends Scheduler, Stepper:
 
   def pause(): Engine
 
+  def resume(): Engine
+
   override def stop(): Engine
 
   override def nextStep(): Engine
@@ -50,6 +52,8 @@ object Engine:
     override def start(): Engine = copy(scheduler.start(), isInPause = false)
 
     override def pause(): Engine = copy(isInPause = true)
+
+    override def resume(): Engine = copy(isInPause = false)
 
     override def stop(): Engine = copy(scheduler.stop())
 

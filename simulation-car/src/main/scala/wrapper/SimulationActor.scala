@@ -53,7 +53,7 @@ object SimulationActor:
             Behaviors.same
 
           case Resume =>
-            simulation.play()
+            simulation.resume()
             context.self ! NextStep
             Behaviors.same
 
