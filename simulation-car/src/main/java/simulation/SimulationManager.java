@@ -1,6 +1,9 @@
 package simulation;
 
+import akka.actor.typed.ActorRef;
+import akka.actor.typed.ActorSystem;
 import view.simulation.SimulationView;
+import wrapper.SimulationActor;
 
 public class SimulationManager {
     private SimulationType simulationType;
@@ -20,7 +23,11 @@ public class SimulationManager {
         this.simulationType = simulationType;
         final AbstractSimulation simulation = simulationType.getSimulation();
         simulation.addViewListener(this.view);
-        this.view.setupCommandsSimulation(simulation);
+        
+        final ActorRef<SimulationActor.Command> actorSystem =
+                ActorSystem.apply(SimulationActor.apply(simulation), "Simulation");
+
+        this.view.setupCommandsSimulation(actorSystem);
     }
 
 

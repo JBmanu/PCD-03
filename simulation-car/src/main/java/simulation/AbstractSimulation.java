@@ -112,15 +112,23 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
     public void pause() {
         this.isPause = true;
     }
+    
+    public boolean isPause() {
+        return this.isPause;
+    }
 
     public void init() {
         /* initialize the env and the agents inside */
+        this.setup();
+        this.play();
+        
         this.t = this.t0;
         this.timePerStep = 0;
+        this.timeStatistics.setStartWallTime();
 
         this.env.init();
         this.agents.forEach(agent -> agent.init(this.env));
-        this.notifyReset(this.t);
+        this.notifyInit(this.t);
     }
     
     public void nextStep() {
@@ -161,7 +169,6 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
             }
         }
 //        this.startStopMonitorSimulation.awaitUntilPlay();
-        this.timeStatistics.setStartWallTime();
 
         /* initialize the env and the agents inside */
         this.init();
@@ -214,7 +221,7 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
     }
 
     // actions
-    private void notifyReset(final int t0) {
+    private void notifyInit(final int t0) {
         // Model
         for (final var listener : this.modelListeners) {
             listener.notifyInit(t0, this);
@@ -225,7 +232,7 @@ public abstract class AbstractSimulation extends Thread implements InspectorSimu
         }
     }
 
-    private void notifyStepDone(final int t) {
+    public void notifyStepDone(final int t) {
         // Model
         for (final var listener : this.modelListeners) {
             listener.notifyStepDone(t, this);

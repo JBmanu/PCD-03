@@ -1,10 +1,12 @@
 package view.inspector;
 
+import akka.actor.typed.ActorRef;
 import simulation.InspectorSimulation;
 import simulation.SimulationManager;
 import view.*;
 import view.inspector.setting.InspectorSimulationView;
 import view.inspector.setting.StartStopView;
+import wrapper.SimulationActor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -58,7 +60,7 @@ public class InspectorPanelView extends JPanel {
         this.startStopView.addListener(this.stepperView);
     }
 
-    public void setupSimulation(final InspectorSimulation simulation) {
+    public void setupSimulation(final ActorRef<SimulationActor.Command> simulation) {
         this.startStopView.setupSimulation(simulation);
     }
 

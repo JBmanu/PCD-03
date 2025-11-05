@@ -1,9 +1,10 @@
 package view.inspector;
 
+import akka.actor.typed.ActorRef;
 import inspector.Stepper;
-import simulation.InspectorSimulation;
 import view.ViewUtils;
 import view.inspector.setting.StartStopViewListener;
+import wrapper.SimulationActor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -59,17 +60,18 @@ public class StepperView extends JPanel implements StartStopViewListener {
     }
 
     @Override
-    public boolean conditionToStart(final InspectorSimulation simulation) {
+    public boolean conditionToStart(final ActorRef<SimulationActor.Command> simulation) {
         return this.getStep() > 0;
     }
 
     @Override
-    public void onStart(final InspectorSimulation simulation) {
-        simulation.stepper().setTotalStep(this.getStep());
+    public void onStart(final ActorRef<SimulationActor.Command> simulation) {
+        simulation.tell(new SimulationActor.Setup(this.getStep()));
+//        simulation.stepper().setTotalStep(this.getStep());
     }
 
     @Override
-    public void reset(final InspectorSimulation simulation) {
+    public void reset(final ActorRef<SimulationActor.Command> simulation) {
 
     }
 }

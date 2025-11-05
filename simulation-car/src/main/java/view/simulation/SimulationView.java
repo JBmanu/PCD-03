@@ -1,10 +1,12 @@
 package view.simulation;
 
+import akka.actor.typed.ActorRef;
 import simulation.InspectorSimulation;
 import simulation.SimulationManager;
 import road.RoadsEnv;
 import view.ViewUtils;
 import view.inspector.InspectorPanelView;
+import wrapper.SimulationActor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,7 +43,7 @@ public class SimulationView extends JFrame implements ViewSimulationListener {
         this.glassPane.setVisible(true);
     }
 
-    public void setupCommandsSimulation(final InspectorSimulation simulation) {
+    public void setupCommandsSimulation(final ActorRef<SimulationActor.Command> simulation) {
         this.inspectorPanelView.setupSimulation(simulation);
     }
 

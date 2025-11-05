@@ -1,7 +1,11 @@
 package view.inspector.setting;
 
-import simulation.InspectorSimulation;
+import akka.actor.typed.ActorRef;
 import view.ViewUtils;
+import wrapper.SimulationActor;
+import wrapper.SimulationActor.Pause$;
+import wrapper.SimulationActor.Resume$;
+import wrapper.SimulationActor.Start$;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +25,7 @@ public class StartStopView extends JPanel {
     private final FlowLayout layoutManager;
 
     private final List<StartStopViewListener> listeners;
-    private InspectorSimulation inspectorSimulation;
+    private ActorRef<SimulationActor.Command> inspectorSimulation;
     private boolean isSetup;
 
     public StartStopView() {
@@ -83,25 +87,31 @@ public class StartStopView extends JPanel {
         this.startButton.addActionListener(e -> {
             if (!this.isSetup) {
                 this.isSetup = true;
-                if (this.listeners.stream().map(listener -> listener.conditionToStart(this.inspectorSimulation)).toList().contains(false)) return;
+                if (this.listeners.stream().map(listener -> listener.conditionToStart(this.inspectorSimulation)).toList().contains(false))
+                    return;
                 this.listeners.forEach(listener -> listener.onStart(this.inspectorSimulation));
-                this.inspectorSimulation.setup();
             }
-            this.inspectorSimulation.startStopMonitor().play();
-            System.out.println("PLAY");
-            this.switchStop();
+
+            if (this.isSetup) {
+                this.inspectorSimulation.tell(Start$.MODULE$);
+//            this.inspectorSimulation.startStopMonitor().play();
+                System.out.println("PLAY");
+                this.switchStop();
+            }
         });
         this.pauseResumeButton.addActionListener(e -> {
             if (this.pauseResumeButton.getText().equals(PAUSE)) {
-                this.inspectorSimulation.startStopMonitor().pause();
+                this.inspectorSimulation.tell(Pause$.MODULE$);
+//                this.inspectorSimulation.startStopMonitor().pause();
                 this.pauseResumeButton.setText(RESUME);
             } else {
-                this.inspectorSimulation.startStopMonitor().play();
+                this.inspectorSimulation.tell(Resume$.MODULE$);
+//                this.inspectorSimulation.startStopMonitor().play();
                 this.pauseResumeButton.setText(PAUSE);
             }
         });
         this.stopButton.addActionListener(e -> {
-            this.inspectorSimulation.startStopMonitor().pause();
+//            this.inspectorSimulation.startStopMonitor().pause();
             this.onEndSimulation();
             JOptionPane.showMessageDialog(this, "Simulation closed");
             System.exit(0);
@@ -114,7 +124,7 @@ public class StartStopView extends JPanel {
         this.activateStopButton();
     }
 
-    public void setupSimulation(final InspectorSimulation simulation) {
+    public void setupSimulation(final ActorRef<SimulationActor.Command> simulation) {
         this.inspectorSimulation = simulation;
     }
 

@@ -1,9 +1,10 @@
 package view.inspector.setting;
 
-import simulation.InspectorSimulation;
+import akka.actor.typed.ActorRef;
 import simulation.SimulationManager;
 import simulation.SimulationType;
 import view.ViewUtils;
+import wrapper.SimulationActor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,17 +36,17 @@ public class InspectorSimulationView extends JPanel implements StartStopViewList
     }
 
     @Override
-    public boolean conditionToStart(final InspectorSimulation simulation) {
+    public boolean conditionToStart(final ActorRef<SimulationActor.Command> simulation) {
         return true;
     }
 
     @Override
-    public void onStart(final InspectorSimulation simulation) {
+    public void onStart(final ActorRef<SimulationActor.Command> simulation) {
 
     }
 
     @Override
-    public void reset(final InspectorSimulation simulation) {
+    public void reset(final ActorRef<SimulationActor.Command> simulation) {
 
     }
 }

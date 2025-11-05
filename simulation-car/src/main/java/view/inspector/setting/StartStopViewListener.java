@@ -1,12 +1,13 @@
 package view.inspector.setting;
 
-import simulation.InspectorSimulation;
+import akka.actor.typed.ActorRef;
+import wrapper.SimulationActor;
 
 public interface StartStopViewListener {
 
-    boolean conditionToStart(final InspectorSimulation simulation);
+    boolean conditionToStart(final ActorRef<SimulationActor.Command> simulation);
 
-    void onStart(final InspectorSimulation simulation);
+    void onStart(final ActorRef<SimulationActor.Command> simulation);
 
-    void reset(final InspectorSimulation simulation);
+    void reset(final ActorRef<SimulationActor.Command> simulation);
 }
