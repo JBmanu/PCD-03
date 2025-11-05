@@ -33,7 +33,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     // Model
 //    private final StartStopMonitor startStopMonitorSimulation;
     private final RoadSimStatistics roadStatistics;
-    private final TimeStatistics timeStatistics;
+//    private final TimeStatistics timeStatistics;
 
     protected AbstractSimulation() {
         this.agents = new ArrayList<>();
@@ -42,7 +42,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         this.engine = Engine.empty();
 
         this.roadStatistics = new RoadSimStatistics();
-        this.timeStatistics = new TimeStatistics();
 
         this.setupModelListener();
     }
@@ -75,10 +74,10 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         this.engine = this.engine.setTotalSteps(totalSteps);
     }
 
-    @Override
-    public TimeStatistics timeStatistics() {
-        return this.timeStatistics;
-    }
+//    @Override
+//    public TimeStatistics timeStatistics() {
+//        return this.timeStatistics;
+//    }
 
     @Override
     public RoadSimStatistics roadStatistics() {
@@ -100,8 +99,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     public void start() {
         /* initialize the env and the agents inside */
         this.engine = this.engine.start();
-//        this.timePerStep = 0;
-        this.timeStatistics.setStartWallTime();
 
         this.env.init();
         this.agents.forEach(agent -> agent.init(this.env));
@@ -109,8 +106,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     }
 
     public void nextStep() {
-        this.timeStatistics.setCurrentWallTime(System.currentTimeMillis());
-
         /* make a step */
         this.env.step(this.engine.delta());
         for (final var agent : this.agents) {
@@ -126,12 +121,10 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 
     public void end() {
         this.engine = this.engine.stop();
-        this.timeStatistics.setEndWallTime(this.engine.endTime());
-        this.timeStatistics.setAverageTimeForStep(this.engine.averageTimeForStep());
 //        this.timeStatistics.setAverageTimeForStep((double) this.engine.allTimeSpent() / this.stepper.totalStep());
 
-        System.out.println("COMPLETED IN: " + this.timeStatistics().totalWallTime() + " ms");
-        System.out.println("AVERAGE TIME PER STEP: " + this.timeStatistics().averageTimeForStep() + " ms");
+        System.out.println("COMPLETED IN: " + this.engine.allTimeSpent() + " ms");
+        System.out.println("AVERAGE TIME PER STEP: " + this.engine.averageTimeForStep() + " ms");
         this.notifyEnd();
     }
 

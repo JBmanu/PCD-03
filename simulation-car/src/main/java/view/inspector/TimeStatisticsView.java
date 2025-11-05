@@ -1,6 +1,6 @@
 package view.inspector;
 
-import inspector.TimeStatistics;
+import model.core.Engine;
 import view.ViewUtils;
 
 import javax.swing.*;
@@ -31,12 +31,13 @@ public class TimeStatisticsView extends JPanel {
         this.setBackground(ViewUtils.GUI_BACKGROUND_COLOR);
     }
 
-    public void updateStatistics(final TimeStatistics timeStatistics) {
-        this.currentTimesLabel.setText(TIMES + timeStatistics.currentWallTimeSubtractStartWallTime() + MILLIS_SECONDS);
+    public void updateStatistics(final Engine engine) {
+        this.currentTimesLabel.setText(TIMES + engine.timeElapsedSinceStart() + MILLIS_SECONDS);
     }
 
-    public void endUpdateStatistics(final TimeStatistics timeStatistics) {
-        this.currentAverageTimeLabel.setText(AVERAGE_TIME + timeStatistics.averageTimeForStep() + MILLIS_SECONDS);
-        this.currentTotalTimeLabel.setText(TOTAL_TIME + timeStatistics.totalWallTime() + MILLIS_SECONDS);
+    public void endUpdateStatistics(final Engine engine) {
+        this.currentTimesLabel.setText(TIMES + engine.timeElapsedSinceStart() + MILLIS_SECONDS);
+        this.currentAverageTimeLabel.setText(AVERAGE_TIME + engine.averageTimeForStep() + MILLIS_SECONDS);
+        this.currentTotalTimeLabel.setText(TOTAL_TIME + engine.allTimeSpent() + MILLIS_SECONDS);
     }
 }

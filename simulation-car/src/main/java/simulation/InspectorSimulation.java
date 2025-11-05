@@ -12,7 +12,7 @@ public interface InspectorSimulation {
 
     Engine engine();
 
-    TimeStatistics timeStatistics();
+//    TimeStatistics timeStatistics();
 
     RoadSimStatistics roadStatistics();
 

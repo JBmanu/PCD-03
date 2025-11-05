@@ -66,12 +66,12 @@ public class InspectorPanelView extends JPanel {
 
     public void updateInspector(final InspectorSimulation simulation) {
         this.stepperView.updateStepper(simulation.engine().currentStep());
-        this.timeStatisticsView.updateStatistics(simulation.timeStatistics());
+        this.timeStatisticsView.updateStatistics(simulation.engine());
         this.roadStatisticView.updateStatistics(simulation.roadStatistics());
     }
 
     public void endUpdateInspector(final InspectorSimulation simulation) {
-        this.timeStatisticsView.endUpdateStatistics(simulation.timeStatistics());
+        this.timeStatisticsView.endUpdateStatistics(simulation.engine());
         this.startStopView.onEndSimulation();
     }
 }
