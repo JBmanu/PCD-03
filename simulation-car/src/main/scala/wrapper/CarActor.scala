@@ -4,7 +4,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ ActorRef, Behavior }
 import car.AbstractAgent
 import simulation.AbstractSimulation
-import wrapper.SimulationActor.EndInitCar
+import wrapper.SimulationActor.{ EndInitCar, EndStepCar }
 
 object CarActor:
 
@@ -25,6 +25,7 @@ object CarActor:
             Behaviors.same
 
           case Step(actor, data) =>
-            agent.step(data.engine().currentTick)
+            agent.step(data.engine().delta)
+            actor ! EndStepCar
             Behaviors.same
 

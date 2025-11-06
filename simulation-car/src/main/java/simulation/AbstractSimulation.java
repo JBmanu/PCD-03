@@ -91,10 +91,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     public void resetCounterActors() {
         this.counterActors = 0;
     }
-     
-    public int counterActors() {
-        return this.counterActors;
-    }
     
     public boolean allActorsDid() {
         return this.counterActors == this.actors.size();
@@ -117,15 +113,15 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         this.engine = this.engine.setTotalSteps(totalSteps);
         this.engine = this.engine.start();
         this.env.init();
-//        this.notifyInit(this.engine.currentTick());
+        this.env.step(this.engine.delta());
+        this.notifyInit(this.engine.currentTick());
     }
-
+    
     public void nextStep() {
         /* make a step */
-        this.env.step(this.engine.delta());
-        this.agents.forEach(agent -> agent.step(this.engine.delta()));
         this.engine = this.engine.nextStep();
         this.notifyStepDone(this.engine.currentTick());
+        this.env.step(this.engine.delta());
     }
 
     public void end() {
@@ -160,7 +156,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     }
 
     // actions
-    public void notifyInit(final int t0) {
+    private void notifyInit(final int t0) {
         // Model
         for (final var listener : this.modelListeners) {
             listener.notifyInit(t0, this);
@@ -171,7 +167,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         }
     }
 
-    public void notifyStepDone(final int t) {
+    private void notifyStepDone(final int t) {
         // Model
         for (final var listener : this.modelListeners) {
             listener.notifyStepDone(t, this);
@@ -182,7 +178,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         }
     }
 
-    public void notifyEnd() {
+    private void notifyEnd() {
         // Model
         for (final var listener : this.modelListeners) {
             listener.notifyEnd(this);

@@ -46,23 +46,28 @@ object SimulationActor:
 
           case NextStep =>
             simulation.nextStep()
-            if !simulation.isPause then
-              if simulation.engine.hasMoreSteps then
-                simulation.engine().computeDelay() match
-                  case Some(value) => timers.startSingleTimer(NextStep, value.millis)
-                  case None        => context.self ! NextStep
-              else
-                context.self ! Stop
+            simulation.actors().forEach(_ ! CarActor.Step(context.self, simulation))
             Behaviors.same
 
           case EndInitCar =>
             simulation.increaseCounterActors()
             if simulation.allActorsDid() then
               simulation.resetCounterActors()
-              simulation.notifyInit(simulation.engine().currentTick)
-              context.self ! NextStep
+              simulation.actors().forEach(_ ! CarActor.Step(context.self, simulation))
             Behaviors.same
 
           case EndStepCar =>
+            simulation.increaseCounterActors()
+
+            if simulation.allActorsDid() then
+              simulation.resetCounterActors()
+              if !simulation.isPause then
+                if simulation.engine.hasMoreSteps then
+                  simulation.engine().computeDelay() match
+                    case Some(value) => timers.startSingleTimer(NextStep, value.millis)
+                    case None        => context.self ! NextStep
+                else
+                  context.self ! Stop
+
             Behaviors.same
 
