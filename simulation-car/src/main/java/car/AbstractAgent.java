@@ -1,8 +1,11 @@
 package car;
 
+import akka.actor.typed.ActorRef;
+import akka.actor.typed.ActorSystem;
 import road.AbstractEnvironment;
 import simulation.engineseq.Action;
 import simulation.engineseq.Percept;
+import wrapper.CarActor;
 
 /**
  * Base  class for defining types of agents taking part to the simulation
@@ -54,4 +57,7 @@ public abstract class AbstractAgent {
     }
 
 
+    public ActorRef<CarActor.Command> actor() {
+        return ActorSystem.apply(CarActor.apply(this), this.myId);
+    }
 }

@@ -3,6 +3,7 @@ package wrapper
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import simulation.AbstractSimulation
+import wrapper.CarActor.Init
 
 import scala.concurrent.duration.DurationLong
 
@@ -13,27 +14,35 @@ object SimulationActor:
 
   case class Start(totalStep: Int) extends Command
 
-  private object NextStep extends Command
+  object Stop extends Command
 
   object Pause extends Command
 
   object Resume extends Command
 
-  object Stop extends Command
+  private object NextStep extends Command
 
-  object EndCar extends Command
+  object EndInitCar extends Command
+
+  object EndStepCar extends Command
 
 
   def apply(simulation: AbstractSimulation): Behavior[Command] =
     Behaviors.setup: context =>
       Behaviors.withTimers: timers =>
         Behaviors.receiveMessage:
+
           case Start(totalStep: Int) =>
-            simulation.setTotalSteps(totalStep)
             simulation.setup()
-            simulation.start()
-            context.self ! NextStep
+            simulation.start(totalStep)
+            simulation.actors().forEach(_ ! Init(context.self, simulation))
             Behaviors.same
+
+          case Stop => simulation.end(); Behaviors.same
+
+          case Pause => simulation.pause(); Behaviors.same
+
+          case Resume => simulation.resume(); context.self ! NextStep; Behaviors.same
 
           case NextStep =>
             simulation.nextStep()
@@ -46,19 +55,14 @@ object SimulationActor:
                 context.self ! Stop
             Behaviors.same
 
-          case Pause =>
-            simulation.pause()
+          case EndInitCar =>
+            simulation.increaseCounterActors()
+            if simulation.allActorsDid() then
+              simulation.resetCounterActors()
+              simulation.notifyInit(simulation.engine().currentTick)
+              context.self ! NextStep
             Behaviors.same
 
-          case Resume =>
-            simulation.resume();
-            context.self ! NextStep
-            Behaviors.same
-
-          case Stop =>
-            simulation.end()
-            Behaviors.same
-
-          case EndCar =>
+          case EndStepCar =>
             Behaviors.same
 

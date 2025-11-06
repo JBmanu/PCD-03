@@ -4,6 +4,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ ActorRef, Behavior }
 import car.AbstractAgent
 import simulation.AbstractSimulation
+import wrapper.SimulationActor.EndInitCar
 
 object CarActor:
 
@@ -20,6 +21,7 @@ object CarActor:
         Behaviors.receiveMessage:
           case Init(actor, data) =>
             agent.init(data.environment())
+            actor ! EndInitCar
             Behaviors.same
 
           case Step(actor, data) =>

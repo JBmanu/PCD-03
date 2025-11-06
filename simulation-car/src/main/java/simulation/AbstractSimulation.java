@@ -22,7 +22,8 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     private AbstractEnvironment env;
     
     private final List<ActorRef<CarActor.Command>> actors; 
-
+    private int counterActors;
+    
     /* list of the agents */
     private final List<AbstractAgent> agents;
 
@@ -39,6 +40,8 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     protected AbstractSimulation() {
         this.agents = new ArrayList<>();
         this.actors = new ArrayList<>();
+        this.counterActors = 0;
+        
         this.modelListeners = new ArrayList<>();
         this.viewListeners = new ArrayList<>();
         this.engine = Engine.empty();
@@ -72,13 +75,29 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         return this.engine;
     }
 
-    public void setTotalSteps(final int totalSteps) {
-        this.engine = this.engine.setTotalSteps(totalSteps);
-    }
-
     @Override
     public RoadSimStatistics roadStatistics() {
         return this.roadStatistics;
+    }
+
+    public List<ActorRef<CarActor.Command>> actors() {
+        return this.actors;
+    }
+    
+    public void increaseCounterActors() {
+        this.counterActors++;
+    }
+    
+    public void resetCounterActors() {
+        this.counterActors = 0;
+    }
+     
+    public int counterActors() {
+        return this.counterActors;
+    }
+    
+    public boolean allActorsDid() {
+        return this.counterActors == this.actors.size();
     }
 
     public void pause() {
@@ -93,12 +112,12 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         return this.engine.isInPause();
     }
 
-    public void start() {
+    public void start(final int totalSteps) {
         /* initialize the env and the agents inside */
+        this.engine = this.engine.setTotalSteps(totalSteps);
         this.engine = this.engine.start();
         this.env.init();
-        this.agents.forEach(agent -> agent.init(this.env));
-        this.notifyInit(this.engine.currentTick());
+//        this.notifyInit(this.engine.currentTick());
     }
 
     public void nextStep() {
@@ -127,6 +146,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 
     protected void addAgent(final AbstractAgent agent) {
         this.agents.add(agent);
+        this.actors.add(agent.actor());
     }
 
     // listener
@@ -140,7 +160,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     }
 
     // actions
-    private void notifyInit(final int t0) {
+    public void notifyInit(final int t0) {
         // Model
         for (final var listener : this.modelListeners) {
             listener.notifyInit(t0, this);
@@ -162,7 +182,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
         }
     }
 
-    private void notifyEnd() {
+    public void notifyEnd() {
         // Model
         for (final var listener : this.modelListeners) {
             listener.notifyEnd(this);
