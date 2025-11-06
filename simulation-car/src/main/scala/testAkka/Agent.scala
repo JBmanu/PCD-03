@@ -4,7 +4,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ ActorRef, Behavior }
 import testAkka.LoopTimer.Simulation
 import testAkka.LoopTimer.Simulation.{ ActionAgent, SimulationCommand }
-import wrapper.Engine
+import wrapper.core.Engine
 
 object Agent:
 

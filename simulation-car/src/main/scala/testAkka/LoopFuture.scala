@@ -4,7 +4,7 @@ package testAkka
 import akka.actor.typed.*
 import akka.actor.typed.scaladsl.*
 import akka.actor.typed.scaladsl.adapter.*
-import wrapper.Scheduler
+import wrapper.core.Scheduler
 
 import scala.concurrent.Future
 import scala.concurrent.duration.*

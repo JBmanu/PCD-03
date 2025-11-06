@@ -4,7 +4,7 @@ import akka.actor.typed.*
 import akka.actor.typed.scaladsl.*
 import testAkka.Agent.AgentCommand
 import testAkka.LoopTimer.Simulation.SimulationCommand
-import wrapper.{ Engine, Scheduler, Stepper }
+import wrapper.core.{ Engine, Scheduler, Stepper }
 
 import scala.concurrent.duration.*
 

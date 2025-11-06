@@ -11,11 +11,9 @@ object SimulationActor:
 
   sealed trait Command
 
-  case class Setup(totalStep: Int) extends Command
+  case class Start(totalStep: Int) extends Command
 
-  object Start extends Command
-
-  object NextStep extends Command
+  private object NextStep extends Command
 
   object Pause extends Command
 
@@ -30,12 +28,9 @@ object SimulationActor:
     Behaviors.setup: context =>
       Behaviors.withTimers: timers =>
         Behaviors.receiveMessage:
-          case Setup(totalStep: Int) =>
+          case Start(totalStep: Int) =>
             simulation.setTotalSteps(totalStep)
             simulation.setup()
-            Behaviors.same
-
-          case Start =>
             simulation.start()
             context.self ! NextStep
             Behaviors.same
@@ -56,7 +51,7 @@ object SimulationActor:
             Behaviors.same
 
           case Resume =>
-            simulation.resume()
+            simulation.resume();
             context.self ! NextStep
             Behaviors.same
 

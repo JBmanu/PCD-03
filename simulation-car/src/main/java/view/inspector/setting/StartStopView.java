@@ -86,14 +86,11 @@ public class StartStopView extends JPanel {
     private void initSimulation() {
         this.startButton.addActionListener(e -> {
             if (!this.isSetup) {
-                this.isSetup = true;
                 if (this.listeners.stream().map(listener -> listener.conditionToStart(this.inspectorSimulation)).toList().contains(false))
                     return;
+                this.isSetup = true;
+                // CAMBIA IL MODO CHE FA IL SETUP
                 this.listeners.forEach(listener -> listener.onStart(this.inspectorSimulation));
-            }
-
-            if (this.isSetup) {
-                this.inspectorSimulation.tell(Start$.MODULE$);
                 System.out.println("PLAY");
                 this.switchStop();
             }

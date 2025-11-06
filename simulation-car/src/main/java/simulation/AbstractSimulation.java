@@ -1,9 +1,11 @@
 package simulation;
 
+import akka.actor.typed.ActorRef;
 import car.AbstractAgent;
 import inspector.RoadSimStatistics;
-import wrapper.Engine;
-import wrapper.Scheduler;
+import wrapper.CarActor;
+import wrapper.core.Engine;
+import wrapper.core.Scheduler;
 import road.AbstractEnvironment;
 import simulation.listener.ModelSimulationListener;
 import view.simulation.ViewSimulationListener;
@@ -18,6 +20,8 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 
     /* environment of the simulation */
     private AbstractEnvironment env;
+    
+    private final List<ActorRef<CarActor.Command>> actors; 
 
     /* list of the agents */
     private final List<AbstractAgent> agents;
@@ -34,6 +38,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 
     protected AbstractSimulation() {
         this.agents = new ArrayList<>();
+        this.actors = new ArrayList<>();
         this.modelListeners = new ArrayList<>();
         this.viewListeners = new ArrayList<>();
         this.engine = Engine.empty();
