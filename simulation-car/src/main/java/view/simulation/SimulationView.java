@@ -6,7 +6,7 @@ import simulation.SimulationManager;
 import road.RoadsEnv;
 import view.ViewUtils;
 import view.inspector.InspectorPanelView;
-import wrapper.SimulationActor;
+import actors.SimulationActor;
 
 import javax.swing.*;
 import java.awt.*;

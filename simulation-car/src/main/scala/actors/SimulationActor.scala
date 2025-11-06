@@ -1,9 +1,9 @@
-package wrapper
+package actors
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import simulation.AbstractSimulation
-import wrapper.CarActor.Init
+import actors.CarActor.Init
 
 import scala.concurrent.duration.DurationLong
 

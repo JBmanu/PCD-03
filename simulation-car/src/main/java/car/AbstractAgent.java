@@ -5,7 +5,7 @@ import akka.actor.typed.ActorSystem;
 import road.AbstractEnvironment;
 import simulation.engineseq.Action;
 import simulation.engineseq.Percept;
-import wrapper.CarActor;
+import actors.CarActor;
 
 /**
  * Base  class for defining types of agents taking part to the simulation

@@ -1,7 +1,7 @@
 package view.inspector.setting;
 
 import akka.actor.typed.ActorRef;
-import wrapper.SimulationActor;
+import actors.SimulationActor;
 
 public interface StartStopViewListener {
 

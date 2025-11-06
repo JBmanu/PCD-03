@@ -1,10 +1,10 @@
-package wrapper
+package actors
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ ActorRef, Behavior }
 import car.AbstractAgent
 import simulation.AbstractSimulation
-import wrapper.SimulationActor.{ EndInitCar, EndStepCar }
+import actors.SimulationActor.{ EndInitCar, EndStepCar }
 
 object CarActor:
 

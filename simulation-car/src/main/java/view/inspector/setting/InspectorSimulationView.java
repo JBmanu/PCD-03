@@ -4,7 +4,7 @@ import akka.actor.typed.ActorRef;
 import simulation.SimulationManager;
 import simulation.SimulationType;
 import view.ViewUtils;
-import wrapper.SimulationActor;
+import actors.SimulationActor;
 
 import javax.swing.*;
 import java.awt.*;

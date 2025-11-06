@@ -6,7 +6,7 @@ import simulation.SimulationManager;
 import view.*;
 import view.inspector.setting.InspectorSimulationView;
 import view.inspector.setting.StartStopView;
-import wrapper.SimulationActor;
+import actors.SimulationActor;
 
 import javax.swing.*;
 import java.awt.*;

@@ -3,7 +3,7 @@ package view.inspector;
 import akka.actor.typed.ActorRef;
 import view.ViewUtils;
 import view.inspector.setting.StartStopViewListener;
-import wrapper.SimulationActor;
+import actors.SimulationActor;
 
 import javax.swing.*;
 import java.awt.*;

@@ -2,10 +2,9 @@ package view.inspector.setting;
 
 import akka.actor.typed.ActorRef;
 import view.ViewUtils;
-import wrapper.SimulationActor;
-import wrapper.SimulationActor.Pause$;
-import wrapper.SimulationActor.Resume$;
-import wrapper.SimulationActor.Start$;
+import actors.SimulationActor;
+import actors.SimulationActor.Pause$;
+import actors.SimulationActor.Resume$;
 
 import javax.swing.*;
 import java.awt.*;

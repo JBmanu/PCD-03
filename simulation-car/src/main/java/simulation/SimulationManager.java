@@ -3,7 +3,7 @@ package simulation;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import view.simulation.SimulationView;
-import wrapper.SimulationActor;
+import actors.SimulationActor;
 
 public class SimulationManager {
     private SimulationType simulationType;

@@ -2,7 +2,7 @@ package simulation;
 
 import car.AbstractAgent;
 import inspector.RoadSimStatistics;
-import wrapper.core.Engine;
+import actors.core.Engine;
 import road.AbstractEnvironment;
 
 import java.util.List;

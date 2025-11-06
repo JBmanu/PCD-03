@@ -1,4 +1,4 @@
-package wrapper.core
+package actors.core
 
 trait Stepper:
   val totalStep: Int
