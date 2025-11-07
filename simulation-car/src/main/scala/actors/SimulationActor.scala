@@ -59,6 +59,7 @@ object SimulationActor:
 
           case EndStepCar(carAgent) =>
             simulation.increaseCounterActors()
+            simulation.roadStatistics().addCarSpeed(carAgent)
 
             if simulation.allActorsDid() then
               simulation.resetCounterActors()
