@@ -23,6 +23,7 @@ lazy val commonSettings = Seq(
     case _                        => MergeStrategy.first
   },
   resolvers += "jitpack" at "https://jitpack.io",
+  resolvers += "Lightbend Commercial Repository" at "https://repo.lightbend.com/commercial-releases",
   libraryDependencies ++= Seq(
     "org.slf4j" % "slf4j-simple" % "2.0.17",
     "org.awaitility" % "awaitility" % "4.3.0" % Test,
@@ -89,11 +90,17 @@ lazy val simulationCar = (project in file("simulation-car"))
   .settings(commonSettings *)
   .settings(
     name := "simulation-car",
-    Compile / mainClass := Some("Main"),
+    Compile / mainClass := Some("trafficexamples.RunTrafficSimulation"),
     assembly / assemblyJarName := "simulation-car.jar",
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-actor-typed" % "2.8.8",
       "com.typesafe.akka" %% "akka-slf4j" % "2.8.8"
+      ),
+    ThisBuild / credentials += Credentials(
+      "Akka commercial license",
+      "lightbend-commercial",
+      "Manuel Buizo",
+      "3CecWl2X1oE8LUow3IyL224TwPHBVLADt4qBrTR5TZzP4vTWG3hkz1c8b5wjU4BZLS8gtMgHO2IPU0BJVpCjD3YmFSCuWWrhR5UJFjvu4zQOmy3ULJ2WEB95n5LgfEwsUX5I7swsd5BDQKn6NI9pQA1OnvKjndy8WYc522ICVtg"
       )
     )
 

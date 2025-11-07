@@ -20,13 +20,11 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 
     /* environment of the simulation */
     private AbstractEnvironment env;
-    
+
+    /* list of the agents */
     private final List<ActorRef<CarActor.Command>> actors; 
     private int counterActors;
     
-    /* list of the agents */
-    private final List<AbstractAgent> agents;
-
     // engine to control simulation
     private Engine engine;
     // Statistics cars
@@ -38,7 +36,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 
 
     protected AbstractSimulation() {
-        this.agents = new ArrayList<>();
         this.actors = new ArrayList<>();
         this.counterActors = 0;
         
@@ -66,8 +63,8 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     }
 
     @Override
-    public List<AbstractAgent> agents() {
-        return this.agents;
+    public List<ActorRef<CarActor.Command>> actors() {
+        return this.actors;
     }
 
     @Override
@@ -78,10 +75,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     @Override
     public RoadSimStatistics roadStatistics() {
         return this.roadStatistics;
-    }
-
-    public List<ActorRef<CarActor.Command>> actors() {
-        return this.actors;
     }
     
     public void increaseCounterActors() {
@@ -141,7 +134,6 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     }
 
     protected void addAgent(final AbstractAgent agent) {
-        this.agents.add(agent);
         this.actors.add(agent.actor());
     }
 
@@ -157,36 +149,18 @@ public abstract class AbstractSimulation implements InspectorSimulation {
 
     // actions
     private void notifyInit(final int t0) {
-        // Model
-        for (final var listener : this.modelListeners) {
-            listener.notifyInit(t0, this);
-        }
-        // View
-        for (final var listener : this.viewListeners) {
-            listener.notifyInit(t0, this);
-        }
+        this.modelListeners.forEach(listener -> listener.notifyInit(t0, this));
+        this.viewListeners.forEach(listener -> listener.notifyInit(t0, this));
     }
 
     private void notifyStepDone(final int t) {
-        // Model
-        for (final var listener : this.modelListeners) {
-            listener.notifyStepDone(t, this);
-        }
-        // View
-        for (final var listener : this.viewListeners) {
-            listener.notifyStepDone(t, this);
-        }
+        this.modelListeners.forEach(listener -> listener.notifyStepDone(t, this));
+        this.viewListeners.forEach(listener -> listener.notifyStepDone(t, this));
     }
 
     private void notifyEnd() {
-        // Model
-        for (final var listener : this.modelListeners) {
-            listener.notifyEnd(this);
-        }
-        // View
-        for (final var listener : this.viewListeners) {
-            listener.notifyEnd(this);
-        }
+        this.modelListeners.forEach(listener -> listener.notifyEnd(this));
+        this.viewListeners.forEach(listener -> listener.notifyEnd(this));
     }
 
 }

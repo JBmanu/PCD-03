@@ -1,9 +1,10 @@
 package actors
 
+import actors.CarActor.Init
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
+import car.CarAgent
 import simulation.AbstractSimulation
-import actors.CarActor.Init
 
 import scala.concurrent.duration.DurationLong
 
@@ -24,7 +25,7 @@ object SimulationActor:
 
   object EndInitCar extends Command
 
-  object EndStepCar extends Command
+  case class EndStepCar(carAgent: CarAgent) extends Command
 
 
   def apply(simulation: AbstractSimulation): Behavior[Command] =
@@ -56,7 +57,7 @@ object SimulationActor:
               simulation.actors().forEach(_ ! CarActor.Step(context.self, simulation))
             Behaviors.same
 
-          case EndStepCar =>
+          case EndStepCar(carAgent) =>
             simulation.increaseCounterActors()
 
             if simulation.allActorsDid() then

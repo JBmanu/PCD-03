@@ -1,6 +1,7 @@
 package simulation;
 
-import car.AbstractAgent;
+import actors.CarActor;
+import akka.actor.typed.ActorRef;
 import inspector.RoadSimStatistics;
 import actors.core.Engine;
 import road.AbstractEnvironment;
@@ -15,7 +16,7 @@ public interface InspectorSimulation {
 
     AbstractEnvironment environment();
 
-    List<AbstractAgent> agents();
+    List<ActorRef<CarActor.Command>> actors();
 
     void setup();
 }
