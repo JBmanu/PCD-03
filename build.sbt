@@ -80,7 +80,7 @@ lazy val sudokuRMI = (project in file("sudoku-rmi"))
   .settings(
     name := "sudoku-rmi",
     Compile / mainClass := Some("MainClient"),
-    assembly / assemblyJarName := "sudoku-rmi-server.jar",
+    assembly / assemblyJarName := "sudoku-rmi-client.jar",
     libraryDependencies ++= Seq(
     ),
     )

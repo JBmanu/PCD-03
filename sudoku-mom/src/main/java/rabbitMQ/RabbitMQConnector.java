@@ -58,7 +58,7 @@ public interface RabbitMQConnector {
 
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
-        private static final String URI = "amqp://fanltles:6qCOcwZEWGpkuiJnzfvybUUeXfHy1oM0@kangaroo.rmq.cloudamqp.com/fanltles";
+        private static final String URI = "amqps://ixwhhfhm:e3571xZg6tQrNR5EEpEH2vwBeMSysHD3@kangaroo.rmq.cloudamqp.com/ixwhhfhm";
         private static final String EXCHANGE_TYPE = "direct";
 
         private final Channel channel;
