@@ -33,6 +33,9 @@ Breve panoramica dei progetti:
 ---
 
 ## Progetto 1 – Cars Simulation
+<div style="display: flex; justify-content: center;">
+    <img src="img/simulation/app.png" style="width: 50%;">
+</div>
 
 ### Analisi del problema
 
@@ -49,7 +52,7 @@ Partendo dall’[Assignment 1](https://docs.google.com/document/d/1EquRh7I1WYgHI
 La simulazione è implementata utilizzando il framework Akka, che consente di modellare il sistema secondo il paradigma actor-based. Tale approccio facilita la gestione concorrente e distribuita dei processi, permettendo di rappresentare in modo naturale gli elementi della simulazione come attori indipendenti che comunicano tramite scambio di messaggi.
 
 <div style="display: flex; align-items: center; gap: 5%;  flex-direction: row-reverse; margin-bottom: 3%;">
-  <img src="img/project-1/actors.png" style="width: 25%;">
+  <img src="img/simulation/actors.png" style="width: 25%;">
    <div style="width: 70%;">
     L’architettura si basa su un attore principale che funge da orchestratore e gestisce un insieme di attori,
     ciascuno dei quali rappresenta un’automobile. L’attore principale è responsabile dell’avanzamento temporale della
@@ -59,7 +62,7 @@ La simulazione è implementata utilizzando il framework Akka, che consente di mo
 </div>
 
 <div style="display: flex; align-items: center; gap: 5%;  margin-bottom: 3%;">
-  <img src="img/project-1/init-car.png" style="width: 40%;">
+  <img src="img/simulation/init-car.png" style="width: 40%;">
   <div style="width: 55%;">
     Prima dell’avvio della simulazione, viene eseguita una fase di setup iniziale, durante la quale l’attore principale
     coordina l’inizializzazione dei dati e delle condizioni di partenza di ciascun attore automobile.
@@ -67,7 +70,7 @@ La simulazione è implementata utilizzando il framework Akka, che consente di mo
 </div>
 
 <div style="display: flex; align-items: center; gap: 5%; flex-direction: row-reverse; margin-bottom: 3%;">
-  <img src="img/project-1/step-car.png" style="width: 40%;">
+  <img src="img/simulation/step-car.png" style="width: 40%;">
   <div style="width: 55%;">
     Ogni automobile è modellata come un attore autonomo, incaricato di gestire il proprio stato interno ed eseguire le tre
     fasi del proprio comportamento: sense, decide e act. Durante ciascun passo di simulazione, le automobili eseguono queste
@@ -79,7 +82,7 @@ La simulazione è implementata utilizzando il framework Akka, che consente di mo
 </div>
 
 <div style="display: flex; align-items: center; gap: 5%; margin-bottom: 3%;">
-  <img src="img/project-1/simulation-controls.png" style="width: 40%;">
+  <img src="img/simulation/simulation-controls.png" style="width: 40%;">
   <div style="width: 55%;">
     Infine, l’attore della simulazione riceve anche messaggi provenienti dalla GUI, che consentono all’utente di interagire
     con l’esecuzione. In particolare, la GUI fornisce controlli per gestire gli stati della simulazione — come start, pause,
@@ -93,7 +96,7 @@ La simulazione è implementata utilizzando il framework Akka, che consente di mo
 
 
 | Componente | Tecnologia        | Ruolo              |
-| ---------- | ----------------- | ------------------ |
+|------------|-------------------|--------------------|
 | Frontend   | Java.Swing        | Interfaccia utente |
 | Backend    | Java + Scala.Akka | Logica applicativa |
 
@@ -109,19 +112,12 @@ La simulazione è implementata utilizzando il framework Akka, che consente di mo
       val isInPause: Boolean
   
       override def start(): Engine
-  
       def pause(): Engine
-  
       def resume(): Engine
-  
       override def stop(): Engine
-  
       override def nextStep(): Engine
-  
       override def setTotalSteps(value: Int): Engine
-  
       def averageTimeForStep(): Double
-  
       def timeElapsedSinceStart(): Long
 ```
 
@@ -133,17 +129,11 @@ object SimulationActor:
   sealed trait Command
 
   case class Start(totalStep: Int) extends Command
-
   object Stop extends Command
-
   object Pause extends Command
-
   object Resume extends Command
-
   private object NextStep extends Command
-
   object EndInitCar extends Command
-
   case class EndStepCar(carAgent: CarAgent) extends Command
 ```
 
@@ -155,7 +145,6 @@ object CarActor:
   sealed trait Command
 
   case class Init(actor: ActorRef[SimulationActor.Command], simulation: AbstractSimulation) extends Command
-
   case class Step(actor: ActorRef[SimulationActor.Command], simulation: AbstractSimulation) extends Command
 ```
 
@@ -166,8 +155,8 @@ In sintensi si è esplorato il framework akka, lavorando con lo scambio di messa
 In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di messaggi asincroni per sincronizzare le varie automobili tra loro e con la simulazione. Per riutilizzare interamente il progetto del precedente assignment sono state create classi in Scala che definiscono separatamente i comportamenti dei diversi attori, incapsulando la logica della simulazione e delle automobili. Questo incapsulamento permette di scalare il comportamento degli attori utilizzando anche un linguaggio diverso, senza perdere efficienza e mantenendo una chiara separazione dei concetti. Infine sono stati testati diversi environment, da una semplice strada rettilinea fino ad arrivare a scenari più complessi con incroci regolati da semafori.
 
 <div style="display: flex; gap: 2%; justify-content: center;">
-    <img src="img/project-1/simSimple.png" style="width: 48%;">
-    <img src="img/project-1/simCrossTraffic.png" style="width: 48%;">
+    <img src="img/simulation/simSimple.png" style="width: 48%;">
+    <img src="img/simulation/simCrossTraffic.png" style="width: 48%;">
 </div>
 
 ---
@@ -188,6 +177,11 @@ In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di me
 
 ### Tecnologie utilizzate
 
+| Componente | Tecnologia | Ruolo              |
+|------------|------------|--------------------|
+| Frontend   | fyne.io    | Interfaccia utente |
+| Backend    | GO         | Logica applicativa |
+
 ### Sviluppo
 
 ### Risultati e considerazioni
@@ -204,6 +198,11 @@ In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di me
 
 ### Tecnologie utilizzate
 
+| Componente | Tecnologia | Ruolo              |
+|------------|------------|--------------------|
+| Frontend   | fyne.io    | Interfaccia utente |
+| Backend    | GO         | Logica applicativa |
+
 ### Sviluppo
 
 ### Risultati e considerazioni
@@ -214,13 +213,34 @@ In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di me
 
 ### Analisi del problema
 
+Si intende progettare un sistema in cui l’**Oracolo** genera un numero pseudo–casuale compreso nell’intervallo 0, **MAX**. A ogni turno, ciascun giocatore deve inviare una proposta di valore nel tentativo di indovinare il numero estratto. Se la proposta coincide con il valore generato, l’Oracolo inoltra un messaggio di *vittoria* al giocatore corretto e un messaggio di *sconfitta* a tutti gli altri partecipanti.
+In caso di tentativo errato, l’Oracolo risponde con un messaggio di *hint*, specificando se il valore proposto è maggiore o minore rispetto al numero da indovinare.
+Ogni giocatore dispone di un singolo tentativo per turno; una volta ricevute tutte le proposte, l’Oracolo avvia un nuovo ciclo di turno. L’ordine di invio dei tentativi non è deterministico.
+A inizio turno l’Oracolo notifica a tutti i giocatori la possibilità di inviare il proprio tentativo e rimane in attesa dei rispettivi messaggi. I giocatori sono implementati come attori autonomi (bot), ciascuno dei quali produce il proprio tentativo dopo un ritardo temporale randomico. È inoltre prevista la possibilità di integrare un giocatore umano, che interagisce con il sistema attraverso un'interfaccia dedicata.
+
 ### Punti critici:
+
+- Creare la struttura col paradigma del linguaggio GO
+- create un sistema per coordinare i vari giocatori (bot)
+- Realizzare la ciclicità dei turni per tentare di indovinare il numero
 
 ### Architettura proposta
 
+coordinazione tra oracolo e giocatori
+
 ### Tecnologie utilizzate
 
+| Componente | Tecnologia | Ruolo              |
+|------------|------------|--------------------|
+| Frontend   | fyne.io    | Interfaccia utente |
+| Backend    | GO         | Logica applicativa |
+
 ### Sviluppo
+
+Oracolo
+
+Giocatori
+
 
 ### Risultati e considerazioni
 
