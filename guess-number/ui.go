@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"strconv"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -28,24 +25,7 @@ type PlayerUI struct {
 	TryButton  *widget.Button
 }
 
-// MindNumber Mind a random number to guess
-func MindNumber(player Player, oracle OracleInterface) {
-	WaitRandomTimeAndDoAction(3, 5,
-		func(waitTime int) {
-			SafelyUICall(func() { player.UI.Number.SetText("") })
-			fmt.Println("[" + player.Name + "] Think for " + strconv.Itoa(waitTime) + " s")
-		},
-		func() {
-			randomNumber := ComputeRandomNumber(oracle.SecretNumber()) + 1
-			fmt.Println("[" + player.Name + "] Thought about the " + strconv.Itoa(randomNumber) + " 👋")
-			SafelyUICall(func() {
-				player.UI.Number.SetText(strconv.Itoa(randomNumber))
-				player.UI.TryButton.OnTapped()
-			})
-		})
-}
-
-func clickTryButton(oracle OracleInterface, player Player, ui PlayerUI) func() {
+func clickTryButton(oracle Oracle, player Player, ui PlayerUI) func() {
 	return func() {
 		CheckNumberInput(ui.Number,
 			func(number int) { oracle.SendTry(player, number) },
@@ -54,9 +34,9 @@ func clickTryButton(oracle OracleInterface, player Player, ui PlayerUI) func() {
 }
 
 // NewPlayerUI Create UI of the player
-func NewPlayerUI(myApp fyne.App, player Player, oracle OracleInterface) PlayerUI {
+func NewPlayerUI(myApp fyne.App, player Player, oracle Oracle) PlayerUI {
 	var ui PlayerUI
-	ui.Window = myApp.NewWindow("Player : " + player.Name)
+	ui.Window = myApp.NewWindow("Player : " + player.Name())
 	ui.Title = widget.NewLabel("Guess a number between 1 and 100 !!!")
 	ui.Info = widget.NewLabel("")
 	ui.Number = widget.NewEntry()

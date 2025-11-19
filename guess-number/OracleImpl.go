@@ -16,29 +16,29 @@ type TryMessage struct {
 	Number int
 }
 
-// Oracle Struct of oracle
-type Oracle struct {
+// OracleImpl Struct of oracle
+type OracleImpl struct {
 	secretNumber   int
 	MaxRandomValue int
 	TryChannel     chan TryMessage
 }
 
-// NewOracle Create a new Oracle
-func NewOracle(maxValue int) Oracle {
-	return Oracle{ComputeRandomNumber(maxValue), maxValue, make(chan TryMessage)}
+// NewOracle Create a new OracleImpl
+func NewOracle(maxValue int) OracleImpl {
+	return OracleImpl{ComputeRandomNumber(maxValue), maxValue, make(chan TryMessage)}
 }
 
-func (oracle Oracle) SecretNumber() int {
+func (oracle OracleImpl) SecretNumber() int {
 	return oracle.secretNumber
 }
 
-func (oracle Oracle) StartGame(players []Player) {
+func (oracle OracleImpl) StartGame(players []Player) {
 	Foreach(Shuffle(players), func(player Player) {
-		SendWeakUpMessage(player, true)
+		player.SendWeakUp(true)
 	})
 }
 
-func (oracle Oracle) SendTry(player Player, number int) {
+func (oracle OracleImpl) SendTry(player Player, number int) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("[Closed Channel]", r)
@@ -47,7 +47,7 @@ func (oracle Oracle) SendTry(player Player, number int) {
 	oracle.TryChannel <- TryMessage{player, number}
 }
 
-func (oracle Oracle) ReceiveTries(startPlayers []Player) {
+func (oracle OracleImpl) ReceiveTries(startPlayers []Player) {
 	countPlayerThatTried := 0
 	for message := range oracle.TryChannel {
 		var answer Answer
@@ -60,11 +60,12 @@ func (oracle Oracle) ReceiveTries(startPlayers []Player) {
 			answer = Winner
 		}
 
-		SendAnswerMessage(message, answer)
+		message.Player.SendAnswer(message, answer)
+
 		countPlayerThatTried += 1
 		if answer == Winner {
 			losers := RemovePlayerFromList(startPlayers, message.Player)
-			Foreach(losers, func(loser Player) { SendLoserPlayers(message, loser, Loser) })
+			Foreach(losers, func(loser Player) { loser.SendLoserPlayers(message, Loser) })
 			close(oracle.TryChannel)
 		} else {
 			if countPlayerThatTried == len(startPlayers) {
@@ -73,5 +74,5 @@ func (oracle Oracle) ReceiveTries(startPlayers []Player) {
 			}
 		}
 	}
-	println("Closed Oracle")
+	println("Closed OracleImpl")
 }
