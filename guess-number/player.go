@@ -7,17 +7,6 @@ import (
 	"fyne.io/fyne/v2"
 )
 
-// Answer Type of response
-type Answer int
-
-// Constant value of Answer
-const (
-	TooSmall Answer = iota
-	TooBig
-	Winner
-	Loser
-)
-
 // WakeUpMessage Struct of the game progress
 type WakeUpMessage struct {
 	WeakUp bool
@@ -39,7 +28,7 @@ type Player struct {
 }
 
 // NewPlayerFrom Create players from number
-func NewPlayerFrom(myApp fyne.App, oracle Oracle, number int) []Player {
+func NewPlayerFrom(myApp fyne.App, oracle OracleInterface, number int) []Player {
 	var players []Player
 	for i := 0; i < number; i++ {
 		var player Player
@@ -81,7 +70,7 @@ func SendLoserPlayers(try TryMessage, loser Player, answer Answer) {
 }
 
 // ReceiveWeakUpMessage Receive the weakUp message
-func ReceiveWeakUpMessage(player Player, oracle Oracle) {
+func ReceiveWeakUpMessage(player Player, oracle OracleInterface) {
 	for message := range player.WeakUpChannel {
 		if player.UI.CheckerBot.Checked {
 			MindNumber(player, oracle)

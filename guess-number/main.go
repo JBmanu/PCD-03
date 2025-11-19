@@ -12,13 +12,13 @@ func main() {
 	NewMenuUI(myApp, func(maxValue int, numberPlayers int) {
 
 		// create entities
-		oracle := NewOracle(maxValue)
+		oracle := OracleInterface(NewOracle(maxValue))
 		players := NewPlayerFrom(myApp, oracle, numberPlayers)
 
-		fmt.Println("[Oracle] Guess number: ", oracle.SecretNumber)
+		fmt.Println("[Oracle] Guess number: ", oracle.SecretNumber())
 
 		// activate oracle goroutine
-		go ReceiveTryMessage(oracle, players)
+		go oracle.ReceiveTries(players)
 
 		// activate all players goroutine
 		Foreach(players, func(player Player) {
@@ -27,7 +27,7 @@ func main() {
 		})
 
 		// init game
-		StartGame(players)
+		oracle.StartGame(players)
 	})
 
 	myApp.Run()

@@ -2,6 +2,14 @@ package main
 
 import "fmt"
 
+// Constant value of Answer
+const (
+	TooSmall Answer = iota
+	TooBig
+	Winner
+	Loser
+)
+
 // TryMessage Struct of the try message
 type TryMessage struct {
 	Player Player
@@ -10,7 +18,7 @@ type TryMessage struct {
 
 // Oracle Struct of oracle
 type Oracle struct {
-	SecretNumber   int
+	secretNumber   int
 	MaxRandomValue int
 	TryChannel     chan TryMessage
 }
@@ -20,15 +28,17 @@ func NewOracle(maxValue int) Oracle {
 	return Oracle{ComputeRandomNumber(maxValue), maxValue, make(chan TryMessage)}
 }
 
-// StartGame Oracle shuffle and weakUp the players
-func StartGame(players []Player) {
+func (oracle Oracle) SecretNumber() int {
+	return oracle.secretNumber
+}
+
+func (oracle Oracle) StartGame(players []Player) {
 	Foreach(Shuffle(players), func(player Player) {
 		SendWeakUpMessage(player, true)
 	})
 }
 
-// SendTryNumberMessage Allow to send message of try at the Oracle
-func SendTryNumberMessage(oracle Oracle, player Player, number int) {
+func (oracle Oracle) SendTry(player Player, number int) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("[Closed Channel]", r)
@@ -37,15 +47,14 @@ func SendTryNumberMessage(oracle Oracle, player Player, number int) {
 	oracle.TryChannel <- TryMessage{player, number}
 }
 
-// ReceiveTryMessage Receive the try messages
-func ReceiveTryMessage(oracle Oracle, startPlayers []Player) {
+func (oracle Oracle) ReceiveTries(startPlayers []Player) {
 	countPlayerThatTried := 0
 	for message := range oracle.TryChannel {
 		var answer Answer
 		switch {
-		case message.Number < oracle.SecretNumber:
+		case message.Number < oracle.SecretNumber():
 			answer = TooSmall
-		case message.Number > oracle.SecretNumber:
+		case message.Number > oracle.SecretNumber():
 			answer = TooBig
 		default:
 			answer = Winner
@@ -60,7 +69,7 @@ func ReceiveTryMessage(oracle Oracle, startPlayers []Player) {
 		} else {
 			if countPlayerThatTried == len(startPlayers) {
 				countPlayerThatTried = 0
-				StartGame(startPlayers)
+				oracle.StartGame(startPlayers)
 			}
 		}
 	}

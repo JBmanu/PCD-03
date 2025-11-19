@@ -211,22 +211,38 @@ In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di me
 
 ## Progetto 4 – Guess The Number
 
+<div style="display: flex; gap: 2%; justify-content: center;">
+    <img src="img/guess-number/menu.png" style="width: 30%;">
+    <img src="img/guess-number/players.png" style="width: 68%;">
+</div>
+
 ### Analisi del problema
 
 Si intende progettare un sistema in cui l’**Oracolo** genera un numero pseudo–casuale compreso nell’intervallo 0, **MAX**. A ogni turno, ciascun giocatore deve inviare una proposta di valore nel tentativo di indovinare il numero estratto. Se la proposta coincide con il valore generato, l’Oracolo inoltra un messaggio di *vittoria* al giocatore corretto e un messaggio di *sconfitta* a tutti gli altri partecipanti.
 In caso di tentativo errato, l’Oracolo risponde con un messaggio di *hint*, specificando se il valore proposto è maggiore o minore rispetto al numero da indovinare.
 Ogni giocatore dispone di un singolo tentativo per turno; una volta ricevute tutte le proposte, l’Oracolo avvia un nuovo ciclo di turno. L’ordine di invio dei tentativi non è deterministico.
-A inizio turno l’Oracolo notifica a tutti i giocatori la possibilità di inviare il proprio tentativo e rimane in attesa dei rispettivi messaggi. I giocatori sono implementati come attori autonomi (bot), ciascuno dei quali produce il proprio tentativo dopo un ritardo temporale randomico. È inoltre prevista la possibilità di integrare un giocatore umano, che interagisce con il sistema attraverso un'interfaccia dedicata.
+A inizio turno l’Oracolo notifica a tutti i giocatori la possibilità di inviare il proprio tentativo e rimane in attesa dei rispettivi messaggi.
+
+
+I giocatori sono implementati come attori autonomi (bot), ciascuno dei quali produce il proprio tentativo dopo un ritardo temporale randomico. È inoltre prevista la possibilità di integrare un giocatore umano, che interagisce con il sistema attraverso un'interfaccia dedicata.
 
 ### Punti critici:
 
-- Creare la struttura col paradigma del linguaggio GO
-- create un sistema per coordinare i vari giocatori (bot)
-- Realizzare la ciclicità dei turni per tentare di indovinare il numero
+- Creare la struttura seguendo il paradigma del linguaggio Go.
+- Realizzare un sistema per sincronizzare le risposte dei giocatori (bot).
+- Implementare il ciclo dei turni per permettere ai giocatori di tentare di indovinare il numero.
 
 ### Architettura proposta
 
-coordinazione tra oracolo e giocatori
+Applicando il paradigma del linguaggio Go, che è imperativo e concurrent-first grazie al modello di concorrenza integrato, sono state modellate due entità principali: l’Oracolo e il Player. Entrambe vengono eseguite all’interno di goroutine, ovvero funzioni concorrenti leggere schedulate dal runtime Go secondo un modello M:N (numerose goroutine mappate su un numero ridotto di thread del sistema operativo).
+Per la sincronizzazione e la comunicazione tra Oracolo e Player vengono utilizzati i channel di Go, strutture che garantiscono comunicazione sicura tra goroutine e consentono lo scambio di dati senza ricorrere a mutex o lock.
+L’Oracolo ha il compito di orchestrare le interazioni tra i vari Player, sincronizzando la ricezione dei tentativi e scandendo i turni del gioco fino all’individuazione di un vincitore.
+L’applicazione è inoltre dotata di un’interfaccia grafica tramite la quale, attraverso un semplice menu, è possibile inserire due parametri: il valore massimo utilizzato per l’estrazione del numero da indovinare e il numero di giocatori che parteciperanno alla partita.
+
+L’Oracolo definisce la struttura delle possibili risposte da inviare ai Player e il tipo del canale dedicato alla ricezione dei tentativi. Viene inoltre implementata una funzione responsabile dell’ascolto dei messaggi ricevuti su tale canale; questa funzione viene eseguita all’interno di una goroutine, poiché i channel in Go sono strutture bloccanti.
+
+Il Player definisce due tipi di canali: uno per la ricezione dei messaggi di attivazione, ovvero l’indicazione che può inviare il proprio tentativo, e uno per la ricezione della risposta da parte dell’Oracolo. A seguito della creazione di questi due canali, vengono implementate due funzioni dedicate all’ascolto dei rispettivi canali, anch’esse eseguite all’interno di goroutine.
+Inoltre, ogni Player è dotato di un’interfaccia grafica per la visualizzazione del tentativo effettuato, della risposta ricevuta e per consentire la disattivazione della risposta automatica del bot, permettendo così a un utente fisico di assumere il controllo e partecipare come giocatore.
 
 ### Tecnologie utilizzate
 
@@ -237,12 +253,29 @@ coordinazione tra oracolo e giocatori
 
 ### Sviluppo
 
-Oracolo
+Per l’`Oracolo` è stata definita la struttura, composta dal numero da indovinare, dal valore massimo da cui calcolare tale numero e dal canale per la ricezione dei tentativi dai vari Player.
+Sono state inoltre implementate le funzioni per l’invio dei messaggi all’Oracolo, per l’ascolto del suo canale — funzione che confronta ogni tentativo ricevuto con il numero da indovinare e invia al Player la risposta corrispondente — e per l’avvio del turno di gioco, durante il quale i giocatori vengono mescolati in ordine casuale e attivati per inviare i propri tentativi.
 
-Giocatori
+``` go
 
+```
+
+La struttura del `Player` è composta dalla sua interfaccia grafica, dal nome identificativo e dai due canali per la ricezione dei messaggi di attivazione e delle risposte ai tentativi.
+Sono state inoltre definite le funzioni per l’invio dei messaggi ai rispettivi canali e sviluppate le componenti grafiche necessarie per consentire l’interazione di un giocatore fisico.
+
+``` go
+
+```
+
+È stata inoltre creata un’interfaccia grafica `Menu` per inizializzare il numero che l’Oracolo deve generare a partire da un *MaxNumber* e il numero di giocatori che partecipano alla partita. All’avvio della partita vengono create le varie entità, comprese le goroutine necessarie per il funzionamento del gioco.
+
+``` go
+
+```
 
 ### Risultati e considerazioni
+
+Il linguaggio Go consente di concentrarsi maggiormente sull’aspetto concorrente del progetto, separando in modo chiaro i comportamenti concorrenti da quelli sequenziali. Grazie all’utilizzo dei channel, è possibile sincronizzare in maniera efficiente e trasparente le azioni delle diverse entità, semplificando la gestione dei turni e migliorando la leggibilità e la manutenzione del codice. L’applicazione è stata inizialmente realizzata con un’interfaccia da console; successivamente, per rendere l’esperienza più coinvolgente per l’utente, sono state create interfacce grafiche (GUI) che permettono di partecipare attivamente al gioco come giocatore. Questo approccio facilita la scalabilità del sistema, consentendo di aggiungere nuovi giocatori o estendere le funzionalità senza modifiche invasive, pur mantenendo chiara la separazione dei concetti.
 
 ---
 

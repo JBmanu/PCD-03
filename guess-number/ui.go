@@ -29,14 +29,14 @@ type PlayerUI struct {
 }
 
 // MindNumber Mind a random number to guess
-func MindNumber(player Player, oracle Oracle) {
+func MindNumber(player Player, oracle OracleInterface) {
 	WaitRandomTimeAndDoAction(3, 5,
 		func(waitTime int) {
 			SafelyUICall(func() { player.UI.Number.SetText("") })
 			fmt.Println("[" + player.Name + "] Think for " + strconv.Itoa(waitTime) + " s")
 		},
 		func() {
-			randomNumber := ComputeRandomNumber(oracle.SecretNumber) + 1
+			randomNumber := ComputeRandomNumber(oracle.SecretNumber()) + 1
 			fmt.Println("[" + player.Name + "] Thought about the " + strconv.Itoa(randomNumber) + " 👋")
 			SafelyUICall(func() {
 				player.UI.Number.SetText(strconv.Itoa(randomNumber))
@@ -45,16 +45,16 @@ func MindNumber(player Player, oracle Oracle) {
 		})
 }
 
-func clickTryButton(oracle Oracle, player Player, ui PlayerUI) func() {
+func clickTryButton(oracle OracleInterface, player Player, ui PlayerUI) func() {
 	return func() {
 		CheckNumberInput(ui.Number,
-			func(number int) { SendTryNumberMessage(oracle, player, number) },
+			func(number int) { oracle.SendTry(player, number) },
 			SafelyUIFunc(func() { ui.Info.SetText("Insert a number !!") }))
 	}
 }
 
 // NewPlayerUI Create UI of the player
-func NewPlayerUI(myApp fyne.App, player Player, oracle Oracle) PlayerUI {
+func NewPlayerUI(myApp fyne.App, player Player, oracle OracleInterface) PlayerUI {
 	var ui PlayerUI
 	ui.Window = myApp.NewWindow("Player : " + player.Name)
 	ui.Title = widget.NewLabel("Guess a number between 1 and 100 !!!")
