@@ -33,6 +33,7 @@ Breve panoramica dei progetti:
 ---
 
 ## Progetto 1 – Cars Simulation
+
 <div style="display: flex; justify-content: center;">
     <img src="img/simulation/app.png" style="width: 50%;">
 </div>
@@ -51,9 +52,9 @@ Partendo dall’[Assignment 1](https://docs.google.com/document/d/1EquRh7I1WYgHI
 
 La simulazione è implementata utilizzando il framework Akka, che consente di modellare il sistema secondo il paradigma actor-based. Tale approccio facilita la gestione concorrente e distribuita dei processi, permettendo di rappresentare in modo naturale gli elementi della simulazione come attori indipendenti che comunicano tramite scambio di messaggi.
 
-<div style="display: flex; align-items: center; gap: 5%;  flex-direction: row-reverse; margin-bottom: 3%;">
+<div style="display: flex; align-items: center; justify-content: center; gap: 5%; flex-direction: row-reverse; margin-bottom: 3%;">
   <img src="img/simulation/actors.png" style="width: 25%;">
-   <div style="width: 70%;">
+   <div style="width: 55%;">
     L’architettura si basa su un attore principale che funge da orchestratore e gestisce un insieme di attori,
     ciascuno dei quali rappresenta un’automobile. L’attore principale è responsabile dell’avanzamento temporale della
     simulazione, che procede a passi discreti di durata Δt. È inoltre possibile abilitare una temporizzazione basata sul
@@ -96,7 +97,7 @@ La simulazione è implementata utilizzando il framework Akka, che consente di mo
 
 
 | Componente | Tecnologia        | Ruolo              |
-|------------|-------------------|--------------------|
+| ---------- | ----------------- | ------------------ |
 | Frontend   | Java.Swing        | Interfaccia utente |
 | Backend    | Java + Scala.Akka | Logica applicativa |
 
@@ -154,7 +155,7 @@ In sintensi si è esplorato il framework akka, lavorando con lo scambio di messa
 
 In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di messaggi asincroni per sincronizzare le varie automobili tra loro e con la simulazione. Per riutilizzare interamente il progetto del precedente assignment sono state create classi in Scala che definiscono separatamente i comportamenti dei diversi attori, incapsulando la logica della simulazione e delle automobili. Questo incapsulamento permette di scalare il comportamento degli attori utilizzando anche un linguaggio diverso, senza perdere efficienza e mantenendo una chiara separazione dei concetti. Infine sono stati testati diversi environment, da una semplice strada rettilinea fino ad arrivare a scenari più complessi con incroci regolati da semafori.
 
-<div style="display: flex; gap: 2%; justify-content: center;">
+<div style="display: flex; gap: 2%; justify-content: center; ">
     <img src="img/simulation/simSimple.png" style="width: 48%;">
     <img src="img/simulation/simCrossTraffic.png" style="width: 48%;">
 </div>
@@ -177,8 +178,9 @@ In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di me
 
 ### Tecnologie utilizzate
 
+
 | Componente | Tecnologia | Ruolo              |
-|------------|------------|--------------------|
+| ---------- | ---------- | ------------------ |
 | Frontend   | fyne.io    | Interfaccia utente |
 | Backend    | GO         | Logica applicativa |
 
@@ -198,8 +200,9 @@ In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di me
 
 ### Tecnologie utilizzate
 
+
 | Componente | Tecnologia | Ruolo              |
-|------------|------------|--------------------|
+| ---------- | ---------- | ------------------ |
 | Frontend   | fyne.io    | Interfaccia utente |
 | Backend    | GO         | Logica applicativa |
 
@@ -213,7 +216,7 @@ In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di me
 
 <div style="display: flex; gap: 2%; justify-content: center;">
     <img src="img/guess-number/menu.png" style="width: 30%;">
-    <img src="img/guess-number/players.png" style="width: 68%;">
+    <img src="img/guess-number/playersUI.png" style="width: 68%;">
 </div>
 
 ### Analisi del problema
@@ -222,9 +225,6 @@ Si intende progettare un sistema in cui l’**Oracolo** genera un numero pseudo�
 In caso di tentativo errato, l’Oracolo risponde con un messaggio di *hint*, specificando se il valore proposto è maggiore o minore rispetto al numero da indovinare.
 Ogni giocatore dispone di un singolo tentativo per turno; una volta ricevute tutte le proposte, l’Oracolo avvia un nuovo ciclo di turno. L’ordine di invio dei tentativi non è deterministico.
 A inizio turno l’Oracolo notifica a tutti i giocatori la possibilità di inviare il proprio tentativo e rimane in attesa dei rispettivi messaggi.
-
-
-I giocatori sono implementati come attori autonomi (bot), ciascuno dei quali produce il proprio tentativo dopo un ritardo temporale randomico. È inoltre prevista la possibilità di integrare un giocatore umano, che interagisce con il sistema attraverso un'interfaccia dedicata.
 
 ### Punti critici:
 
@@ -239,15 +239,32 @@ Per la sincronizzazione e la comunicazione tra Oracolo e Player vengono utilizza
 L’Oracolo ha il compito di orchestrare le interazioni tra i vari Player, sincronizzando la ricezione dei tentativi e scandendo i turni del gioco fino all’individuazione di un vincitore.
 L’applicazione è inoltre dotata di un’interfaccia grafica tramite la quale, attraverso un semplice menu, è possibile inserire due parametri: il valore massimo utilizzato per l’estrazione del numero da indovinare e il numero di giocatori che parteciperanno alla partita.
 
-L’Oracolo definisce la struttura delle possibili risposte da inviare ai Player e il tipo del canale dedicato alla ricezione dei tentativi. Viene inoltre implementata una funzione responsabile dell’ascolto dei messaggi ricevuti su tale canale; questa funzione viene eseguita all’interno di una goroutine, poiché i channel in Go sono strutture bloccanti.
+<div style="display: flex; gap: 2%; justify-content: center;">
+    <img src="img/guess-number/menuEntita.png" style="width: 30%;">
+    <img src="img/guess-number/oraclePlayers.png" style="width: 30%;">
+    <img src="img/guess-number/playersOracle.png" style="width: 30%;">
+</div>
+
+<div style="display: flex; align-items: center; justify-content: center;   gap: 5%; flex-direction: row-reverse; margin-bottom: 3%; ">
+  <img src="img/guess-number/oracleArc.png" style="width: 35%;">
+  <div style="width: 45%;">
+    L’Oracolo definisce la struttura delle possibili risposte da inviare ai Player e il tipo del canale dedicato alla ricezione dei tentativi. Viene inoltre implementata una funzione responsabile dell’ascolto dei messaggi ricevuti su tale canale; questa funzione viene eseguita all’interno di una goroutine, poiché i channel in Go sono strutture bloccanti.
+  </div>
+</div>
 
 Il Player definisce due tipi di canali: uno per la ricezione dei messaggi di attivazione, ovvero l’indicazione che può inviare il proprio tentativo, e uno per la ricezione della risposta da parte dell’Oracolo. A seguito della creazione di questi due canali, vengono implementate due funzioni dedicate all’ascolto dei rispettivi canali, anch’esse eseguite all’interno di goroutine.
 Inoltre, ogni Player è dotato di un’interfaccia grafica per la visualizzazione del tentativo effettuato, della risposta ricevuta e per consentire la disattivazione della risposta automatica del bot, permettendo così a un utente fisico di assumere il controllo e partecipare come giocatore.
 
+<div style="display: flex; gap: 2%; justify-content: center;">
+    <img src="img/guess-number/playerArc.png" style="width: 40%;">
+    <img src="img/guess-number/playerUI.png" style="width: 20%;">
+</div>
+
 ### Tecnologie utilizzate
 
+
 | Componente | Tecnologia | Ruolo              |
-|------------|------------|--------------------|
+| ---------- | ---------- | ------------------ |
 | Frontend   | fyne.io    | Interfaccia utente |
 | Backend    | GO         | Logica applicativa |
 
@@ -256,42 +273,61 @@ Inoltre, ogni Player è dotato di un’interfaccia grafica per la visualizzazion
 Per l’`Oracolo` è stata definita la struttura, composta dal numero da indovinare, dal valore massimo da cui calcolare tale numero e dal canale per la ricezione dei tentativi dai vari Player.
 Sono state inoltre implementate le funzioni per l’invio dei messaggi all’Oracolo, per l’ascolto del suo canale — funzione che confronta ogni tentativo ricevuto con il numero da indovinare e invia al Player la risposta corrispondente — e per l’avvio del turno di gioco, durante il quale i giocatori vengono mescolati in ordine casuale e attivati per inviare i propri tentativi.
 
-``` go
+```go
+type Answer int
 
+type Oracle interface {
+    SecretNumber() int
+    StartGame(players []Player)
+    SendTry(player Player, number int)
+    ReceiveTries(players []Player)
+}
 ```
 
 La struttura del `Player` è composta dalla sua interfaccia grafica, dal nome identificativo e dai due canali per la ricezione dei messaggi di attivazione e delle risposte ai tentativi.
 Sono state inoltre definite le funzioni per l’invio dei messaggi ai rispettivi canali e sviluppate le componenti grafiche necessarie per consentire l’interazione di un giocatore fisico.
 
-``` go
+```go
+type Player interface {
+	Name() string
+	UI() PlayerUI
+	MindNumber(oracle Oracle)
 
+	SendWeakUp(weakUp bool)
+	ReceiveWeakUp(oracle Oracle)
+
+	SendAnswer(try TryMessage, answer Answer)
+	SendLoserPlayers(try TryMessage, answer Answer)
+	ReceiveAnswer()
+}
+
+type PlayerUI struct {
+	Window     fyne.Window
+	Title      *widget.Label
+	Info       *widget.Label
+	CheckerBot *widget.Check
+	Number     *widget.Entry
+	TryButton  *widget.Button
+}
 ```
 
 È stata inoltre creata un’interfaccia grafica `Menu` per inizializzare il numero che l’Oracolo deve generare a partire da un *MaxNumber* e il numero di giocatori che partecipano alla partita. All’avvio della partita vengono create le varie entità, comprese le goroutine necessarie per il funzionamento del gioco.
 
-``` go
-
+```go
+type MenuUI struct {
+	Window        fyne.Window
+	Title         *widget.Label
+	MaxRandom     *widget.Entry
+	NumberPlayers *widget.Entry
+	GoButton      *widget.Button
+}
 ```
 
 ### Risultati e considerazioni
 
 Il linguaggio Go consente di concentrarsi maggiormente sull’aspetto concorrente del progetto, separando in modo chiaro i comportamenti concorrenti da quelli sequenziali. Grazie all’utilizzo dei channel, è possibile sincronizzare in maniera efficiente e trasparente le azioni delle diverse entità, semplificando la gestione dei turni e migliorando la leggibilità e la manutenzione del codice. L’applicazione è stata inizialmente realizzata con un’interfaccia da console; successivamente, per rendere l’esperienza più coinvolgente per l’utente, sono state create interfacce grafiche (GUI) che permettono di partecipare attivamente al gioco come giocatore. Questo approccio facilita la scalabilità del sistema, consentendo di aggiungere nuovi giocatori o estendere le funzionalità senza modifiche invasive, pur mantenendo chiara la separazione dei concetti.
 
----
-
-## Conclusioni
-
-Riflessione generale sull’intero percorso:
-
-- Competenze tecniche acquisite
-- Tecnologie più efficaci o interessanti
-- Difficoltà comuni e soluzioni riutilizzabili
-- Possibili sviluppi futuri dei progetti
-
----
-
-## Riferimenti
-
-- [1] Documentazione ufficiale delle tecnologie utilizzate
-- [2] Tutorial o articoli di riferimento
-- [3] Altri materiali consultati
+<div style="display: flex; gap: 2%; justify-content: center;">
+    <img src="img/guess-number/endGameUI.png" style="width: 70%;">
+    <img src="img/guess-number/console.png" style="width: 20%;">
+</div>
