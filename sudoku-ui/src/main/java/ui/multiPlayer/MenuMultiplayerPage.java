@@ -151,5 +151,6 @@ public class MenuMultiplayerPage extends JPanel implements InfoPanel, ColorCompo
         this.startGameButton.refreshPalette(palette);
         this.themeModeButton.refreshPalette(palette);
         this.exitButton.refreshPalette(palette);
+        this.errorLabel.setForeground(palette.secondary());
     }
 }

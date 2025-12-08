@@ -9,10 +9,10 @@
 ## Indice
 
 1. [Introduzione](#introduzione)
-2. [Progetto 1 – Cars Simulation](#progetto-1--Cars-Simulation)
-3. [Progetto 2 – Sudoku MOM](#progetto-2--Sudoku-MOM)
-4. [Progetto 3 – Sudoku Java-RMI](#progetto-3--Java-RMI)
-5. [Progetto 4 – Guess The Number](#progetto-4--Guess-The-Number)
+2. [Part 1 – Cars Simulation](#progetto-1--Cars-Simulation)
+3. [Part 2A – Sudoku MOM](#progetto-2--Sudoku-MOM)
+4. [Part 2B – Sudoku Java-RMI](#progetto-3--Java-RMI)
+5. [Part 3 – Guess The Number](#progetto-4--Guess-The-Number)
 6. [Conclusioni](#conclusioni)
 7. [Riferimenti](#riferimenti)
 
@@ -32,7 +32,7 @@ Breve panoramica dei progetti:
 
 ---
 
-## Progetto 1 – Cars Simulation
+## Part 1 – Cars Simulation
 
 <div style="display: flex; justify-content: center;">
     <img src="img/simulation/app.png" style="width: 50%;">
@@ -97,7 +97,7 @@ La simulazione è implementata utilizzando il framework Akka, che consente di mo
 
 
 | Componente | Tecnologia        | Ruolo              |
-| ---------- | ----------------- | ------------------ |
+|------------|-------------------|--------------------|
 | Frontend   | Java.Swing        | Interfaccia utente |
 | Backend    | Java + Scala.Akka | Logica applicativa |
 
@@ -162,7 +162,172 @@ In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di me
 
 ---
 
-## Progetto 2 – Sudoku MOM
+## Part 2A – Sudoku MOM
+
+<div style="display: flex; gap: 2%; justify-content: center; ">
+    <img src="img/mom/home-light.png" style="width: 43%;">
+    <img src="img/mom/home-dark.png" style="width: 43%;">
+</div>
+
+### Analisi del problema
+L’obiettivo è realizzare una versione distribuita del Sudoku che permetta a più giocatori di collaborare simultaneamente sulla stessa griglia. Il sistema deve consentire sia la creazione di nuove griglie sia la possibilità di unirsi a partite già esistenti. Ogni giocatore deve poter selezionare una casella ed effettuare inserimenti o modifiche dei valori. È necessario garantire una visualizzazione coerente e aggiornata dei contenuti della griglia e delle selezioni compiute dagli utenti. Inoltre, il sistema deve supportare la gestione dinamica dell’ingresso e dell’uscita dei giocatori durante l’intero processo di risoluzione.
+
+### Punti critici:
+
+- Creazione delle stanze di gioco per le griglie (lobby)
+- Consistenza nella selezione e nell’inserimento/modifica delle caselle
+- Gestione dell’entrata e dell’uscita dei giocatori dalle stanze 
+- Gestione dei crash da parte di un giocatore
+
+### Architettura proposta
+
+L’architettura implementata è di tipo decentralizzato e utilizza un modello di comunicazione MOM (Message-Oriented Middleware) per coordinare le interazioni tra i giocatori. La comunicazione avviene tramite code di messaggi fornite da CloudAMQP, un servizio online che ospita un’istanza di RabbitMQ.
+
+RabbitMQ funge da message broker e gestisce l’instradamento affidabile dei messaggi attraverso i suoi componenti fondamentali (channel, exchange, queue) garantendo comunicazione asincrona, disaccoppiamento tra produttori e consumatori e tolleranza ai guasti.
+Inoltre, il sistema sfrutta il meccanismo degli acknowledgment: ogni consumatore conferma esplicitamente l’avvenuta ricezione e corretta elaborazione del messaggio. In questo modo il broker può evitare perdite di messaggi, reinoltrare quelli non confermati e garantire una politica di consegna affidabile (at-least-once delivery).
+
+<div style="display: flex; justify-content: center;">
+    <img src="img/mom/architettura.png" style="width: 60%;">
+</div>
+
+[//]: # (spiegazione creare lobbi)
+
+Una volta stabilita la connessione con RabbitMQ, l’utente inserisce tutte le informazioni necessarie alla creazione della stanza di gioco, dalla definizione della griglia all’identificazione del giocatore. Sulla base di questi dati vengono quindi configurati il channel, l’exchange e la queue attraverso cui il giocatore riceverà i messaggi. Completata l’inizializzazione dell’intero sistema di comunicazione, la griglia di gioco viene infine mostrata al giocatore.
+
+- exchange: identifica la stanza di gioco e instrada i messaggi verso tutti i giocatori collegati a quella stessa stanza.
+  queue: coda personale del giocatore, attraverso cui riceve i messaggi inviati dagli altri partecipanti.
+
+<div style="display: flex; justify-content: center; gap: 2%;">
+    <img src="img/mom/create/createLobbi-schema.svg" style="width: 55%;">
+
+<div style="display: flex; flex-direction: column; gap: 5%; align-items: center;">
+    <img src="img/mom/create/create-exchanges.png" style="width: 100%; ">
+    <img src="img/mom/create/create-queue.png" style="width: 100%;">
+</div>
+
+</div>
+
+[//]: # (spiegazione joinare lobbi)
+
+Il collegamento a una partita già esistente, oltre alla connessione a RabbitMQ e all’inserimento dei dati iniziali, è necessario specificare anche l’ID della stanza. Grazie a questo identificativo, il giocatore può connettersi all’exchange della partita già avviata e creare la propria coda per ricevere i messaggi dagli altri partecipanti.
+Una volta entrato, la prima operazione che effettua è la richiesta della griglia di gioco corrente, fornita da uno qualsiasi dei giocatori già presenti, così da sincronizzarsi con lo stato attuale della partita. Successivamente, viene mostrata all’utente l’interfaccia di gioco con la griglia condivisa.
+
+<div style="display: flex; justify-content: center; gap: 2%;">
+    <img src="img/mom/join/joinLobbi-schema.svg" style="width: 46.5%;">
+
+<div style="display: flex; flex-direction: column; gap: 5%; align-items: center;">
+    <img src="img/mom/create/create-exchanges.png" style="width: 100%; ">
+    <img src="img/mom/join/join-queue.png" style="width: 100%;">
+</div>
+</div>
+
+[//]: # (selezione di una casella)
+
+
+[//]: # (inserimento delle caselle e undo)
+
+le coordinate e il valore da applicare. Quando un giocatore compie un’azione, il messaggio viene pubblicato in modalità fanout, in modo da essere recapitato alle code di tutti i partecipanti, incluso il mittente. Questo meccanismo garantisce la consistenza dello stato condiviso, poiché ogni giocatore applica la modifica solo al momento del consumo del messaggio, assicurando un aggiornamento asincrono e coerente della griglia per tutti.
+
+<div style="display: flex; justify-content: center;">
+    <img src="img/mom/move/move-schema.svg" style="width: 60%;">
+</div>
+
+### Tecnologie utilizzate
+
+
+| Componente     | Tecnologia | Ruolo                               |
+|----------------|------------|-------------------------------------|
+| Frontend       | java.swing | Interfaccia utente                  |
+| Backend        | java       | Logica applicativa                  |
+| Infrastruttura | RabbitMQ   | Sistema di messaggistica MOM        |
+| Servizio       | CloudAMQP  | Servizio online che ospita RabbitMQ |
+
+### Sviluppo
+
+La classe `RabbitMQConnector` utilizza la libreria `rabbitmq.client` per collegarsi a un’istanza RabbitMQ. Il suo compito principale è fornire i metodi necessari per configurare l’infrastruttura di messaggistica, come la creazione di un exchange (che rappresenta una stanza di gioco), la connessione a un exchange esistente e la gestione di tutte le azioni che un giocatore può compiere durante il gioco.
+
+Grazie a questa architettura, RabbitMQConnector funge da interfaccia tra il gioco e RabbitMQ, astraendo la complessità della comunicazione asincrona e assicurando la consistenza dello stato condiviso tra tutti i giocatori.
+
+``` java
+public interface RabbitMQConnector {
+    void createRoom(Player player);
+
+    void deleteRoom(Player player);
+
+    void deleteQueue(RabbitMQDiscovery discovery, Player player);
+
+    void createRoomAndJoin(Player player);
+
+    void joinRoom(RabbitMQDiscovery discovery, Player player);
+
+    void leaveRoom(RabbitMQDiscovery discovery, Player player);
+
+    void sendGridRequest(RabbitMQDiscovery discovery, Player player);
+
+    void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
+
+    void activeCallbackReceiveMessage(Player player, Grid grid,
+                                      JoinPlayer joinPlayer, LeavePlayer leavePlayer,
+                                      PlayerMove moveAction, CreationGrid initGrid);
+}
+```
+
+La classe `RabbitMQDiscovery` ha il compito di fornire informazioni generali sull’infrastruttura di messaggistica RabbitMQ. Tra le sue responsabilità vi sono il conteggio degli exchange creati, il numero di code presenti e il numero di giocatori o code collegate a una particolare stanza.
+
+``` java
+public interface RabbitMQDiscovery {
+    int countExchanges();
+
+    int countExchangesWithoutDefault();
+
+    int countExchangesWithName(String name);
+
+    int countExchangesThatContains(String subString);
+
+    int countQueues();
+
+    int countQueuesWithName(String name);
+
+    int countQueuesThatContains(String subString);
+
+    int countExchangeBinds(String roomName);
+
+    int countQueueBinds(String queueName);
+
+    List<String> routingKeysFromBindsExchange(String roomName);
+
+    List<String> routingKeysFromBindsExchange(String roomName, String withoutQueue);
+
+    int countMessageOnQueue(String queueName);
+}
+```
+
+La classe `Player` rappresenta un giocatore all’interno del sistema di gioco distribuito. La sua responsabilità principale è gestire i dati relativi al giocatore, come l’identificativo della stanza (room), la coda associata (queue) e il nome del giocatore.
+
+``` java
+public interface Player {
+    Optional<String> computeRoomID();
+    
+    Optional<String> room();
+
+    Optional<String> queue();
+
+    Optional<String> name();
+
+    void computeToCreateRoom(String countRoom, String countQueue, String playerName);
+
+    void computeToJoinRoom(String roomId, String countQueue, String playerName);
+
+    void callActionOnData(PlayerData action);
+}
+```
+
+
+### Risultati e considerazioni
+
+---
+
+## Part 2B – Java-RMI
 
 ### Analisi del problema
 
@@ -170,17 +335,11 @@ In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di me
 
 ### Architettura proposta
 
-**Esempio di punti chiave:**
-
-- Architettura a 3 livelli (frontend, backend, database)
-- API REST per la comunicazione
-- Gestione autenticazione via JWT
-
 ### Tecnologie utilizzate
 
 
 | Componente | Tecnologia | Ruolo              |
-| ---------- | ---------- | ------------------ |
+|------------|------------|--------------------|
 | Frontend   | fyne.io    | Interfaccia utente |
 | Backend    | GO         | Logica applicativa |
 
@@ -190,29 +349,7 @@ In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di me
 
 ---
 
-## Progetto 3 – Java-RMI
-
-### Analisi del problema
-
-### Punti critici:
-
-### Architettura proposta
-
-### Tecnologie utilizzate
-
-
-| Componente | Tecnologia | Ruolo              |
-| ---------- | ---------- | ------------------ |
-| Frontend   | fyne.io    | Interfaccia utente |
-| Backend    | GO         | Logica applicativa |
-
-### Sviluppo
-
-### Risultati e considerazioni
-
----
-
-## Progetto 4 – Guess The Number
+## Part 3 – Guess The Number
 
 <div style="display: flex; gap: 2%; justify-content: center;">
     <img src="img/guess-number/menu.png" style="width: 30%;">
@@ -239,7 +376,7 @@ Per la sincronizzazione e la comunicazione tra Oracolo e Player vengono utilizza
 L’Oracolo ha il compito di orchestrare le interazioni tra i vari Player, sincronizzando la ricezione dei tentativi e scandendo i turni del gioco fino all’individuazione di un vincitore.
 L’applicazione è inoltre dotata di un’interfaccia grafica tramite la quale, attraverso un semplice menu, è possibile inserire due parametri: il valore massimo utilizzato per l’estrazione del numero da indovinare e il numero di giocatori che parteciperanno alla partita.
 
-<div style="display: flex; gap: 2%; justify-content: center;">
+<div style="display: flex; gap: 2%; justify-content: center;  margin-bottom: 3%;">
     <img src="img/guess-number/menuEntita.png" style="width: 30%;">
     <img src="img/guess-number/oraclePlayers.png" style="width: 30%;">
     <img src="img/guess-number/playersOracle.png" style="width: 30%;">
@@ -264,7 +401,7 @@ Inoltre, ogni Player è dotato di un’interfaccia grafica per la visualizzazion
 
 
 | Componente | Tecnologia | Ruolo              |
-| ---------- | ---------- | ------------------ |
+|------------|------------|--------------------|
 | Frontend   | fyne.io    | Interfaccia utente |
 | Backend    | GO         | Logica applicativa |
 

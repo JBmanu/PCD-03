@@ -38,8 +38,17 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
     }
 
     private void loadServices() {
-        do this.discovery = RabbitMQDiscovery.create(); while (this.discovery.isEmpty());
-        do this.connector = RabbitMQConnector.create(); while (this.connector.isEmpty());
+        do {
+            this.discovery = RabbitMQDiscovery.create();
+            if (this.discovery.isEmpty()) this.ui.showInfo("Connection ERROR");
+        }
+        while (this.discovery.isEmpty());
+
+        do {
+            this.connector = RabbitMQConnector.create();
+            if (this.discovery.isEmpty()) this.ui.showInfo("Connection ERROR");
+        } while (this.connector.isEmpty());
+
         this.ui.showInfo("Connected to RabbitMQ server");
     }
 

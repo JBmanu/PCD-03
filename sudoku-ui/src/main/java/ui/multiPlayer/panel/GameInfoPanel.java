@@ -82,6 +82,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
         final int alphaPlayer = alphaTitle - 50;
         this.infoRoom.setForeground(palette.secondaryWithAlpha(alphaTitle));
         this.playerArea.setForeground(palette.secondaryWithAlpha(alphaPlayer));
+        this.infoLabel.setForeground(palette.secondary());
     }
 
 }

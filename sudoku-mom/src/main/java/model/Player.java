@@ -23,7 +23,6 @@ public interface Player {
 
     void computeToJoinRoom(String roomId, String countQueue, String playerName);
 
-
     void callActionOnData(PlayerData action);
 
 
