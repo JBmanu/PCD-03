@@ -37,6 +37,8 @@ public abstract class AbstractAgent {
      * This method is called at each step of the simulation
      */
     abstract public void step(int dt);
+    
+    abstract public void act();
 
     public abstract void setTimeDt(final int dt);
 

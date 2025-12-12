@@ -25,8 +25,9 @@ object SimulationActor:
 
   object EndInitCar extends Command
 
-  case class EndStepCar(carAgent: CarAgent) extends Command
+  case class EndStepSenseDecideCar(carAgent: CarAgent) extends Command
 
+  case class EndStepActCar(carAgent: CarAgent) extends Command
 
   def apply(simulation: AbstractSimulation): Behavior[Command] =
     Behaviors.setup: context =>
@@ -47,17 +48,26 @@ object SimulationActor:
 
           case NextStep =>
             simulation.nextStep()
-            simulation.actors().forEach(_ ! CarActor.Step(context.self, simulation))
+            simulation.actors().forEach(_ ! CarActor.StepSenseDecide(context.self, simulation))
             Behaviors.same
 
           case EndInitCar =>
             simulation.increaseCounterActors()
             if simulation.allActorsDid() then
               simulation.resetCounterActors()
-              simulation.actors().forEach(_ ! CarActor.Step(context.self, simulation))
+              simulation.actors().forEach(_ ! CarActor.StepSenseDecide(context.self, simulation))
             Behaviors.same
 
-          case EndStepCar(carAgent) =>
+          case EndStepSenseDecideCar(carAgent) =>
+            simulation.increaseCounterActors()
+            simulation.roadStatistics().addCarSpeed(carAgent)
+
+            if simulation.allActorsDid() then
+              simulation.resetCounterActors()
+              simulation.actors().forEach(_ ! CarActor.StepAct(context.self, simulation))
+            Behaviors.same
+
+          case EndStepActCar(carAgent) =>
             simulation.increaseCounterActors()
             simulation.roadStatistics().addCarSpeed(carAgent)
 

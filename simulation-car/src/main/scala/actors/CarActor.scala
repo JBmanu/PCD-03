@@ -1,6 +1,6 @@
 package actors
 
-import actors.SimulationActor.{ EndInitCar, EndStepCar }
+import actors.SimulationActor.{ EndInitCar, EndStepActCar, EndStepSenseDecideCar }
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ ActorRef, Behavior }
 import car.{ AbstractAgent, CarAgent }
@@ -12,8 +12,9 @@ object CarActor:
 
   case class Init(actor: ActorRef[SimulationActor.Command], simulation: AbstractSimulation) extends Command
 
-  case class Step(actor: ActorRef[SimulationActor.Command], simulation: AbstractSimulation) extends Command
+  case class StepSenseDecide(actor: ActorRef[SimulationActor.Command], simulation: AbstractSimulation) extends Command
 
+  case class StepAct(actor: ActorRef[SimulationActor.Command], simulation: AbstractSimulation) extends Command
 
   def apply(agent: AbstractAgent): Behavior[Command] =
     Behaviors.setup: context =>
@@ -24,7 +25,12 @@ object CarActor:
             actor ! EndInitCar
             Behaviors.same
 
-          case Step(actor, simulation) =>
+          case StepSenseDecide(actor, simulation) =>
             agent.step(simulation.engine().delta)
-            actor ! EndStepCar(agent.asInstanceOf[CarAgent])
+            actor ! EndStepSenseDecideCar(agent.asInstanceOf[CarAgent])
+            Behaviors.same
+
+          case StepAct(actor, simulation) =>
+            agent.act()
+            actor ! EndStepActCar(agent.asInstanceOf[CarAgent])
             Behaviors.same

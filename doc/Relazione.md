@@ -329,21 +329,81 @@ public interface Player {
 
 ## Part 2B – Java-RMI
 
+
 ### Analisi del problema
+Si vuole realizzare una versione distribuita del gioco Sudoku, che permetta a più giocatori di cooperare sulla stessa griglia. Il sistema deve garantire la consistenza nella selezione e nella modifica delle caselle, mostrando la griglia di gioco in modo sempre coerente. Oltre alla gestione della griglia, è necessario gestire anche l’ingresso e l’uscita dei giocatori all’interno di una stanza di gioco.
 
 ### Punti critici:
 
+- Creazione della stanza di gioco per la griglia
+- Consistenza nella selezione e modfica di una casella
+- Gestione dell'entrata e uscita dei giocatori dalle stanze di gioco
+- Gestione del crash di un giocatore
+
 ### Architettura proposta
+
+L’architettura utilizzata per realizzare questo sistema è di tipo centralizzato e sfrutta la libreria Java RMI, basata sul paradigma del Distributed Object Computing. Grazie a questa tecnologia è possibile far comunicare oggetti Java residenti su macchine diverse. In questo modo ogni giocatore viene rappresentato come un oggetto remoto che si interfaccia con un server per collaborare all’interno di una griglia di Sudoku condivisa.
+
+[//]: # (gestione del server)
+
+Il server è realizzato come oggetto remoto, permettendo a ogni giocatore di connettersi ad esso come se fosse un oggetto locale. Si occupa della creazione della griglia e della gestione delle sue interazioni e modifiche; di conseguenza, ogni giocatore comunica con la griglia attraverso il server. Quest’ultimo mantiene tutte le griglie di gioco attive e garantisce una coordinazione coerente tra i giocatori.
+
+[//]: # (gestione del giocatore)
+
+Il giocatore mantiene le informazioni necessarie al server per poterlo creare e permettergli di partecipare alla risoluzione delle griglie di gioco già esistenti. Ogni volta che un giocatore interagisce con la griglia tramite una richiesta al server, quest’ultimo elabora l’azione e aggiorna la griglia del giocatore attraverso una callback.
 
 ### Tecnologie utilizzate
 
-
 | Componente | Tecnologia | Ruolo              |
 |------------|------------|--------------------|
-| Frontend   | fyne.io    | Interfaccia utente |
-| Backend    | GO         | Logica applicativa |
+| Frontend   | java.swing | Interfaccia utente |
+| Backend    | Java RMI   | Logica applicativa |
 
 ### Sviluppo
+
+La classe `SudokuServer` gestisce le stanze di gioco e l’aggiornamento delle griglie; tramite Java RMI espone i metodi remoti permettendo di interagire con il server come se fosse locale. Lo scambio di informazioni tra gli oggetti remoti avviene attraverso dati serializzabili.
+
+``` java
+public interface SudokuServer extends Serializable, Remote {
+
+    boolean createRoom(SudokuClient client, Settings settings) throws RemoteException;
+
+    boolean joinRoom(SudokuClient client) throws RemoteException;
+
+    void leaveRoom(SudokuClient client) throws RemoteException;
+
+    byte[][] solution(SudokuClient client) throws RemoteException;
+
+    byte[][] grid(SudokuClient client) throws RemoteException;
+
+    void updateCell(SudokuClient client, Coordinate coordinate, int value) throws RemoteException;    
+}
+```
+
+La classe `SudokuClient` espone i metodi necessari al server per inviare aggiornamenti; in questo modo il server comunica con l’oggetto remoto del client e quest’ultimo può aggiornare in modo coerente la propria interfaccia grafica. 
+
+``` java
+public interface SudokuClient extends Serializable, Remote {
+
+    int roomId() throws RemoteException;
+
+    String name() throws RemoteException;
+
+    void setRoomId(int roomId) throws RemoteException;
+
+    void setName(String name) throws RemoteException;
+
+    void invokeOnEnter(byte[][] solution, byte[][] cells) throws RemoteException;
+
+    void invokeOnMove(Coordinate coordinate, int value) throws RemoteException;
+
+    void invokeOnJoin(List<String> players) throws RemoteException;
+
+    void invokeOnJoinPlayer(String player) throws RemoteException;
+
+    void invokeOnLeavePlayer(String player) throws RemoteException;
+}
+```
 
 ### Risultati e considerazioni
 
