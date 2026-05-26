@@ -18,12 +18,13 @@ public class SimulationManager {
     public SimulationType simulationType() {
         return this.simulationType;
     }
-
+    
     public void initSimulation(final SimulationType simulationType) {
         this.simulationType = simulationType;
         final AbstractSimulation simulation = simulationType.getSimulation();
         simulation.addViewListener(this.view);
         
+        // inizializzazione degli attori
         final ActorRef<SimulationActor.Command> actorSystem =
                 ActorSystem.apply(SimulationActor.apply(simulation), "Simulation");
 
