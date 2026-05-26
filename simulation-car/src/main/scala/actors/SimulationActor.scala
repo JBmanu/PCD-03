@@ -25,6 +25,8 @@ object SimulationActor:
 
   object EndInitCar extends Command
 
+  case class EndSenseDecide(carAgent: CarAgent) extends Command
+
   case class EndStepCar(carAgent: CarAgent) extends Command
 
 
@@ -47,19 +49,26 @@ object SimulationActor:
 
           case NextStep =>
             simulation.nextStep()
-            simulation.actors().forEach(_ ! CarActor.Step(context.self, simulation))
+            simulation.actors().forEach(_ ! CarActor.StepSenseDecide(context.self, simulation))
             Behaviors.same
 
           case EndInitCar =>
             simulation.increaseCounterActors()
             if simulation.allActorsDid() then
               simulation.resetCounterActors()
-              simulation.actors().forEach(_ ! CarActor.Step(context.self, simulation))
+              simulation.actors().forEach(_ ! CarActor.StepSenseDecide(context.self, simulation))
+            Behaviors.same
+
+          case EndSenseDecide(carAgent) =>
+            // conto le macchina che hanno finito
+            simulation.increaseCounterActors()
+            simulation.roadStatistics().addCarSpeed(carAgent)
+            if simulation.allActorsDid() then simulation.resetCounterActors()
+              if !simulation.isPause then simulation.actors().forEach(_ ! CarActor.SepAct(context.self))
             Behaviors.same
 
           case EndStepCar(carAgent) =>
             simulation.increaseCounterActors()
-            simulation.roadStatistics().addCarSpeed(carAgent)
 
             if simulation.allActorsDid() then
               simulation.resetCounterActors()

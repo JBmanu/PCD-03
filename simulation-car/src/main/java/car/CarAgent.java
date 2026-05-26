@@ -69,6 +69,11 @@ public abstract class CarAgent extends AbstractAgent {
         this.setSelectedAction(Optional.empty());
         this.decide();
         // ACT
+//        this.selectedAction().ifPresent(this::doAction);
+    }
+
+    @Override
+    public void act() {
         this.selectedAction().ifPresent(this::doAction);
     }
 
