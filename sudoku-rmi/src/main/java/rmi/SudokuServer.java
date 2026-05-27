@@ -66,7 +66,7 @@ public interface SudokuServer extends Serializable, Remote {
             this.currentId += 1;
             return true;
         }
-
+        
         @Override
         public boolean joinRoom(final SudokuClient client) throws RemoteException {
             final ClientDatas clientDatas = client.datas();
@@ -77,9 +77,11 @@ public interface SudokuServer extends Serializable, Remote {
 
             final List<SudokuClient> players = this.rooms.get(roomId).second();
             final Grid grid = this.rooms.get(roomId).first();
-            client.setColor(RMIUtils.generateColor(roomId + players.size() + 1));
 
-            for (final SudokuClient player : players) player.invokeOnJoinNewPlayer(clientDatas);
+            client.setColor(RMIUtils.generateColor(roomId + players.size() + 1)); // ← spostato qui
+            final ClientDatas clientDatasWithColor = client.datas();               // ← ri-serializza con colore
+
+            for (final SudokuClient player : players) player.invokeOnJoinNewPlayer(clientDatasWithColor);
             client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());
             client.invokeOnJoinRoom(playersDatas);
             players.add(client);
