@@ -1,7 +1,6 @@
 package ui.components;
 
 import grid.Coordinate;
-import utils.IntUtils;
 import ui.color.Palette;
 import ui.components.documentEvent.DocumentEvent;
 import ui.components.documentEvent.NumberFilter;
@@ -9,6 +8,7 @@ import ui.listener.GameListener;
 import ui.listener.GridPageListener;
 import ui.utils.BorderUtils;
 import ui.utils.StyleUtils;
+import utils.IntUtils;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
@@ -27,7 +27,8 @@ public class SNumberCell extends JTextField implements ColorComponent {
     private final DocumentEvent documentEvent;
 
     private final Coordinate coordinate;
-    private final List<GridPageListener.SelectionListener> listeners;
+    private final List<GameListener.CellListener> cellListeners;
+    private final List<GridPageListener.SelectionListener> selectionListeners;
 
     private Optional<Palette> optionalPalette;
 
@@ -39,7 +40,8 @@ public class SNumberCell extends JTextField implements ColorComponent {
         this.documentEvent = new DocumentEvent(this);
 
         this.coordinate = coordinate;
-        this.listeners = new ArrayList<>();
+        this.cellListeners = new ArrayList<>();
+        this.selectionListeners = new ArrayList<>();
         this.optionalPalette = Optional.empty();
 
         this.setSuggest(value);
@@ -54,13 +56,17 @@ public class SNumberCell extends JTextField implements ColorComponent {
     private void setupListener() {
         this.addFocusListener(new FocusAdapter() {
             public void focusGained(final FocusEvent evt) {
-                SwingUtilities.invokeLater(() ->
-                        SNumberCell.this.listeners.forEach(l -> l.onFocusGainedCell(SNumberCell.this)));
+                SwingUtilities.invokeLater(() -> {
+                    SNumberCell.this.cellListeners.forEach(l -> l.onFocusGainedCell(SNumberCell.this));
+                    SNumberCell.this.selectionListeners.forEach(l -> l.onFocusGainedCell(SNumberCell.this));
+                });
             }
 
             public void focusLost(final FocusEvent evt) {
-                SwingUtilities.invokeLater(() ->
-                        SNumberCell.this.listeners.forEach(l -> l.onFocusLostCell(SNumberCell.this)));
+                SwingUtilities.invokeLater(() -> {
+                    SNumberCell.this.cellListeners.forEach(l -> l.onFocusLostCell(SNumberCell.this));
+                    SNumberCell.this.selectionListeners.forEach(l -> l.onFocusLostCell(SNumberCell.this));
+                });
             }
         });
     }
@@ -110,7 +116,7 @@ public class SNumberCell extends JTextField implements ColorComponent {
     }
 
     public void addSelectionListener(final GridPageListener.SelectionListener listener) {
-        this.listeners.add(listener);
+        this.selectionListeners.add(listener);
     }
 
     public void addInsertListeners(final GridPageListener.InsertListener listener) {
@@ -118,6 +124,7 @@ public class SNumberCell extends JTextField implements ColorComponent {
     }
 
     public void addCellListeners(final GameListener.CellListener listener) {
+        this.cellListeners.add(listener);
         this.numberFilter.addListener(listener);
     }
 
@@ -128,17 +135,17 @@ public class SNumberCell extends JTextField implements ColorComponent {
     public void setValue(final int value) {
         this.setText(value == 0 ? EMPTY : String.valueOf(value));
     }
-    
-    private void removeAllDocumentListeners(){
+
+    private void removeAllDocumentListeners() {
         ((AbstractDocument) this.getDocument()).setDocumentFilter(null);
         this.getDocument().removeDocumentListener(this.documentEvent);
     }
-    
+
     private void restoAllDocumentListeners() {
         this.getDocument().addDocumentListener(this.documentEvent);
         ((AbstractDocument) this.getDocument()).setDocumentFilter(this.numberFilter);
     }
-    
+
     public void setValueWithoutCheck(final int value) {
         this.removeAllDocumentListeners();
         this.setValue(value);

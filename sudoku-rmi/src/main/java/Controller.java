@@ -6,6 +6,7 @@ import rmi.CallbackClient;
 import rmi.FactoryRMI;
 import rmi.SudokuClient;
 import rmi.SudokuServer;
+import ui.components.SNumberCell;
 import ui.multiPlayer.GameMultiplayerListener;
 import ui.multiPlayer.UIMultiplayer;
 import ui.multiPlayer.ViewMultiPlayer;
@@ -150,12 +151,12 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
 
     @Override
     public void onSuggest() {
-
+        // next feature
     }
 
     @Override
     public void onReset() {
-
+        // next feature
     }
 
     @Override
@@ -164,6 +165,16 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
                 Try.toOptional(server::updateCell, client, coordinate, value));
         return false;
     }
+    
+    @Override
+    public void onFocusGainedCell(final SNumberCell cell) {
+        System.out.println("Gained cell: " + cell.coordinate());
+        // TODO    
+    }
 
-
+    @Override
+    public void onFocusLostCell(final SNumberCell cell) {
+        System.out.println("Lost cell: " + cell.coordinate());
+        // TODO
+    }
 }

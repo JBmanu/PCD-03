@@ -5,6 +5,7 @@ import grid.Settings;
 import model.Player;
 import rabbitMQ.RabbitMQConnector;
 import rabbitMQ.RabbitMQDiscovery;
+import ui.components.SNumberCell;
 import ui.multiPlayer.GameMultiplayerListener;
 import ui.multiPlayer.UIMultiplayer;
 import ui.multiPlayer.ViewMultiPlayer;
@@ -160,5 +161,15 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
         this.callRabbitMQ((discovery, connector) ->
                 connector.sendMove(discovery, this.player, coordinate, value));
         return false;
+    }
+    
+    @Override
+    public void onFocusGainedCell(final SNumberCell cell) {
+        // TODO    
+    }
+
+    @Override
+    public void onFocusLostCell(final SNumberCell cell) {
+        // TODO
     }
 }

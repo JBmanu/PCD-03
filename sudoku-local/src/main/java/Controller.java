@@ -2,6 +2,7 @@ import grid.Coordinate;
 import grid.FactoryGrid;
 import grid.Grid;
 import grid.Settings;
+import ui.components.SNumberCell;
 import ui.singlePlayer.UI;
 import ui.singlePlayer.View;
 import ui.color.Palette;
@@ -62,4 +63,19 @@ public class Controller implements GameListener.PlayerListener {
         return true;
     }
 
+    int prova = 0;
+    
+    @Override
+    public void onFocusGainedCell(final SNumberCell cell) {
+        prova++;
+        System.out.println("Gained cell: " + cell.coordinate() + " prova: " + prova);
+        // TODO
+    }
+
+    @Override
+    public void onFocusLostCell(final SNumberCell cell) {
+        prova--;
+        System.out.println("Lost cell: " + cell.coordinate()  + " prova: " + prova);
+        // TODO
+    }
 }

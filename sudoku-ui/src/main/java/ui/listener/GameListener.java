@@ -21,7 +21,7 @@ public interface GameListener {
         void onReset();
     }
 
-    interface CellListener {
+    interface CellListener extends GridPageListener.SelectionListener {
         boolean onModifyCell(final Coordinate coordinate, final int value);
     }
 
