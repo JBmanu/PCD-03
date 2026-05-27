@@ -28,7 +28,7 @@ public interface UIMultiplayer extends ColorComponent, InfoPanel {
 
     void leavePlayer(String playerName);
 
-    void appendPlayers(List<String> currentPlayers);
+    void appendPlayers(List<String> otherPlayers);
     
     void suggest(Coordinate key, Integer value);
 

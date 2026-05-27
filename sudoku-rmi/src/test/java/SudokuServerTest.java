@@ -52,6 +52,7 @@ public class SudokuServerTest {
     public static void shutdown() {
         try {
             FactoryRMI.shutdownServer();
+            System.exit(0);
         } catch (final RemoteException | NotBoundException e) {
             fail("Failed to shutdown server: " + e.getMessage());
         }
@@ -267,6 +268,4 @@ public class SudokuServerTest {
 
         Try.toOptional(this.server::updateCell, client, coordinate, value);
     }
-
-
 }

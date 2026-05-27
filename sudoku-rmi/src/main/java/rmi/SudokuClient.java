@@ -3,6 +3,7 @@ package rmi;
 import grid.Coordinate;
 import rmi.CallbackClient.*;
 
+import java.awt.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -17,9 +18,13 @@ public interface SudokuClient extends Serializable, Remote {
 
     String name() throws RemoteException;
 
+    Color color() throws RemoteException;
+
     void setRoomId(int roomId) throws RemoteException;
 
     void setName(String name) throws RemoteException;
+
+    void setColor(Color color) throws RemoteException;
 
     void invokeOnEnter(byte[][] solution, byte[][] cells) throws RemoteException;
 
@@ -29,12 +34,12 @@ public interface SudokuClient extends Serializable, Remote {
 
     void invokeOnMove(Coordinate coordinate, int value) throws RemoteException;
 
-    void invokeOnJoin(List<String> players) throws RemoteException;
+    void invokeOnJoinRoom(List<String> otherPlayers) throws RemoteException;
 
-    void invokeOnJoinPlayer(String player) throws RemoteException;
+    void invokeOnJoinNewPlayer(String newPlayer) throws RemoteException;
 
     void invokeOnLeavePlayer(String player) throws RemoteException;
-
+    
 
     class SudokuClientImpl extends UnicastRemoteObject implements SudokuClient {
         @Serial
@@ -42,6 +47,7 @@ public interface SudokuClient extends Serializable, Remote {
 
         private Optional<Integer> roomId;
         private Optional<String> name;
+        private Optional<Color> color;
         private final CallbackOnFocusGained onFocusGained;
         private final CallbackOnFocusLost onFocusLost;
         private final CallbackOnMove onMove;
@@ -74,6 +80,11 @@ public interface SudokuClient extends Serializable, Remote {
         }
 
         @Override
+        public Color color() throws RemoteException {
+            return this.color.orElse(Color.black);
+        }
+
+        @Override
         public int roomId() throws RemoteException {
             return this.roomId.orElse(-1);
         }
@@ -86,6 +97,11 @@ public interface SudokuClient extends Serializable, Remote {
         @Override
         public void setName(final String name) throws RemoteException {
             this.name = Optional.of(name);
+        }
+
+        @Override
+        public void setColor(final Color color) throws RemoteException {
+            this.color = Optional.of(color);
         }
 
         @Override
@@ -109,13 +125,13 @@ public interface SudokuClient extends Serializable, Remote {
         }
 
         @Override
-        public void invokeOnJoin(final List<String> players) throws RemoteException {
-            this.onJoin.callbackOnJoin(players);
+        public void invokeOnJoinRoom(final List<String> otherPlayers) throws RemoteException {
+            this.onJoin.callbackOnJoinRoom(otherPlayers);
         }
 
         @Override
-        public void invokeOnJoinPlayer(final String player) throws RemoteException {
-            this.onJoinPlayer.callbackOnJoinPlayer(player);
+        public void invokeOnJoinNewPlayer(final String newPlayer) throws RemoteException {
+            this.onJoinPlayer.callbackOnJoinNewPlayer(newPlayer);
         }
 
         @Override

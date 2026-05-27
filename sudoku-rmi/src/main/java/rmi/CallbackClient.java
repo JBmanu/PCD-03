@@ -20,11 +20,11 @@ public final class CallbackClient {
     }
 
     public interface CallbackOnJoinPlayer extends Serializable {
-        void callbackOnJoinPlayer(String player);
+        void callbackOnJoinNewPlayer(String player);
     }
 
     public interface CallbackOnJoin extends Serializable {
-        void callbackOnJoin(List<String> players);
+        void callbackOnJoinRoom(List<String> players);
     }
 
     public interface CallbackOnLeavePlayer extends Serializable {

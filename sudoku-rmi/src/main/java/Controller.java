@@ -70,13 +70,13 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
     }
 
     @Override
-    public void callbackOnJoin(final List<String> players) {
-        this.ui.appendPlayers(players);
+    public void callbackOnJoinRoom(final List<String> otherPlayers) {
+        this.ui.appendPlayers(otherPlayers);
     }
 
     @Override
-    public void callbackOnJoinPlayer(final String player) {
-        this.ui.joinPlayer(player);
+    public void callbackOnJoinNewPlayer(final String newPlayer) {
+        this.ui.joinPlayer(newPlayer);
     }
 
     @Override

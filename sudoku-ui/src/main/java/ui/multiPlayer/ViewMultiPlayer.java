@@ -111,8 +111,8 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     }
 
     @Override
-    public void appendPlayers(final List<String> currentPlayers) {
-        this.gridPage.appendPlayers(currentPlayers);
+    public void appendPlayers(final List<String> otherPlayers) {
+        this.gridPage.appendPlayers(otherPlayers);
     }
 
     @Override
