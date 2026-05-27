@@ -10,8 +10,11 @@ import ui.multiPlayer.GameMultiplayerListener;
 import ui.multiPlayer.UIMultiplayer;
 import ui.multiPlayer.ViewMultiPlayer;
 import utils.MOMConsumers;
+import utils.Pair;
 import utils.Topics;
 
+import java.awt.*;
+import java.util.List;
 import java.util.Optional;
 
 public class Controller implements GameMultiplayerListener.PlayerListener {
@@ -79,7 +82,11 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             final String countQueues = discovery.countExchangeBinds(roomName) + 1 + "";
             this.player.computeToJoinRoom(roomID, countQueues, playerName);
             this.player.computeRoomID().ifPresent(this.ui::buildRoom);
-            this.ui.appendPlayers(discovery.routingKeysFromBindsExchange(roomName));
+
+            final List<Pair<String, Color>> playersColors =
+                    discovery.routingKeysFromBindsExchange(roomName).stream()
+                            .map(player -> Pair.of(player, Color.black)).toList();
+            this.ui.appendPlayers(playersColors);
             connector.joinRoom(discovery, this.player);
             connector.sendGridRequest(discovery, this.player);
         });
@@ -106,7 +113,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                                     roomID -> this.joinRoom(roomID, myName),
                                     () -> this.createRoom(myName, schema, difficulty));
                             connector.activeCallbackReceiveMessage(this.player, this.grid,
-                                    this.ui::joinPlayer,
+                                    newPlayerName -> this.ui.joinPlayer(newPlayerName, Color.black),
                                     this.ui::leavePlayer,
                                     (name, coordinate, value) -> {
                                         if (value == this.grid.emptyValue()) this.grid.undo();
@@ -162,7 +169,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                 connector.sendMove(discovery, this.player, coordinate, value));
         return false;
     }
-    
+
     @Override
     public void onFocusGainedCell(final SNumberCell cell) {
         // TODO    

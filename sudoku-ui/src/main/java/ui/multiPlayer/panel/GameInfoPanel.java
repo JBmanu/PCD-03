@@ -4,6 +4,7 @@ import ui.color.Palette;
 import ui.components.ColorComponent;
 import ui.utils.PanelUtils;
 import ui.utils.StyleUtils;
+import utils.Pair;
 
 import javax.swing.*;
 import java.awt.*;
@@ -49,7 +50,8 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
         this.playerArea.setText(SELF);
     }
 
-    public void joinPlayer(final String playerName) {
+    public void joinPlayer(final String playerName, final Color color) {
+        this.playerArea.setForeground(color);
         this.playerArea.append("\n" + playerName);
     }
 
@@ -58,8 +60,8 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
         this.playerArea.setText(text.replace("\n" + playerName, ""));
     }
 
-    public void appendPlayers(final List<String> players) {
-        players.forEach(this::joinPlayer);
+    public void appendPlayers(final List<Pair<String, Color>> playersColors) {
+        playersColors.forEach(playerColor -> this.joinPlayer(playerColor.first(), playerColor.second()));
         this.playerArea.revalidate();
         this.playerArea.repaint();
     }

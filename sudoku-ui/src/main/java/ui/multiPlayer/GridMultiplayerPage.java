@@ -15,6 +15,7 @@ import ui.panel.NumberInfoPanel;
 import ui.utils.BorderUtils;
 import ui.utils.PanelUtils;
 import utils.GridUtils;
+import utils.Pair;
 
 import javax.swing.*;
 import java.awt.*;
@@ -95,16 +96,16 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         this.gameInfoPanel.buildRoom(roomId);
     }
 
-    public void joinPlayer(final String newPlayerName) {
-        this.gameInfoPanel.joinPlayer(newPlayerName);
+    public void joinPlayer(final String newPlayerName, final Color color) {
+        this.gameInfoPanel.joinPlayer(newPlayerName, color);
     }
 
     public void leavePlayer(final String playerName) {
         this.gameInfoPanel.leavePlayer(playerName);
     }
 
-    public void appendPlayers(final List<String> currentPlayers) {
-        this.gameInfoPanel.appendPlayers(currentPlayers);
+    public void appendPlayers(final List<Pair<String, Color>> playersColors) {
+        this.gameInfoPanel.appendPlayers(playersColors);
     }
 
     public void suggest(final Coordinate key, final Integer value) {

@@ -8,11 +8,14 @@ import ui.multiPlayer.GameMultiplayerListener;
 import ui.multiPlayer.UIMultiplayer;
 import ui.multiPlayer.ViewMultiPlayer;
 import utils.Consumers;
+import utils.Pair;
 import utils.Try;
 
+import java.awt.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class Controller implements Serializable, GameMultiplayerListener.PlayerListener, CallbackClient.Callbacks {
@@ -68,12 +71,14 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
 
     @Override
     public void callbackOnJoinRoom(final List<ClientDatas> otherPlayers) {
-        this.ui.appendPlayers(otherPlayers.stream().map(ClientDatas::name).toList());
+        final List<Pair<String, Color>> playersColors = otherPlayers.stream()
+                .map(player -> Pair.of(player.name(), player.color())).toList();
+        this.ui.appendPlayers(playersColors);
     }
 
     @Override
     public void callbackOnJoinNewPlayer(final ClientDatas newPlayer) {
-        this.ui.joinPlayer(newPlayer.name());
+        this.ui.joinPlayer(newPlayer.name(), newPlayer.color());
     }
 
     @Override

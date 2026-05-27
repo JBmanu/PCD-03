@@ -4,7 +4,9 @@ import grid.Coordinate;
 import grid.Grid;
 import ui.components.ColorComponent;
 import ui.multiPlayer.panel.InfoPanel;
+import utils.Pair;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
@@ -24,11 +26,11 @@ public interface UIMultiplayer extends ColorComponent, InfoPanel {
     
     void buildRoom(String roomId);
 
-    void joinPlayer(String newPlayerName);
+    void joinPlayer(String newPlayerName, Color color);
 
     void leavePlayer(String playerName);
 
-    void appendPlayers(List<String> otherPlayers);
+    void appendPlayers(List<Pair<String, Color>> playersColors);
     
     void suggest(Coordinate key, Integer value);
 

@@ -8,6 +8,7 @@ import ui.listener.GridPageListener;
 import ui.listener.MenuPageListener;
 import ui.sound.SoundManager;
 import ui.sound.Track;
+import utils.Pair;
 
 import javax.swing.*;
 import java.awt.*;
@@ -101,8 +102,8 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     }
 
     @Override
-    public void joinPlayer(final String newPlayerName) {
-        this.gridPage.joinPlayer(newPlayerName);
+    public void joinPlayer(final String newPlayerName, final Color color) {
+        this.gridPage.joinPlayer(newPlayerName, color);
     }
 
     @Override
@@ -111,8 +112,8 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     }
 
     @Override
-    public void appendPlayers(final List<String> otherPlayers) {
-        this.gridPage.appendPlayers(otherPlayers);
+    public void appendPlayers(final List<Pair<String, Color>> playersColors) {
+        this.gridPage.appendPlayers(playersColors);
     }
 
     @Override
