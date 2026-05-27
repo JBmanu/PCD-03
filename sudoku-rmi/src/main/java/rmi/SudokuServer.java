@@ -59,7 +59,7 @@ public interface SudokuServer extends Serializable, Remote {
         @Override
         public boolean createRoom(final SudokuClient client, final Settings settings) throws RemoteException {
             client.setRoomId(this.currentId);
-            client.setColor(RMIUtils.generateColor(1));
+            client.setColor(RMIUtils.generateColor(this.currentId + 1));
             final Grid grid = FactoryGrid.grid(settings);
             client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());
             this.rooms.put(this.currentId, Pair.of(grid, new ArrayList<>(Collections.singleton(client))));
@@ -77,7 +77,7 @@ public interface SudokuServer extends Serializable, Remote {
 
             final List<SudokuClient> players = this.rooms.get(roomId).second();
             final Grid grid = this.rooms.get(roomId).first();
-            client.setColor(RMIUtils.generateColor(players.size() + 1));
+            client.setColor(RMIUtils.generateColor(roomId + players.size() + 1));
 
             for (final SudokuClient player : players) player.invokeOnJoinNewPlayer(clientDatas);
             client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());

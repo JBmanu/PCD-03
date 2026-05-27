@@ -7,6 +7,7 @@ import ui.utils.StyleUtils;
 import utils.Pair;
 
 import javax.swing.*;
+import javax.swing.text.*;
 import java.awt.*;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
     public static final String SELF = "You";
     private final JLabel infoRoom;
     private final JLabel infoLabel;
-    private final JTextArea playerArea;
+    private final JTextPane playerArea;  // ← JTextPane
 
     public GameInfoPanel() {
         super(new BorderLayout());
@@ -25,7 +26,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
 
         this.infoRoom = new JLabel();
         this.infoLabel = new JLabel();
-        this.playerArea = new JTextArea("");
+        this.playerArea = new JTextPane();  // ← JTextPane
         final JScrollPane scrollPane = new JScrollPane(this.playerArea);
 
         this.infoRoom.setFont(StyleUtils.CELL_FONT);
@@ -45,19 +46,42 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
         this.add(PanelUtils.createCenter(this.infoLabel), BorderLayout.SOUTH);
     }
 
+    // Metodo helper per inserire testo colorato
+    private void appendColored(final String text, final Color color) {
+        final StyledDocument doc = this.playerArea.getStyledDocument();
+        final Style style = this.playerArea.addStyle("style", null);
+        StyleConstants.setForeground(style, color);
+        StyleConstants.setFontFamily(style, StyleUtils.INFO_FONT.getFamily());
+        StyleConstants.setFontSize(style, StyleUtils.INFO_FONT.getSize());
+        try {
+            doc.insertString(doc.getLength(), text, style);
+        } catch (final BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void buildRoom(final String roomId) {
         this.infoRoom.setText(ROOM_LABEL + roomId);
-        this.playerArea.setText(SELF);
+        this.playerArea.setText("");
+        this.appendColored(SELF, Color.black);
     }
 
     public void joinPlayer(final String playerName, final Color color) {
-        this.playerArea.setForeground(color);
-        this.playerArea.append("\n" + playerName);
+        this.appendColored("\n" + playerName, color);
     }
 
     public void leavePlayer(final String playerName) {
+        final StyledDocument doc = this.playerArea.getStyledDocument();
         final String text = this.playerArea.getText();
-        this.playerArea.setText(text.replace("\n" + playerName, ""));
+        final String toRemove = "\n" + playerName;
+        final int index = text.indexOf(toRemove);
+        if (index >= 0) {
+            try {
+                doc.remove(index, toRemove.length());
+            } catch (final BadLocationException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void appendPlayers(final List<Pair<String, Color>> playersColors) {
@@ -81,10 +105,8 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
     @Override
     public void refreshPalette(final Palette palette) {
         final int alphaTitle = 230;
-        final int alphaPlayer = alphaTitle - 50;
         this.infoRoom.setForeground(palette.secondaryWithAlpha(alphaTitle));
-        this.playerArea.setForeground(palette.secondaryWithAlpha(alphaPlayer));
+        // playerArea non ha più un colore globale, ogni nome ha il suo
         this.infoLabel.setForeground(palette.secondary());
     }
-
 }
