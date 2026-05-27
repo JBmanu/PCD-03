@@ -20,6 +20,8 @@ public interface SudokuClient extends Serializable, Remote {
 
     Color color() throws RemoteException;
 
+    ClientDatas datas() throws RemoteException;
+
     void setRoomId(int roomId) throws RemoteException;
 
     void setName(String name) throws RemoteException;
@@ -28,18 +30,18 @@ public interface SudokuClient extends Serializable, Remote {
 
     void invokeOnEnter(byte[][] solution, byte[][] cells) throws RemoteException;
 
-    void invokeOnFocusGained(String player, Coordinate coordinate) throws RemoteException;
+    void invokeOnFocusGained(ClientDatas player, Coordinate coordinate) throws RemoteException;
 
-    void invokeOnFocusLost(String player, Coordinate coordinate) throws RemoteException;
+    void invokeOnFocusLost(ClientDatas player, Coordinate coordinate) throws RemoteException;
 
     void invokeOnMove(Coordinate coordinate, int value) throws RemoteException;
 
-    void invokeOnJoinRoom(List<String> otherPlayers) throws RemoteException;
+    void invokeOnJoinRoom(List<ClientDatas> otherPlayers) throws RemoteException;
 
-    void invokeOnJoinNewPlayer(String newPlayer) throws RemoteException;
+    void invokeOnJoinNewPlayer(ClientDatas newPlayer) throws RemoteException;
 
-    void invokeOnLeavePlayer(String player) throws RemoteException;
-    
+    void invokeOnLeavePlayer(ClientDatas player) throws RemoteException;
+
 
     class SudokuClientImpl extends UnicastRemoteObject implements SudokuClient {
         @Serial
@@ -65,6 +67,7 @@ public interface SudokuClient extends Serializable, Remote {
                                 final CallbackOnLeavePlayer onLeavePlayer) throws RemoteException {
             this.name = Optional.empty();
             this.roomId = Optional.empty();
+            this.color = Optional.empty();
             this.onFocusGained = onFocusGained;
             this.onFocusLost = onFocusLost;
             this.onMove = onMove;
@@ -82,6 +85,11 @@ public interface SudokuClient extends Serializable, Remote {
         @Override
         public Color color() throws RemoteException {
             return this.color.orElse(Color.black);
+        }
+
+        @Override
+        public ClientDatas datas() throws RemoteException {
+            return ClientDatas.serializeDatas(this);
         }
 
         @Override
@@ -110,12 +118,12 @@ public interface SudokuClient extends Serializable, Remote {
         }
 
         @Override
-        public void invokeOnFocusGained(final String player, final Coordinate coordinate) throws RemoteException {
+        public void invokeOnFocusGained(final ClientDatas player, final Coordinate coordinate) throws RemoteException {
             this.onFocusGained.callbackOnFocusGained(player, coordinate);
         }
 
         @Override
-        public void invokeOnFocusLost(final String player, final Coordinate coordinate) throws RemoteException {
+        public void invokeOnFocusLost(final ClientDatas player, final Coordinate coordinate) throws RemoteException {
             this.onFocusLost.callbackOnFocusLost(player, coordinate);
         }
 
@@ -125,17 +133,17 @@ public interface SudokuClient extends Serializable, Remote {
         }
 
         @Override
-        public void invokeOnJoinRoom(final List<String> otherPlayers) throws RemoteException {
+        public void invokeOnJoinRoom(final List<ClientDatas> otherPlayers) throws RemoteException {
             this.onJoin.callbackOnJoinRoom(otherPlayers);
         }
 
         @Override
-        public void invokeOnJoinNewPlayer(final String newPlayer) throws RemoteException {
+        public void invokeOnJoinNewPlayer(final ClientDatas newPlayer) throws RemoteException {
             this.onJoinPlayer.callbackOnJoinNewPlayer(newPlayer);
         }
 
         @Override
-        public void invokeOnLeavePlayer(final String player) throws RemoteException {
+        public void invokeOnLeavePlayer(final ClientDatas player) throws RemoteException {
             this.onLeavePlayer.callbackOnLeavePlayer(player);
         }
 

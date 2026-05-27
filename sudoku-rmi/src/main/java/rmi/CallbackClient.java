@@ -8,11 +8,11 @@ import java.util.List;
 public final class CallbackClient {
 
     public interface CallbackOnFocusGained extends Serializable {
-        void callbackOnFocusGained(String player, Coordinate coordinate);
+        void callbackOnFocusGained(ClientDatas player, Coordinate coordinate);
     }
 
     public interface CallbackOnFocusLost extends Serializable {
-        void callbackOnFocusLost(String player, Coordinate coordinate);
+        void callbackOnFocusLost(ClientDatas player, Coordinate coordinate);
     }
 
     public interface CallbackOnMove extends Serializable {
@@ -20,15 +20,15 @@ public final class CallbackClient {
     }
 
     public interface CallbackOnJoinPlayer extends Serializable {
-        void callbackOnJoinNewPlayer(String player);
+        void callbackOnJoinNewPlayer(ClientDatas newPlayer);
     }
 
     public interface CallbackOnJoin extends Serializable {
-        void callbackOnJoinRoom(List<String> players);
+        void callbackOnJoinRoom(List<ClientDatas> otherPlayers);
     }
 
     public interface CallbackOnLeavePlayer extends Serializable {
-        void callbackOnLeavePlayer(String player);
+        void callbackOnLeavePlayer(ClientDatas player);
     }
 
     public interface CallbackOnEnter extends Serializable {

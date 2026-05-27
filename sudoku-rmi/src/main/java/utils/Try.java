@@ -17,7 +17,8 @@ public interface Try {
             return Optional.of(niladic.apply());
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
-            return Optional.empty();
+            e.printStackTrace();             
+            throw new RuntimeException();
         }
     }
 
@@ -26,7 +27,8 @@ public interface Try {
             return Optional.of(monadic.apply(arg));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
-            return Optional.empty();
+            e.printStackTrace();             
+            throw new RuntimeException();
         }
     }
 
@@ -35,7 +37,8 @@ public interface Try {
             return Optional.of(dyadic.apply(arg1, arg2));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
-            return Optional.empty();
+            e.printStackTrace();             
+            throw new RuntimeException();
         }
     }
 
@@ -45,7 +48,8 @@ public interface Try {
             return Optional.of(triadic.apply(arg1, arg2, arg3));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
-            return Optional.empty();
+            e.printStackTrace();             
+            throw new RuntimeException();
         }
     }
 
@@ -55,7 +59,8 @@ public interface Try {
             return Optional.of(quadradic.apply(arg1, arg2, arg3, arg4));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
-            return Optional.empty();
+            e.printStackTrace();             
+            throw new RuntimeException();
         }
     }
     
@@ -66,7 +71,8 @@ public interface Try {
             return Optional.of(pentadic.apply(arg1, arg2, arg3, arg4, arg5));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
-            return Optional.empty();
+            e.printStackTrace();             
+            throw new RuntimeException();
         }
     }
     
@@ -77,7 +83,8 @@ public interface Try {
             return Optional.of(hexadic.apply(arg1, arg2, arg3, arg4, arg5, arg6));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
-            return Optional.empty();
+            e.printStackTrace();             
+            throw new RuntimeException();
         }
     }
     
@@ -89,7 +96,8 @@ public interface Try {
             return Optional.of(heptadic.apply(arg1, arg2, arg3, arg4, arg5, arg6, arg7));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
-            return Optional.empty();
+            e.printStackTrace();             
+            throw new RuntimeException();
         }
     }
 
@@ -101,7 +109,8 @@ public interface Try {
             return Optional.of(octadic.apply(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
-            return Optional.empty();
+            e.printStackTrace();             
+            throw new RuntimeException();
         }
     }
     
@@ -120,6 +129,7 @@ public interface Try {
             consumer.accept(arg1, arg2);
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
+            e.printStackTrace();             
             throw new RuntimeException();
         }
     }
@@ -130,6 +140,7 @@ public interface Try {
             consumer.accept(arg1, arg2, arg3);
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException();
         }
     }
@@ -139,6 +150,7 @@ public interface Try {
             return Optional.of(Integer.parseInt(str));
         } catch (final NumberFormatException e) {
             System.out.println("Invalid number format: " + e.getMessage());
+            e.printStackTrace();
             return Optional.empty();
         }
     }

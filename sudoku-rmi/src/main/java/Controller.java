@@ -2,10 +2,7 @@ import grid.Coordinate;
 import grid.FactoryGrid;
 import grid.Grid;
 import grid.Settings;
-import rmi.CallbackClient;
-import rmi.FactoryRMI;
-import rmi.SudokuClient;
-import rmi.SudokuServer;
+import rmi.*;
 import ui.components.SNumberCell;
 import ui.multiPlayer.GameMultiplayerListener;
 import ui.multiPlayer.UIMultiplayer;
@@ -70,22 +67,24 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
     }
 
     @Override
-    public void callbackOnJoinRoom(final List<String> otherPlayers) {
-        this.ui.appendPlayers(otherPlayers);
+    public void callbackOnJoinRoom(final List<ClientDatas> otherPlayers) {
+        this.ui.appendPlayers(otherPlayers.stream().map(ClientDatas::name).toList());
     }
 
     @Override
-    public void callbackOnJoinNewPlayer(final String newPlayer) {
-        this.ui.joinPlayer(newPlayer);
+    public void callbackOnJoinNewPlayer(final ClientDatas newPlayer) {
+        this.ui.joinPlayer(newPlayer.name());
     }
 
     @Override
-    public void callbackOnFocusGained(final String player, final Coordinate coordinate) {
+    public void callbackOnFocusGained(final ClientDatas player, final Coordinate coordinate) {
+        System.out.println("Player " + player.name() + " is gained");
         // TODO
     }
 
     @Override
-    public void callbackOnFocusLost(final String player, final Coordinate coordinate) {
+    public void callbackOnFocusLost(final ClientDatas player, final Coordinate coordinate) {
+        System.out.println("Player " + player.name() + " is lost");
         // TODO
     }
 
@@ -98,8 +97,8 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
     }
 
     @Override
-    public void callbackOnLeavePlayer(final String player) {
-        this.ui.leavePlayer(player);
+    public void callbackOnLeavePlayer(final ClientDatas player) {
+        this.ui.leavePlayer(player.name());
     }
 
     private void createRoom(final SudokuServer server, final SudokuClient client, final String playerName, final Settings.Schema schema, final Settings.Difficulty difficulty) {

@@ -47,10 +47,10 @@ public interface SudokuServer extends Serializable, Remote {
                     RMIUtils.containsPlayer(this.rooms.get(id).second(), client)).orElse(false);
         }
 
-        private List<String> playersNames(final int roomId) {
+        private List<ClientDatas> playersNames(final int roomId) {
             if (!this.rooms.containsKey(roomId)) return Collections.emptyList();
             final List<SudokuClient> players = this.rooms.get(roomId).second();
-            return players.stream().map(player -> Try.toOptional(player::name))
+            return players.stream().map(player -> Try.toOptional(player::datas))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
@@ -69,38 +69,32 @@ public interface SudokuServer extends Serializable, Remote {
 
         @Override
         public boolean joinRoom(final SudokuClient client) throws RemoteException {
-            final int roomId = client.roomId();
-            final String name = client.name();
-            final List<String> playersName = this.playersNames(roomId);
-            if (!this.rooms.containsKey(roomId) || playersName.contains(name)) return false;
+            final ClientDatas clientDatas = client.datas();
+            final int roomId = clientDatas.roomId();
+            final List<ClientDatas> playersDatas = this.playersNames(roomId);
+            if (!this.rooms.containsKey(roomId) ||
+                    playersDatas.stream().map(ClientDatas::name).toList().contains(clientDatas.name())) return false;
 
             final List<SudokuClient> players = this.rooms.get(roomId).second();
             final Grid grid = this.rooms.get(roomId).first();
             client.setColor(RMIUtils.generateColor(players.size() + 1));
 
-            for (final SudokuClient player : players) player.invokeOnJoinNewPlayer(name);
+            for (final SudokuClient player : players) player.invokeOnJoinNewPlayer(clientDatas);
             client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());
-            client.invokeOnJoinRoom(playersName);
+            client.invokeOnJoinRoom(playersDatas);
             players.add(client);
             return true;
-        }
-
-        private List<SudokuClient> takeAllWithout(final SudokuClient client) throws RemoteException {
-            final int roomId = client.roomId();
-            final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
-            final List<SudokuClient> players = room.second();
-            players.removeIf(player -> RMIUtils.comparePlayers(player, client));
-            return players;
         }
 
         @Override
         public void leaveRoom(final SudokuClient client) throws RemoteException {
             if (this.cantDoAction(client)) throw new RemoteException();
-            final int roomId = client.roomId();
-            final String name = client.name();
-            final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
-            if (withoutCaller.isEmpty()) this.rooms.remove(roomId);
-            withoutCaller.forEach(player -> Try.toOptional(player::invokeOnLeavePlayer, name));
+            final ClientDatas clientDatas = client.datas();
+            final Pair<Grid, List<SudokuClient>> room = this.rooms.get(clientDatas.roomId());
+            final List<SudokuClient> players = room.second();
+            players.removeIf(player -> RMIUtils.comparePlayers(player, client));
+            if (players.isEmpty()) this.rooms.remove(clientDatas.roomId());
+            players.forEach(player -> Try.toOptional(player::invokeOnLeavePlayer, clientDatas));
         }
 
         @Override
@@ -117,20 +111,28 @@ public interface SudokuServer extends Serializable, Remote {
             return grid.cellsArray();
         }
 
+        private List<SudokuClient> takeAllWithout(final SudokuClient client) throws RemoteException {
+            final ClientDatas clientDatas = client.datas();
+            final Pair<Grid, List<SudokuClient>> room = this.rooms.get(clientDatas.roomId());
+            return room.second().stream()
+                    .filter(player -> !RMIUtils.comparePlayers(player, client))
+                    .toList();
+        }
+        
         @Override
         public void focusGainedCell(final SudokuClient client, final Coordinate coordinate) throws RemoteException {
             if (this.cantDoAction(client)) throw new RemoteException();
-            final String name = client.name();
+            final ClientDatas clientDatas = client.datas();
             final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
-            withoutCaller.forEach(player -> Try.toOptional(player::invokeOnFocusGained, name, coordinate));
+            withoutCaller.forEach(player -> Try.toOptional(player::invokeOnFocusGained, clientDatas, coordinate));
         }
 
         @Override
         public void focusLostCell(final SudokuClient client, final Coordinate coordinate) throws RemoteException {
             if (this.cantDoAction(client)) throw new RemoteException();
-            final String name = client.name();
+            final ClientDatas clientDatas = client.datas();
             final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
-            withoutCaller.forEach(player -> Try.toOptional(player::invokeOnFocusLost, name, coordinate));
+            withoutCaller.forEach(player -> Try.toOptional(player::invokeOnFocusLost, clientDatas, coordinate));
         }
 
         @Override
