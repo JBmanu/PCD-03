@@ -23,6 +23,10 @@ public interface SudokuClient extends Serializable, Remote {
 
     void invokeOnEnter(byte[][] solution, byte[][] cells) throws RemoteException;
 
+    void invokeOnFocusGained(String player, Coordinate coordinate) throws RemoteException;
+
+    void invokeOnFocusLost(String player, Coordinate coordinate) throws RemoteException;
+
     void invokeOnMove(Coordinate coordinate, int value) throws RemoteException;
 
     void invokeOnJoin(List<String> players) throws RemoteException;
@@ -38,6 +42,8 @@ public interface SudokuClient extends Serializable, Remote {
 
         private Optional<Integer> roomId;
         private Optional<String> name;
+        private final CallbackOnFocusGained onFocusGained;
+        private final CallbackOnFocusLost onFocusLost;
         private final CallbackOnMove onMove;
         private final CallbackOnJoin onJoin;
         private final CallbackOnEnter onEnter;
@@ -46,11 +52,15 @@ public interface SudokuClient extends Serializable, Remote {
 
         public SudokuClientImpl(final CallbackOnEnter onEnter,
                                 final CallbackOnJoin onJoin,
+                                final CallbackOnFocusGained onFocusGained,
+                                final CallbackOnFocusLost onFocusLost,
                                 final CallbackOnMove onMove,
                                 final CallbackOnJoinPlayer onJoinPlayer,
                                 final CallbackOnLeavePlayer onLeavePlayer) throws RemoteException {
             this.name = Optional.empty();
             this.roomId = Optional.empty();
+            this.onFocusGained = onFocusGained;
+            this.onFocusLost = onFocusLost;
             this.onMove = onMove;
             this.onJoin = onJoin;
             this.onEnter = onEnter;
@@ -81,6 +91,16 @@ public interface SudokuClient extends Serializable, Remote {
         @Override
         public void invokeOnEnter(final byte[][] solution, final byte[][] cells) throws RemoteException {
             this.onEnter.callbackOnEnter(solution, cells);
+        }
+
+        @Override
+        public void invokeOnFocusGained(final String player, final Coordinate coordinate) throws RemoteException {
+            this.onFocusGained.callbackOnFocusGained(player, coordinate);
+        }
+
+        @Override
+        public void invokeOnFocusLost(final String player, final Coordinate coordinate) throws RemoteException {
+            this.onFocusLost.callbackOnFocusLost(player, coordinate);
         }
 
         @Override

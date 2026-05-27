@@ -26,8 +26,11 @@ public interface SudokuServer extends Serializable, Remote {
 
     byte[][] grid(SudokuClient client) throws RemoteException;
 
+    void focusGainedCell(SudokuClient client, Coordinate coordinate) throws RemoteException;
+    
+    void focusLostCell(SudokuClient client, Coordinate coordinate) throws RemoteException;
+    
     void updateCell(SudokuClient client, Coordinate coordinate, int value) throws RemoteException;
-
 
     class SudokuServerImpl extends UnicastRemoteObject implements SudokuServer {
         private final Map<Integer, Pair<Grid, List<SudokuClient>>> rooms;
@@ -79,17 +82,23 @@ public interface SudokuServer extends Serializable, Remote {
             players.add(client);
             return true;
         }
+        
+        private List<SudokuClient> takeAllWithout(final SudokuClient client) throws RemoteException {
+            final int roomId = client.roomId();
+            final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
+            final List<SudokuClient> players = room.second();
+            players.removeIf(player -> RMIUtils.comparePlayers(player, client));
+            return players;
+        }
 
         @Override
         public void leaveRoom(final SudokuClient client) throws RemoteException {
             if (this.cantDoAction(client)) throw new RemoteException();
             final int roomId = client.roomId();
             final String name = client.name();
-            final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
-            final List<SudokuClient> players = room.second();
-            players.removeIf(player -> RMIUtils.comparePlayers(player, client));
-            if (players.isEmpty()) this.rooms.remove(roomId);
-            players.forEach(player -> Try.toOptional(player::invokeOnLeavePlayer, name));
+            final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
+            if (withoutCaller.isEmpty()) this.rooms.remove(roomId);
+            withoutCaller.forEach(player -> Try.toOptional(player::invokeOnLeavePlayer, name));
         }
 
         @Override
@@ -104,6 +113,22 @@ public interface SudokuServer extends Serializable, Remote {
             if (this.cantDoAction(client)) throw new RemoteException();
             final Grid grid = this.rooms.get(client.roomId()).first();
             return grid.cellsArray();
+        }
+
+        @Override
+        public void focusGainedCell(final SudokuClient client, final Coordinate coordinate) throws RemoteException {
+            if (this.cantDoAction(client)) throw new RemoteException();
+            final String name = client.name();
+            final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
+            withoutCaller.forEach(player -> Try.toOptional(player::invokeOnFocusGained, name, coordinate));
+        }
+        
+        @Override
+        public void focusLostCell(final SudokuClient client, final Coordinate coordinate) throws RemoteException {
+            if (this.cantDoAction(client)) throw new RemoteException();
+            final String name = client.name();
+            final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
+            withoutCaller.forEach(player -> Try.toOptional(player::invokeOnFocusLost, name, coordinate));
         }
 
         @Override

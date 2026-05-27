@@ -20,19 +20,23 @@ public interface FactoryRMI {
 
     static SudokuClient createClient(final CallbackOnEnter onEnter,
                                      final CallbackOnJoin onJoin,
+                                     final CallbackOnFocusGained onFocusGained,
+                                     final CallbackOnFocusLost onFocusLost,
                                      final CallbackOnMove onMove,
                                      final CallbackOnJoinPlayer onJoinPlayer,
                                      final CallbackOnLeavePlayer onLeavePlayer) throws RemoteException {
-        return new SudokuClient.SudokuClientImpl(onEnter, onJoin, onMove, onJoinPlayer, onLeavePlayer);
+        return new SudokuClient.SudokuClientImpl(onEnter, onJoin, onFocusGained, onFocusLost, onMove, onJoinPlayer, onLeavePlayer);
     }
 
     static SudokuClient createClient(final String name,
                                      final CallbackOnEnter onEnter,
                                      final CallbackOnJoin onJoin,
+                                     final CallbackOnFocusGained onFocusGained,
+                                     final CallbackOnFocusLost onFocusLost,
                                      final CallbackOnMove onMove,
                                      final CallbackOnJoinPlayer onJoinPlayer,
                                      final CallbackOnLeavePlayer onLeavePlayer) throws RemoteException {
-        final SudokuClient client = createClient(onEnter, onJoin, onMove, onJoinPlayer, onLeavePlayer);
+        final SudokuClient client = createClient(onEnter, onJoin, onFocusGained, onFocusLost, onMove, onJoinPlayer, onLeavePlayer);
         client.setName(name);
         return client;
     }

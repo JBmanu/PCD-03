@@ -93,6 +93,19 @@ public interface Try {
         }
     }
 
+    static <A, B, C, D, E, F, G, H, R> Optional<R> toOptional(final Octadic<A, B, C, D, E, F, G, H, R> octadic,
+                                                              final A arg1, final B arg2, final C arg3,
+                                                              final D arg4, final E arg5, final F arg6,
+                                                              final G arg7,  final H arg8) {
+        try {
+            return Optional.of(octadic.apply(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+        } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
+            System.out.println("Error during remote operation: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+    
+
     static <T> void toOptional(final Consumer<T> consumer, final T arg) {
         try {
             consumer.accept(arg);

@@ -35,7 +35,7 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
 
     public Controller() {
         this.ui = new ViewMultiPlayer();
-        this.client = Try.toOptional(FactoryRMI::createClient, this, this, this, this, this);
+        this.client = Try.toOptional(FactoryRMI::createClient, this, this, this, this, this, this, this);
         this.server = FactoryRMI.retrieveServer();
 
         this.ui.addPlayerListener(this);
@@ -51,7 +51,7 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
         }
 
         while (this.client.isEmpty()) {
-            this.client = Try.toOptional(FactoryRMI::createClient, this, this, this, this, this);
+            this.client = Try.toOptional(FactoryRMI::createClient, this, this, this, this, this, this, this);
         }
     }
 
@@ -77,6 +77,16 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
     @Override
     public void callbackOnJoinPlayer(final String player) {
         this.ui.joinPlayer(player);
+    }
+
+    @Override
+    public void callbackOnFocusGained(final String player, final Coordinate coordinate) {
+        // TODO
+    }
+
+    @Override
+    public void callbackOnFocusLost(final String player, final Coordinate coordinate) {
+        // TODO
     }
 
     @Override
@@ -165,16 +175,16 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
                 Try.toOptional(server::updateCell, client, coordinate, value));
         return false;
     }
-    
+
     @Override
     public void onFocusGainedCell(final SNumberCell cell) {
-        System.out.println("Gained cell: " + cell.coordinate());
-        // TODO    
+        this.callServerAndClient((server, client) ->
+                Try.toOptional(server::focusGainedCell, client, cell.coordinate()));
     }
 
     @Override
     public void onFocusLostCell(final SNumberCell cell) {
-        System.out.println("Lost cell: " + cell.coordinate());
-        // TODO
+        this.callServerAndClient((server, client) ->
+                Try.toOptional(server::focusLostCell, client, cell.coordinate()));
     }
 }

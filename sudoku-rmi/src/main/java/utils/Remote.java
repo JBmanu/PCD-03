@@ -39,6 +39,14 @@ public final class Remote {
         public interface Heptadic<A, B, C, D, E, F, G, R> {
             R apply(A a, B b, C c, D d, E e, F f, G g) throws RemoteException, NotBoundException, AlreadyBoundException;
         }
+        
+        public interface Octadic<A, B, C, D, E, F, G, H, R> {
+            R apply(A a, B b, C c, D d, E e, F f, G g, H h) throws RemoteException, NotBoundException, AlreadyBoundException;
+        }
+
+        public interface Enneadic<A, B, C, D, E, F, G, H, I, R> {
+            R apply(A a, B b, C c, D d, E e, F f, G g, H h, I i) throws RemoteException, NotBoundException, AlreadyBoundException;
+        }
     }
 
     public static class ExceptionConsumers {

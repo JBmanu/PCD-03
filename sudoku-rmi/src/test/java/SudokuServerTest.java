@@ -27,6 +27,10 @@ public class SudokuServerTest {
     };
     public static final CallbackOnJoin IDENTITY_ON_JOIN = _ -> {
     };
+    public static final CallbackOnFocusGained IDENTITY_ON_FOCUS_GAINED = (_, _) -> {
+    };
+    public static final CallbackOnFocusLost IDENTITY_ON_FOCUS_LOST = (_, _) -> {
+    };
     public static final CallbackOnMove IDENTITY_ON_MOVE = (_, _) -> {
     };
     public static final CallbackOnJoinPlayer IDENTITY_ON_JOIN_PLAYER = _ -> {
@@ -56,10 +60,12 @@ public class SudokuServerTest {
     private SudokuClient createRoomWithPlayer(final String name,
                                               final CallbackOnEnter onEnter,
                                               final CallbackOnJoin onJoin,
+                                              final CallbackOnFocusGained onFocusGained,
+                                              final CallbackOnFocusLost onFocusLost,
                                               final CallbackOnMove onMove,
                                               final CallbackOnJoinPlayer onJoinPlayer,
                                               final CallbackOnLeavePlayer onLeavePlayer) {
-        final Optional<SudokuClient> client = Try.toOptional(FactoryRMI::createClient, name, onEnter, onJoin, onMove, onJoinPlayer, onLeavePlayer);
+        final Optional<SudokuClient> client = Try.toOptional(FactoryRMI::createClient, name, onEnter, onJoin, onFocusGained, onFocusLost, onMove, onJoinPlayer, onLeavePlayer);
         assertTrue(client.isPresent());
 
         final SudokuClient sudokuClient = client.get();
@@ -71,12 +77,14 @@ public class SudokuServerTest {
     private SudokuClient joinPlayer2(final String name, final SudokuClient client,
                                      final CallbackOnEnter onEnter,
                                      final CallbackOnJoin onJoin,
+                                     final CallbackOnFocusGained onFocusGained,
+                                     final CallbackOnFocusLost onFocusLost,
                                      final CallbackOnMove onMove,
                                      final CallbackOnJoinPlayer onJoinPlayer,
                                      final CallbackOnLeavePlayer onLeavePlayer) {
         final int roomId = Try.toOptional(client::roomId).orElse(-1);
         assertNotEquals(-1, roomId);
-        final Optional<SudokuClient> client1 = Try.toOptional(FactoryRMI::createClient, name, onEnter, onJoin, onMove, onJoinPlayer, onLeavePlayer);
+        final Optional<SudokuClient> client1 = Try.toOptional(FactoryRMI::createClient, name, onEnter, onJoin, onFocusGained, onFocusLost, onMove, onJoinPlayer, onLeavePlayer);
         assertTrue(client1.isPresent());
 
         final SudokuClient sudokuClient1 = client1.get();
@@ -94,7 +102,7 @@ public class SudokuServerTest {
                     assertNotNull(solution);
                     assertNotNull(cells);
                 },
-                IDENTITY_ON_JOIN, IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
+                IDENTITY_ON_JOIN, IDENTITY_ON_FOCUS_GAINED, IDENTITY_ON_FOCUS_LOST, IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
         assertNotNull(client);
     }
 
@@ -105,6 +113,8 @@ public class SudokuServerTest {
         final SudokuClient client = this.createRoomWithPlayer(nameClient,
                 IDENTITY_ON_ENTER,
                 IDENTITY_ON_JOIN,
+                IDENTITY_ON_FOCUS_GAINED,
+                IDENTITY_ON_FOCUS_LOST,
                 IDENTITY_ON_MOVE,
                 player -> assertEquals(nameClient1, player),
                 IDENTITY_ON_LEAVE_PLAYER);
@@ -112,6 +122,8 @@ public class SudokuServerTest {
         final SudokuClient client1 = this.joinPlayer2(nameClient1, client,
                 IDENTITY_ON_ENTER,
                 players -> assertEquals(List.of(nameClient), players),
+                IDENTITY_ON_FOCUS_GAINED,
+                IDENTITY_ON_FOCUS_LOST,
                 IDENTITY_ON_MOVE,
                 IDENTITY_ON_JOIN_PLAYER,
                 IDENTITY_ON_LEAVE_PLAYER);
@@ -132,11 +144,11 @@ public class SudokuServerTest {
         final String name = "manu";
 
         final SudokuClient client = this.createRoomWithPlayer(name,
-                IDENTITY_ON_ENTER, IDENTITY_ON_JOIN, IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
+                IDENTITY_ON_ENTER, IDENTITY_ON_JOIN, IDENTITY_ON_FOCUS_GAINED, IDENTITY_ON_FOCUS_LOST, IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
 
         final int roomId = Try.toOptional(client::roomId).orElse(-1);
         final Optional<SudokuClient> client1 = Try.toOptional(FactoryRMI::createClient, name,
-                IDENTITY_ON_ENTER, IDENTITY_ON_JOIN, IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
+                IDENTITY_ON_ENTER, IDENTITY_ON_JOIN, IDENTITY_ON_FOCUS_GAINED, IDENTITY_ON_FOCUS_LOST, IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
         assertTrue(client1.isPresent());
 
         final SudokuClient sudokuClient1 = client1.get();
@@ -146,12 +158,12 @@ public class SudokuServerTest {
         assertTrue(isJoined.isPresent());
         assertFalse(isJoined.get());
     }
-    
+
     @Test
     public void joinInvalidRoom() {
         final Optional<SudokuClient> clientOpt = Try.toOptional(FactoryRMI::createClient, "manu",
-                IDENTITY_ON_ENTER, IDENTITY_ON_JOIN, IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
-        
+                IDENTITY_ON_ENTER, IDENTITY_ON_JOIN, IDENTITY_ON_FOCUS_GAINED, IDENTITY_ON_FOCUS_LOST, IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
+
         clientOpt.ifPresent(client -> Try.toOptional(client::setRoomId, -1));
         final Optional<Boolean> isJoined = clientOpt.flatMap(client -> Try.toOptional(this.server::joinRoom, client));
         assertEquals(Optional.of(false), isJoined);
@@ -162,6 +174,8 @@ public class SudokuServerTest {
         final SudokuClient client = this.createRoomWithPlayer("manu",
                 IDENTITY_ON_ENTER,
                 IDENTITY_ON_JOIN,
+                IDENTITY_ON_FOCUS_GAINED,
+                IDENTITY_ON_FOCUS_LOST,
                 IDENTITY_ON_MOVE,
                 IDENTITY_ON_JOIN_PLAYER,
                 IDENTITY_ON_LEAVE_PLAYER);
@@ -178,10 +192,14 @@ public class SudokuServerTest {
         final SudokuClient client = this.createRoomWithPlayer(name,
                 IDENTITY_ON_ENTER,
                 IDENTITY_ON_JOIN,
+                IDENTITY_ON_FOCUS_GAINED,
+                IDENTITY_ON_FOCUS_LOST,
                 IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
         final SudokuClient client1 = this.joinPlayer2("lu", client,
                 IDENTITY_ON_ENTER,
                 IDENTITY_ON_JOIN,
+                IDENTITY_ON_FOCUS_GAINED,
+                IDENTITY_ON_FOCUS_LOST,
                 IDENTITY_ON_MOVE,
                 IDENTITY_ON_JOIN_PLAYER,
                 player -> assertEquals(name, player));
@@ -206,6 +224,8 @@ public class SudokuServerTest {
         final SudokuClient client = this.createRoomWithPlayer("manu",
                 IDENTITY_ON_ENTER,
                 IDENTITY_ON_JOIN,
+                IDENTITY_ON_FOCUS_GAINED,
+                IDENTITY_ON_FOCUS_LOST,
                 (coordinate1, value1) -> {
                     assertEquals(coordinate, coordinate1);
                     assertEquals(value, value1);
@@ -230,13 +250,18 @@ public class SudokuServerTest {
 
         final SudokuClient client = this.createRoomWithPlayer("manu",
                 IDENTITY_ON_ENTER,
-                IDENTITY_ON_JOIN, moveCheck,
+                IDENTITY_ON_JOIN,
+                IDENTITY_ON_FOCUS_GAINED,
+                IDENTITY_ON_FOCUS_LOST,
+                moveCheck,
                 IDENTITY_ON_JOIN_PLAYER,
                 IDENTITY_ON_LEAVE_PLAYER);
 
         this.joinPlayer2("lu", client,
                 IDENTITY_ON_ENTER,
                 IDENTITY_ON_JOIN,
+                IDENTITY_ON_FOCUS_GAINED,
+                IDENTITY_ON_FOCUS_LOST,
                 moveCheck,
                 IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
 
