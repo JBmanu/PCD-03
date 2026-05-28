@@ -137,6 +137,16 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     }
 
     @Override
+    public void focusGainedCell(final Coordinate coordinate, final Color color) {
+        SwingUtilities.invokeLater(() -> this.gridPage.focusGainedCell(coordinate, color));
+    }
+
+    @Override
+    public void focusLostCell(final Coordinate coordinate) {
+        SwingUtilities.invokeLater(() -> this.gridPage.focusLostCell(coordinate));
+    }
+
+    @Override
     public void win(final String message) {
         JOptionPane.showMessageDialog(this, message, "Victory", JOptionPane.INFORMATION_MESSAGE);
         this.showMenuPage();

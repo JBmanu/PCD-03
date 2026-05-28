@@ -18,6 +18,7 @@ import utils.GridUtils;
 import utils.Pair;
 
 import javax.swing.*;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -149,6 +150,23 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
             cell.setValueWithoutCheck(value);
             this.numberInfoPanel.checkNumber(value, size, this.countValue(value));
         });
+    }
+    
+    public void focusGainedCell(final Coordinate coordinate, final Color color) {
+        final SNumberCell cell = this.cells.get(coordinate);
+        if (cell != null) {
+            cell.setBackground(color);
+            cell.repaint();
+        }
+    }
+
+    public void focusLostCell(final Coordinate coordinate) {
+        Optional.ofNullable(this.cells.get(coordinate)).ifPresent(SNumberCell::unselectedColor);
+        final SNumberCell cell = this.cells.get(coordinate);
+        if (cell != null) {
+            cell.unselectedColor();
+            cell.repaint();
+        }
     }
 
     @Override

@@ -39,6 +39,10 @@ public interface UIMultiplayer extends ColorComponent, InfoPanel {
     void reset(Map<Coordinate, Integer> resetGrid);
     
     void writeValueWithoutCheck(Coordinate coordinate, Integer value);
+    
+    void focusGainedCell(Coordinate coordinate, Color color);
+
+    void focusLostCell(Coordinate coordinate);
 
 
     void win(final String message);

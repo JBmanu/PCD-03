@@ -83,14 +83,12 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
 
     @Override
     public void callbackOnFocusGained(final ClientDatas player, final Coordinate coordinate) {
-        System.out.println("Player " + player.name() + " is gained");
-        // TODO
+        this.ui.focusGainedCell(coordinate, player.color());
     }
 
     @Override
     public void callbackOnFocusLost(final ClientDatas player, final Coordinate coordinate) {
-        System.out.println("Player " + player.name() + " is lost");
-        // TODO
+        this.ui.focusLostCell(coordinate);
     }
 
     @Override
