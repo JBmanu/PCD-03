@@ -16,6 +16,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 public interface SudokuServer extends Serializable, Remote {
 
@@ -37,11 +38,17 @@ public interface SudokuServer extends Serializable, Remote {
 
     class SudokuServerImpl extends UnicastRemoteObject implements SudokuServer {
         private final Map<Integer, Pair<Grid, List<SudokuClient>>> rooms;
+        private final Map<Integer, ReentrantLock> roomLocks;
         private int currentId;
 
         public SudokuServerImpl() throws RemoteException {
             this.rooms = new HashMap<>();
+            this.roomLocks = new HashMap<>();
             this.currentId = 0;
+        }
+
+        private ReentrantLock getLock(final int roomId) {
+            return this.roomLocks.computeIfAbsent(roomId, id -> new ReentrantLock());
         }
 
         private boolean cantDoAction(final SudokuClient client) {
@@ -73,11 +80,12 @@ public interface SudokuServer extends Serializable, Remote {
         }
 
         @Override
-        public boolean createRoom(final SudokuClient client, final Settings settings) throws RemoteException {
+        public synchronized boolean createRoom(final SudokuClient client, final Settings settings) throws RemoteException {
             client.setRoomId(this.currentId);
             client.setColor(RMIUtils.generateColor(this.currentId + 1));
             final Grid grid = FactoryGrid.grid(settings);
             client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());
+            this.roomLocks.put(this.currentId, new ReentrantLock());
             this.rooms.put(this.currentId, Pair.of(grid, new ArrayList<>(Collections.singleton(client))));
             this.currentId += 1;
             return true;
@@ -87,35 +95,51 @@ public interface SudokuServer extends Serializable, Remote {
         public boolean joinRoom(final SudokuClient client) throws RemoteException {
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
-            final List<ClientDatas> playersDatas = this.playersNames(roomId);
-            if (!this.rooms.containsKey(roomId) ||
-                    playersDatas.stream().map(ClientDatas::name).toList().contains(clientDatas.name())) return false;
+            final ReentrantLock lock = this.getLock(roomId);
+            lock.lock();
+            try {
+                final List<ClientDatas> playersDatas = this.playersNames(roomId);
+                if (!this.rooms.containsKey(roomId) ||
+                        playersDatas.stream().map(ClientDatas::name).toList().contains(clientDatas.name()))
+                    return false;
 
-            final List<SudokuClient> players = this.rooms.get(roomId).second();
-            final Grid grid = this.rooms.get(roomId).first();
+                final List<SudokuClient> players = this.rooms.get(roomId).second();
+                final Grid grid = this.rooms.get(roomId).first();
 
-            client.setColor(RMIUtils.generateColor(roomId + players.size() + 1));
-            final ClientDatas clientDatasWithColor = client.datas();
+                client.setColor(RMIUtils.generateColor(roomId + players.size() + 1));
+                final ClientDatas clientDatasWithColor = client.datas();
 
-            for (final SudokuClient player : players)
-                this.notifyOrRemove(player, roomId, p -> p.invokeOnJoinNewPlayer(clientDatasWithColor));
-            client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());
-            client.invokeOnJoinRoom(playersDatas);
-            players.add(client);
-            return true;
+                for (final SudokuClient player : players)
+                    this.notifyOrRemove(player, roomId, p -> p.invokeOnJoinNewPlayer(clientDatasWithColor));
+                client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());
+                client.invokeOnJoinRoom(playersDatas);
+                players.add(client);
+                return true;
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
         public void leaveRoom(final SudokuClient client) throws RemoteException {
             if (this.cantDoAction(client)) throw new RemoteException();
             final ClientDatas clientDatas = client.datas();
-            final Pair<Grid, List<SudokuClient>> room = this.rooms.get(clientDatas.roomId());
-            final List<SudokuClient> players = room.second();
-
-            players.removeIf(player -> RMIUtils.comparePlayers(player, client));
-            if (players.isEmpty()) this.rooms.remove(clientDatas.roomId());
-            players.forEach(player ->
-                    this.notifyOrRemove(player, clientDatas.roomId(), p -> p.invokeOnLeavePlayer(clientDatas)));
+            final int roomId = clientDatas.roomId();
+            final ReentrantLock lock = this.getLock(roomId);
+            lock.lock();
+            try {
+                final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
+                final List<SudokuClient> players = room.second();
+                players.removeIf(player -> RMIUtils.comparePlayers(player, client));
+                if (players.isEmpty()) {
+                    this.rooms.remove(roomId);
+                    this.roomLocks.remove(roomId);
+                }
+                players.forEach(player ->
+                        this.notifyOrRemove(player, roomId, p -> p.invokeOnLeavePlayer(clientDatas)));
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
@@ -145,9 +169,15 @@ public interface SudokuServer extends Serializable, Remote {
             if (this.cantDoAction(client)) throw new RemoteException();
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
-            final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
-            withoutCaller.forEach(player ->
-                    this.notifyOrRemove(player, roomId, p -> p.invokeOnFocusGained(clientDatas, coordinate)));
+            final ReentrantLock lock = this.getLock(roomId);
+            lock.lock();
+            try {
+                final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
+                withoutCaller.forEach(player ->
+                        this.notifyOrRemove(player, roomId, p -> p.invokeOnFocusGained(clientDatas, coordinate)));
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
@@ -155,20 +185,31 @@ public interface SudokuServer extends Serializable, Remote {
             if (this.cantDoAction(client)) throw new RemoteException();
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
-            final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
-            withoutCaller.forEach(player ->
-                    this.notifyOrRemove(player, roomId, p -> p.invokeOnFocusLost(clientDatas, coordinate)));
+            final ReentrantLock lock = this.getLock(roomId);
+            lock.lock();
+            try {
+                final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
+                withoutCaller.forEach(player ->
+                        this.notifyOrRemove(player, roomId, p -> p.invokeOnFocusLost(clientDatas, coordinate)));
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
         public void updateCell(final SudokuClient client, final Coordinate coordinate, final int value) throws RemoteException {
             if (this.cantDoAction(client)) throw new RemoteException();
             final int roomId = client.roomId();
-            final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
-            room.first().saveValue(coordinate, value);
-            room.second().forEach(player ->
-                    this.notifyOrRemove(player, roomId, p -> p.invokeOnMove(coordinate, value)));
+            final ReentrantLock lock = this.getLock(roomId);
+            lock.lock();
+            try {
+                final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
+                room.first().saveValue(coordinate, value);
+                room.second().forEach(player ->
+                        this.notifyOrRemove(player, roomId, p -> p.invokeOnMove(coordinate, value)));
+            } finally {
+                lock.unlock();
+            }
         }
-
     }
 }
