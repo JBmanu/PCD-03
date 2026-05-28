@@ -1,9 +1,9 @@
 package utils;
 
-import utils.Remote.ExceptionConsumers.BiConsumer;
-import utils.Remote.ExceptionConsumers.Consumer;
-import utils.Remote.ExceptionConsumers.TriConsumer;
-import utils.Remote.ExceptionFunctions.*;
+import utils.RMITypes.ThrowingConsumers.BiConsumer;
+import utils.RMITypes.ThrowingConsumers.Consumer;
+import utils.RMITypes.ThrowingConsumers.TriConsumer;
+import utils.RMITypes.ThrowingFunctions.*;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
@@ -12,9 +12,9 @@ import java.util.Optional;
 
 public interface Try {
 
-    static <R> Optional<R> toOptional(final Niladic<R> niladic) {
+    static <R> Optional<R> toOptional(final Supplier<R> supplier) {
         try {
-            return Optional.of(niladic.apply());
+            return Optional.of(supplier.apply());
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
             e.printStackTrace();             
@@ -22,9 +22,9 @@ public interface Try {
         }
     }
 
-    static <T, R> Optional<R> toOptional(final Monadic<T, R> monadic, final T arg) {
+    static <T, R> Optional<R> toOptional(final Function<T, R> function, final T arg) {
         try {
-            return Optional.of(monadic.apply(arg));
+            return Optional.of(function.apply(arg));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
             e.printStackTrace();             
@@ -32,9 +32,9 @@ public interface Try {
         }
     }
 
-    static <A, B, R> Optional<R> toOptional(final Dyadic<A, B, R> dyadic, final A arg1, final B arg2) {
+    static <A, B, R> Optional<R> toOptional(final BiFunction<A, B, R> biFunction, final A arg1, final B arg2) {
         try {
-            return Optional.of(dyadic.apply(arg1, arg2));
+            return Optional.of(biFunction.apply(arg1, arg2));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
             e.printStackTrace();             
@@ -42,10 +42,10 @@ public interface Try {
         }
     }
 
-    static <A, B, C, R> Optional<R> toOptional(final Triadic<A, B, C, R> triadic,
+    static <A, B, C, R> Optional<R> toOptional(final TriFunction<A, B, C, R> triFunction,
                                                final A arg1, final B arg2, final C arg3) {
         try {
-            return Optional.of(triadic.apply(arg1, arg2, arg3));
+            return Optional.of(triFunction.apply(arg1, arg2, arg3));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
             e.printStackTrace();             
@@ -53,10 +53,10 @@ public interface Try {
         }
     }
 
-    static <A, B, C, D, R> Optional<R> toOptional(final Quadradic<A, B, C, D, R> quadradic,
+    static <A, B, C, D, R> Optional<R> toOptional(final QuadFunction<A, B, C, D, R> quadFunction,
                                                   final A arg1, final B arg2, final C arg3, final D arg4) {
         try {
-            return Optional.of(quadradic.apply(arg1, arg2, arg3, arg4));
+            return Optional.of(quadFunction.apply(arg1, arg2, arg3, arg4));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
             e.printStackTrace();             
@@ -64,11 +64,11 @@ public interface Try {
         }
     }
     
-    static <A, B, C, D, E, R> Optional<R> toOptional(final Pentadic<A, B, C, D, E, R> pentadic,
+    static <A, B, C, D, E, R> Optional<R> toOptional(final PentaFunction<A, B, C, D, E, R> pentaFunction,
                                                      final A arg1, final B arg2, final C arg3,
                                                      final D arg4, final E arg5) {
         try {
-            return Optional.of(pentadic.apply(arg1, arg2, arg3, arg4, arg5));
+            return Optional.of(pentaFunction.apply(arg1, arg2, arg3, arg4, arg5));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
             e.printStackTrace();             
@@ -76,11 +76,11 @@ public interface Try {
         }
     }
     
-    static <A, B, C, D, E, F, R> Optional<R> toOptional(final Hexadic<A, B, C, D, E, F, R> hexadic,
+    static <A, B, C, D, E, F, R> Optional<R> toOptional(final HexaFunction<A, B, C, D, E, F, R> hexaFunction,
                                                          final A arg1, final B arg2, final C arg3,
                                                          final D arg4, final E arg5, final F arg6) {
         try {
-            return Optional.of(hexadic.apply(arg1, arg2, arg3, arg4, arg5, arg6));
+            return Optional.of(hexaFunction.apply(arg1, arg2, arg3, arg4, arg5, arg6));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
             e.printStackTrace();             
@@ -88,12 +88,12 @@ public interface Try {
         }
     }
     
-    static <A, B, C, D, E, F, G, R> Optional<R> toOptional(final Heptadic<A, B, C, D, E, F, G, R> heptadic,
+    static <A, B, C, D, E, F, G, R> Optional<R> toOptional(final HeptaFunction<A, B, C, D, E, F, G, R> heptaFunction,
                                                             final A arg1, final B arg2, final C arg3,
                                                             final D arg4, final E arg5, final F arg6,
                                                             final G arg7) {
         try {
-            return Optional.of(heptadic.apply(arg1, arg2, arg3, arg4, arg5, arg6, arg7));
+            return Optional.of(heptaFunction.apply(arg1, arg2, arg3, arg4, arg5, arg6, arg7));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
             e.printStackTrace();             
@@ -101,12 +101,12 @@ public interface Try {
         }
     }
 
-    static <A, B, C, D, E, F, G, H, R> Optional<R> toOptional(final Octadic<A, B, C, D, E, F, G, H, R> octadic,
+    static <A, B, C, D, E, F, G, H, R> Optional<R> toOptional(final OctaFunction<A, B, C, D, E, F, G, H, R> octaFunction,
                                                               final A arg1, final B arg2, final C arg3,
                                                               final D arg4, final E arg5, final F arg6,
                                                               final G arg7,  final H arg8) {
         try {
-            return Optional.of(octadic.apply(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
+            return Optional.of(octaFunction.apply(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
         } catch (final RemoteException | NotBoundException | AlreadyBoundException e) {
             System.out.println("Error during remote operation: " + e.getMessage());
             e.printStackTrace();             
