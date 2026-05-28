@@ -16,6 +16,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 public interface SudokuServer extends Serializable, Remote {
@@ -42,8 +43,8 @@ public interface SudokuServer extends Serializable, Remote {
         private int currentId;
 
         public SudokuServerImpl() throws RemoteException {
-            this.rooms = new HashMap<>();
-            this.roomLocks = new HashMap<>();
+            this.rooms = new ConcurrentHashMap<>();
+            this.roomLocks = new ConcurrentHashMap<>();
             this.currentId = 0;
         }
 
