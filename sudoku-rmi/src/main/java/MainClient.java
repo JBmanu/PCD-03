@@ -1,6 +1,7 @@
 public final class MainClient {
     public static void main(final String[] args) {
-        final Controller controller = new Controller();
-        final Controller controller1 = new Controller();
+        for (int i = 0; i < 5; i++) {
+            final Controller controller = new Controller();
+        }
     }
 }
