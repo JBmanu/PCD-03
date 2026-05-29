@@ -2,6 +2,7 @@ package ui.multiPlayer;
 
 import grid.Coordinate;
 import grid.Grid;
+import grid.Settings;
 import ui.color.Palette;
 import ui.components.ColorComponent;
 import ui.components.SNumberCell;
@@ -95,6 +96,10 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
 
     public void buildRoom(final String roomId) {
         this.gameInfoPanel.buildRoom(roomId);
+    }
+
+    public void buildRoom(final String roomId, final String playerName, final Settings settings) {
+        this.gameInfoPanel.buildRoom(roomId, playerName, settings);
     }
 
     public void joinPlayer(final String newPlayerName, final Color color) {

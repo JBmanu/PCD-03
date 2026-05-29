@@ -64,7 +64,10 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
     @Override
     public void callbackOnEnter(final byte[][] solution, final byte[][] cells) {
         this.grid = FactoryGrid.gridLoad(solution, cells);
-        this.client.flatMap(c -> Try.toOptional(c::roomId)).ifPresent(id -> this.ui.buildRoom(id + ""));
+        this.client.flatMap(c -> Try.toOptional(c::roomId)).ifPresent(id -> {
+            final Optional<ClientDatas> clientDatas = this.client.flatMap(c -> Try.toOptional(c::datas));
+            clientDatas.ifPresent(datas -> this.ui.buildRoom(id + "", datas.name(), this.grid.settings()));
+        });
         this.ui.buildGrid(this.grid);
         this.ui.showGridPage();
     }
@@ -108,8 +111,6 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
         Try.toOptional(client::setName, playerName);
         Try.toOptional(server::createRoom, client, FactoryGrid.settings(schema, difficulty));
         Try.toOptional(FactoryRMI::registerClient, client);
-        final Optional<Integer> id = Try.toOptional(client::roomId);
-        id.ifPresent(roomId -> this.ui.buildRoom(roomId + ""));
     }
 
     private void joinRoom(final SudokuServer server, final SudokuClient client, final String roomId, final String playerName) {
@@ -120,7 +121,7 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
         final Optional<SudokuServer.JoinResult> result = Try.toOptional(server::joinRoom, client);
         result.ifPresent(joinResult -> {
             switch (joinResult) {
-                case SUCCESS -> {} // buildRoom viene chiamato in callbackOnEnter
+                case SUCCESS -> {}
                 case ROOM_NOT_FOUND -> this.ui.showError("Room " + roomId + " not found");
                 case NAME_ALREADY_TAKEN -> this.ui.showError("Name '" + playerName + "' already taken, choose another");
             }

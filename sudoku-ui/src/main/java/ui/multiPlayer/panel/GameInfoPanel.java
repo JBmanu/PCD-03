@@ -1,5 +1,6 @@
 package ui.multiPlayer.panel;
 
+import grid.Settings;
 import ui.color.Palette;
 import ui.components.ColorComponent;
 import ui.utils.PanelUtils;
@@ -7,7 +8,10 @@ import ui.utils.StyleUtils;
 import utils.Pair;
 
 import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.util.List;
 
@@ -64,6 +68,16 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
         this.infoRoom.setText(ROOM_LABEL + roomId);
         this.playerArea.setText("");
         this.appendColored(SELF, Color.black);
+    }
+
+    public void buildRoom(final String roomId, final String playerName, final Settings settings) {
+        this.infoRoom.setText("<html><center>ROOM ID: " + roomId + "<br>" +
+                settings.difficulty() + "(" + settings.schema() + ") </center></html>");
+        this.playerArea.setText("");
+        this.appendColored("Io (" + playerName + ")", Color.black);
+//        this.infoRoom.setText("ROOM (" + settings.schema() + " - " + settings.difficulty() + ") \nID: " + roomId);
+//        this.playerArea.setText("");
+//        this.appendColored("Io (" + playerName + ")", Color.black);
     }
 
     public void joinPlayer(final String playerName, final Color color) {
