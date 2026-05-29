@@ -50,8 +50,8 @@ public interface SudokuServer extends Serializable, Remote {
             this.currentId = 0;
         }
 
-        private ReentrantLock getLock(final int roomId) {
-            return this.roomLocks.computeIfAbsent(roomId, id -> new ReentrantLock());
+        private ReentrantLock lock(final int roomId) {
+            return this.roomLocks.computeIfAbsent(roomId, _ -> new ReentrantLock());
         }
 
         private boolean cantDoAction(final SudokuClient client) {
@@ -98,7 +98,7 @@ public interface SudokuServer extends Serializable, Remote {
         public JoinResult joinRoom(final SudokuClient client) throws RemoteException {
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
-            final ReentrantLock lock = this.getLock(roomId);
+            final ReentrantLock lock = this.lock(roomId);
             lock.lock();
             try {
                 if (!this.rooms.containsKey(roomId)) return JoinResult.ROOM_NOT_FOUND;
@@ -129,7 +129,7 @@ public interface SudokuServer extends Serializable, Remote {
             if (this.cantDoAction(client)) throw new RemoteException();
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
-            final ReentrantLock lock = this.getLock(roomId);
+            final ReentrantLock lock = this.lock(roomId);
             lock.lock();
             try {
                 final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
@@ -173,7 +173,7 @@ public interface SudokuServer extends Serializable, Remote {
             if (this.cantDoAction(client)) throw new RemoteException();
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
-            final ReentrantLock lock = this.getLock(roomId);
+            final ReentrantLock lock = this.lock(roomId);
             lock.lock();
             try {
                 final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
@@ -189,7 +189,7 @@ public interface SudokuServer extends Serializable, Remote {
             if (this.cantDoAction(client)) throw new RemoteException();
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
-            final ReentrantLock lock = this.getLock(roomId);
+            final ReentrantLock lock = this.lock(roomId);
             lock.lock();
             try {
                 final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
@@ -204,7 +204,7 @@ public interface SudokuServer extends Serializable, Remote {
         public void updateCell(final SudokuClient client, final Coordinate coordinate, final int value) throws RemoteException {
             if (this.cantDoAction(client)) throw new RemoteException();
             final int roomId = client.roomId();
-            final ReentrantLock lock = this.getLock(roomId);
+            final ReentrantLock lock = this.lock(roomId);
             lock.lock();
             try {
                 final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
