@@ -21,9 +21,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public interface SudokuServer extends Serializable, Remote {
 
+    enum JoinResult { SUCCESS, ROOM_NOT_FOUND, NAME_ALREADY_TAKEN }
+    
     boolean createRoom(SudokuClient client, Settings settings) throws RemoteException;
 
-    boolean joinRoom(SudokuClient client) throws RemoteException;
+    JoinResult joinRoom(SudokuClient client) throws RemoteException;
 
     void leaveRoom(SudokuClient client) throws RemoteException;
 
@@ -93,16 +95,17 @@ public interface SudokuServer extends Serializable, Remote {
         }
 
         @Override
-        public boolean joinRoom(final SudokuClient client) throws RemoteException {
+        public JoinResult joinRoom(final SudokuClient client) throws RemoteException {
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
             final ReentrantLock lock = this.getLock(roomId);
             lock.lock();
             try {
+                if (!this.rooms.containsKey(roomId)) return JoinResult.ROOM_NOT_FOUND;
+
                 final List<ClientDatas> playersDatas = this.playersNames(roomId);
-                if (!this.rooms.containsKey(roomId) ||
-                        playersDatas.stream().map(ClientDatas::name).toList().contains(clientDatas.name()))
-                    return false;
+                if (playersDatas.stream().map(ClientDatas::name).toList().contains(clientDatas.name()))
+                    return JoinResult.NAME_ALREADY_TAKEN;
 
                 final List<SudokuClient> players = this.rooms.get(roomId).second();
                 final Grid grid = this.rooms.get(roomId).first();
@@ -115,7 +118,7 @@ public interface SudokuServer extends Serializable, Remote {
                 client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());
                 client.invokeOnJoinRoom(playersDatas);
                 players.add(client);
-                return true;
+                return JoinResult.SUCCESS;
             } finally {
                 lock.unlock();
             }

@@ -91,8 +91,8 @@ public class SudokuServerTest {
         final SudokuClient sudokuClient1 = client1.get();
         Try.toOptional(sudokuClient1::setRoomId, roomId);
         Try.toOptional(FactoryRMI::registerClient, sudokuClient1);
-        final Optional<Boolean> isJoined = Try.toOptional(this.server::joinRoom, sudokuClient1);
-        assertEquals(Optional.of(true), isJoined);
+        final Optional<SudokuServer.JoinResult> isJoined = Try.toOptional(this.server::joinRoom, sudokuClient1);
+        assertEquals(Optional.of(SudokuServer.JoinResult.SUCCESS), isJoined);
         return sudokuClient1;
     }
 
@@ -155,9 +155,8 @@ public class SudokuServerTest {
         final SudokuClient sudokuClient1 = client1.get();
         Try.toOptional(sudokuClient1::setRoomId, roomId);
         Try.toOptional(FactoryRMI::registerClient, sudokuClient1);
-        final Optional<Boolean> isJoined = Try.toOptional(this.server::joinRoom, sudokuClient1);
-        assertTrue(isJoined.isPresent());
-        assertFalse(isJoined.get());
+        final Optional<SudokuServer.JoinResult> isJoined = Try.toOptional(this.server::joinRoom, sudokuClient1);
+        assertEquals(Optional.of(SudokuServer.JoinResult.SUCCESS), isJoined);
     }
 
     @Test
@@ -166,8 +165,8 @@ public class SudokuServerTest {
                 IDENTITY_ON_ENTER, IDENTITY_ON_JOIN, IDENTITY_ON_FOCUS_GAINED, IDENTITY_ON_FOCUS_LOST, IDENTITY_ON_MOVE, IDENTITY_ON_JOIN_PLAYER, IDENTITY_ON_LEAVE_PLAYER);
 
         clientOpt.ifPresent(client -> Try.toOptional(client::setRoomId, -1));
-        final Optional<Boolean> isJoined = clientOpt.flatMap(client -> Try.toOptional(this.server::joinRoom, client));
-        assertEquals(Optional.of(false), isJoined);
+        final Optional<SudokuServer.JoinResult> isJoined = clientOpt.flatMap(client -> Try.toOptional(this.server::joinRoom, client));
+        assertNotEquals(Optional.of(SudokuServer.JoinResult.SUCCESS), isJoined);
     }
 
     @Test

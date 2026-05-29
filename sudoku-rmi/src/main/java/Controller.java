@@ -116,8 +116,15 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
         Try.toOptional(client::setName, playerName);
         Try.toOptional(client::setRoomId, Integer.parseInt(roomId));
         Try.toOptional(FactoryRMI::registerClient, client);
-        this.ui.buildRoom(roomId);
-        Try.toOptional(server::joinRoom, client);
+
+        final Optional<SudokuServer.JoinResult> result = Try.toOptional(server::joinRoom, client);
+        result.ifPresent(joinResult -> {
+            switch (joinResult) {
+                case SUCCESS -> this.ui.buildRoom(roomId);
+                case ROOM_NOT_FOUND -> this.ui.showError("Room " + roomId + " not found");
+                case NAME_ALREADY_TAKEN -> this.ui.showError("Name '" + playerName + "' already taken, choose another");
+            }
+        });
     }
 
     private void checkWin() {
