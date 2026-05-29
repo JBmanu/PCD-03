@@ -64,6 +64,7 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
     @Override
     public void callbackOnEnter(final byte[][] solution, final byte[][] cells) {
         this.grid = FactoryGrid.gridLoad(solution, cells);
+        this.client.flatMap(c -> Try.toOptional(c::roomId)).ifPresent(id -> this.ui.buildRoom(id + ""));
         this.ui.buildGrid(this.grid);
         this.ui.showGridPage();
     }
@@ -119,7 +120,7 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
         final Optional<SudokuServer.JoinResult> result = Try.toOptional(server::joinRoom, client);
         result.ifPresent(joinResult -> {
             switch (joinResult) {
-                case SUCCESS -> this.ui.buildRoom(roomId);
+                case SUCCESS -> {} // buildRoom viene chiamato in callbackOnEnter
                 case ROOM_NOT_FOUND -> this.ui.showError("Room " + roomId + " not found");
                 case NAME_ALREADY_TAKEN -> this.ui.showError("Name '" + playerName + "' already taken, choose another");
             }
