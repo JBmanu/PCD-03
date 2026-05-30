@@ -52,7 +52,7 @@ public interface SudokuClient extends Serializable, Remote {
         private Optional<Color> color;
         private final CallbackOnFocusGained onFocusGained;
         private final CallbackOnFocusLost onFocusLost;
-        private final CallbackOnMove onMove;
+        private final CallbackOnMoveGrid onMove;
         private final CallbackOnJoin onJoin;
         private final CallbackOnEnter onEnter;
         private final CallbackOnJoinPlayer onJoinPlayer;
@@ -62,7 +62,7 @@ public interface SudokuClient extends Serializable, Remote {
                                 final CallbackOnJoin onJoin,
                                 final CallbackOnFocusGained onFocusGained,
                                 final CallbackOnFocusLost onFocusLost,
-                                final CallbackOnMove onMove,
+                                final CallbackOnMoveGrid onMove,
                                 final CallbackOnJoinPlayer onJoinPlayer,
                                 final CallbackOnLeavePlayer onLeavePlayer) throws RemoteException {
             this.name = Optional.empty();

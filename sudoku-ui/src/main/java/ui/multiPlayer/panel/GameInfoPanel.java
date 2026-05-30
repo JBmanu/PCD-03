@@ -75,9 +75,6 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
                 settings.difficulty() + "(" + settings.schema() + ") </center></html>");
         this.playerArea.setText("");
         this.appendColored("Io (" + playerName + ")", Color.black);
-//        this.infoRoom.setText("ROOM (" + settings.schema() + " - " + settings.difficulty() + ") \nID: " + roomId);
-//        this.playerArea.setText("");
-//        this.appendColored("Io (" + playerName + ")", Color.black);
     }
 
     public void joinPlayer(final String playerName, final Color color) {

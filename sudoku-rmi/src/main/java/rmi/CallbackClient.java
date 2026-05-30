@@ -15,7 +15,7 @@ public final class CallbackClient {
         void callbackOnFocusLost(ClientDatas player, Coordinate coordinate);
     }
 
-    public interface CallbackOnMove extends Serializable {
+    public interface CallbackOnMoveGrid extends Serializable {
         void callbackOnMove(Coordinate coordinate, int value);
     }
 
@@ -38,7 +38,7 @@ public final class CallbackClient {
     public interface Callbacks extends Serializable,
             CallbackOnFocusGained,
             CallbackOnFocusLost,
-            CallbackOnMove,
+            CallbackOnMoveGrid,
             CallbackOnJoinPlayer,
             CallbackOnJoin,
             CallbackOnLeavePlayer,

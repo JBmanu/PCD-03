@@ -22,7 +22,7 @@ public interface FactoryRMI {
                                      final CallbackOnJoin onJoin,
                                      final CallbackOnFocusGained onFocusGained,
                                      final CallbackOnFocusLost onFocusLost,
-                                     final CallbackOnMove onMove,
+                                     final CallbackOnMoveGrid onMove,
                                      final CallbackOnJoinPlayer onJoinPlayer,
                                      final CallbackOnLeavePlayer onLeavePlayer) throws RemoteException {
         return new SudokuClient.SudokuClientImpl(onEnter, onJoin, onFocusGained, onFocusLost, onMove, onJoinPlayer, onLeavePlayer);
@@ -33,7 +33,7 @@ public interface FactoryRMI {
                                      final CallbackOnJoin onJoin,
                                      final CallbackOnFocusGained onFocusGained,
                                      final CallbackOnFocusLost onFocusLost,
-                                     final CallbackOnMove onMove,
+                                     final CallbackOnMoveGrid onMove,
                                      final CallbackOnJoinPlayer onJoinPlayer,
                                      final CallbackOnLeavePlayer onLeavePlayer) throws RemoteException {
         final SudokuClient client = createClient(onEnter, onJoin, onFocusGained, onFocusLost, onMove, onJoinPlayer, onLeavePlayer);

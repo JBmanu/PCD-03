@@ -4,7 +4,6 @@ import grid.Settings;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import rmi.CallbackClient;
 import rmi.CallbackClient.*;
 import rmi.FactoryRMI;
 import rmi.SudokuClient;
@@ -31,7 +30,7 @@ public class SudokuServerTest {
     };
     public static final CallbackOnFocusLost IDENTITY_ON_FOCUS_LOST = (_, _) -> {
     };
-    public static final CallbackOnMove IDENTITY_ON_MOVE = (_, _) -> {
+    public static final CallbackOnMoveGrid IDENTITY_ON_MOVE = (_, _) -> {
     };
     public static final CallbackOnJoinPlayer IDENTITY_ON_JOIN_PLAYER = _ -> {
     };
@@ -63,7 +62,7 @@ public class SudokuServerTest {
                                               final CallbackOnJoin onJoin,
                                               final CallbackOnFocusGained onFocusGained,
                                               final CallbackOnFocusLost onFocusLost,
-                                              final CallbackOnMove onMove,
+                                              final CallbackOnMoveGrid onMove,
                                               final CallbackOnJoinPlayer onJoinPlayer,
                                               final CallbackOnLeavePlayer onLeavePlayer) {
         final Optional<SudokuClient> client = Try.toOptional(FactoryRMI::createClient, name, onEnter, onJoin, onFocusGained, onFocusLost, onMove, onJoinPlayer, onLeavePlayer);
@@ -80,7 +79,7 @@ public class SudokuServerTest {
                                      final CallbackOnJoin onJoin,
                                      final CallbackOnFocusGained onFocusGained,
                                      final CallbackOnFocusLost onFocusLost,
-                                     final CallbackOnMove onMove,
+                                     final CallbackOnMoveGrid onMove,
                                      final CallbackOnJoinPlayer onJoinPlayer,
                                      final CallbackOnLeavePlayer onLeavePlayer) {
         final int roomId = Try.toOptional(client::roomId).orElse(-1);
@@ -243,7 +242,7 @@ public class SudokuServerTest {
         final Coordinate coordinate = FactoryGrid.coordinate(0, 0);
         final int value = 5;
 
-        final CallbackClient.CallbackOnMove moveCheck = (coordinate1, value1) -> {
+        final CallbackOnMoveGrid moveCheck = (coordinate1, value1) -> {
             assertEquals(coordinate, coordinate1);
             assertEquals(value, value1);
         };
