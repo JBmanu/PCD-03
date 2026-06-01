@@ -54,10 +54,15 @@ public interface RabbitMQConnector {
 
     void sendFocusLost(RabbitMQDiscovery discovery, Player player, Coordinate coordinate);
 
-    void activeCallbackReceiveMessage(Player player, Grid grid,
+    void activeCallbackReceiveMessage(RabbitMQDiscovery discovery, Player player, Grid grid,
                                       JoinPlayer joinPlayer, LeavePlayer leavePlayer,
                                       PlayerMove moveAction, CreationGrid initGrid,
                                       FocusGained focusGained, FocusLost focusLost);
+
+//    void activeCallbackReceiveMessage(Player player, Grid grid,
+//                                      JoinPlayer joinPlayer, LeavePlayer leavePlayer,
+//                                      PlayerMove moveAction, CreationGrid initGrid,
+//                                      FocusGained focusGained, FocusLost focusLost);
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
         private static final String URI = "amqps://bexxolvf:QArxTTpT8a3bnUzuyVHGvajfavrdAIt7@kangaroo.rmq.cloudamqp.com/bexxolvf";
@@ -119,7 +124,7 @@ public interface RabbitMQConnector {
         private void onlyJoinRoom(final Player player) {
             player.callActionOnData((room, queue, name) -> {
                 try {
-                    this.channel.queueDeclare(queue, true, false, false, null);
+                    this.channel.queueDeclare(queue, true, false, true, null);
                     this.channel.queueBind(queue, room, name);
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
@@ -158,7 +163,6 @@ public interface RabbitMQConnector {
             try {
                 final byte[] body = message.getBytes(StandardCharsets.UTF_8);
                 this.channel.basicPublish(room, routingKey, JSON_PROPERTIES, body);
-                //request response
             } catch (final IOException e) {
                 throw new RuntimeException("Failed to send message: " + e.getMessage(), e);
             }
@@ -205,16 +209,15 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void activeCallbackReceiveMessage(final Player player, final Grid grid,
+        public void activeCallbackReceiveMessage(final RabbitMQDiscovery discovery, final Player player, final Grid grid,
                                                  final JoinPlayer joinPlayer, final LeavePlayer leavePlayer,
                                                  final PlayerMove moveAction, final CreationGrid initGrid,
                                                  final FocusGained focusGained, final FocusLost focusLost) {
-            player.callActionOnData((room, queue, _) -> {
+            player.callActionOnData((room, queue, name) -> {
                 try {
                     this.channel.basicConsume(queue, false, (_, delivery) -> {
                         try {
                             final Map<String, Object> message = Messages.ToReceive.createMessage(delivery);
-
                             switch (message.get(TYPE_MESSAGE_KEY).toString()) {
                                 case Messages.TYPE_GRID_REQUEST ->
                                         Messages.ToReceive.acceptGridRequest(delivery, playerName ->
@@ -235,7 +238,11 @@ public interface RabbitMQConnector {
                             this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                             throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
                         }
-                    }, _ -> {
+                    }, consumerTag -> {
+                        // quando succede un errore come crash o giocatore non più raggiungibile
+                        discovery.routingKeysFromBindsExchange(room, name)
+                                .forEach(routingKey ->
+                                        this.sendMessage(room, routingKey, Messages.ToSend.leavePlayer(name)));
                     });
                 } catch (final IOException e) {
                     throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);

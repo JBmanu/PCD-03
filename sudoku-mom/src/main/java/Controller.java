@@ -103,13 +103,13 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
     @Override
     public void onStart(final Optional<String> room, final Optional<String> playerName,
                         final Settings.Schema schema, final Settings.Difficulty difficulty) {
-        this.callRabbitMQ((_, connector) ->
+        this.callRabbitMQ((discovery, connector) ->
                 playerName.ifPresentOrElse(
                         myName -> {
                             room.ifPresentOrElse(
                                     roomID -> this.joinRoom(roomID, myName),
                                     () -> this.createRoom(myName, schema, difficulty));
-                            connector.activeCallbackReceiveMessage(this.player, this.grid,
+                            connector.activeCallbackReceiveMessage(discovery, this.player, this.grid,
                                     this.ui::joinPlayer,
                                     this.ui::leavePlayer,
                                     (name, coordinate, value) -> {
@@ -123,18 +123,17 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                                         this.grid.loadSolution(solution);
                                         this.grid.loadCells(cells);
                                         this.player.computeRoomID().ifPresent(id ->
-                                                this.ui.buildRoom(computeOnlyNumberId(id), myName, this.grid.settings()));
+                                                this.player.name().ifPresent(name ->
+                                                        this.ui.buildRoom(computeOnlyNumberId(id), name,
+                                                                FactoryGrid.settings(newSchema, newDifficulty))));
 
-                                        this.callRabbitMQ((discovery, _) ->
-                                                this.player.room().ifPresent(roomName -> {
-                                                    final List<Pair<String, Color>> playersColors = discovery.queueNamesFromExchange(roomName).stream()
-                                                            .filter(queueName -> !Topics.extractPlayerNameFrom(queueName).equals(this.player.name().orElse("")))
-                                                            .map(queueName -> Pair.of(
-                                                                    Topics.extractPlayerNameFrom(queueName),
-                                                                    GenerateColor.from(Topics.extractCountQueueFrom(queueName))))
-                                                            .toList();
-                                                    this.ui.appendPlayers(playersColors);
-                                                }));
+                                        this.player.room().ifPresent(roomName -> {
+                                            final List<Pair<String, Color>> playersColors = discovery.queueNamesFromExchange(roomName).stream()
+                                                    .filter(queueName -> !Topics.extractPlayerNameFrom(queueName).equals(this.player.name().orElse("")))
+                                                    .map(queueName -> Pair.of(Topics.extractPlayerNameFrom(queueName), GenerateColor.from(Topics.extractCountQueueFrom(queueName))))
+                                                    .toList();
+                                            this.ui.appendPlayers(playersColors);
+                                        });
                                         this.ui.buildGrid(this.grid);
                                         this.ui.showGridPage();
                                     },

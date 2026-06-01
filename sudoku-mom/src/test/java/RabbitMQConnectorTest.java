@@ -124,7 +124,7 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
         this.connector.leaveRoom(this.discovery, player2);
 
-        this.connector.activeCallbackReceiveMessage(this.player1, null, IDENTITY_JOIN_PLAYER,
+        this.connector.activeCallbackReceiveMessage(this.discovery, this.player1, null, IDENTITY_JOIN_PLAYER,
                 playerName -> assertEquals(leavePlayerName, playerName),
                 IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID,
                 IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
@@ -170,7 +170,7 @@ public class RabbitMQConnectorTest {
         final Player player2 = this.computeNewPlayer("2", player2Name);
         this.createRoomWithTwoPlayer(player2);
 
-        this.connector.activeCallbackReceiveMessage(player2, null,
+        this.connector.activeCallbackReceiveMessage(this.discovery, player2, null,
                 (name, color) -> {
                     assertEquals(this.player1.name(), Optional.of(name));
                     assertNotNull(color);
@@ -232,7 +232,7 @@ public class RabbitMQConnectorTest {
         this.connector.createRoomAndJoin(this.player1);
         this.connector.joinRoom(this.discovery, player2);
 
-        this.connector.activeCallbackReceiveMessage(player2, null,
+        this.connector.activeCallbackReceiveMessage(this.discovery, player2, null,
                 IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER,
                 (player, position, value) -> {
                     assertEquals(this.player1.name(), Optional.of(player));
@@ -241,7 +241,7 @@ public class RabbitMQConnectorTest {
                 }, IDENTITY_CREATION_GRID,
                 IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
 
-        connector2.activeCallbackReceiveMessage(player2, null,
+        connector2.activeCallbackReceiveMessage(this.discovery, player2, null,
                 IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER,
                 (player, position, value) -> {
                     assertEquals(this.player1.name(), Optional.of(player));
@@ -285,7 +285,7 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
 
         this.connector.sendGridRequest(this.discovery, player2);
-        this.connector.activeCallbackReceiveMessage(this.player1, grid,
+        this.connector.activeCallbackReceiveMessage(this.discovery, this.player1, grid,
                 IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID,
                 IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
 
@@ -309,10 +309,10 @@ public class RabbitMQConnectorTest {
         final RabbitMQConnector connector2 = this.createOtherConnector();
         this.createRoomWithTwoPlayer(player2);
 
-        this.connector.activeCallbackReceiveMessage(this.player1, grid,
+        this.connector.activeCallbackReceiveMessage(this.discovery, this.player1, grid,
                 IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID,
                 IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
-        connector2.activeCallbackReceiveMessage(player2, null,
+        connector2.activeCallbackReceiveMessage(this.discovery, player2, null,
                 IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE,
                 (_, _, solution, cells) -> {
                     assertNotNull(cells);
