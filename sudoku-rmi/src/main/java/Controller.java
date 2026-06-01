@@ -151,7 +151,10 @@ public class Controller implements Serializable, GameMultiplayerListener.PlayerL
 
     @Override
     public void onExit() {
-
+        this.callServerAndClient((server, client) -> {
+            Try.toOptional(server::leaveRoom, client);
+            Try.toOptional(FactoryRMI::shutdownClient, client);
+        });
     }
 
     @Override

@@ -22,8 +22,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public interface SudokuServer extends Serializable, Remote {
 
-    enum JoinResult { SUCCESS, ROOM_NOT_FOUND, NAME_ALREADY_TAKEN }
-    
+    enum JoinResult {SUCCESS, ROOM_NOT_FOUND, NAME_ALREADY_TAKEN}
+
     boolean createRoom(SudokuClient client, Settings settings) throws RemoteException;
 
     JoinResult joinRoom(SudokuClient client) throws RemoteException;
@@ -55,6 +55,7 @@ public interface SudokuServer extends Serializable, Remote {
             return this.roomLocks.computeIfAbsent(roomId, _ -> new ReentrantLock());
         }
 
+        // cantDoAction usato solo dentro il lock
         private boolean cantDoAction(final SudokuClient client) {
             final Optional<Integer> roomIdOpt = Try.toOptional(client::roomId);
             return !roomIdOpt.map(id -> this.rooms.containsKey(id) &&
@@ -127,12 +128,12 @@ public interface SudokuServer extends Serializable, Remote {
 
         @Override
         public void leaveRoom(final SudokuClient client) throws RemoteException {
-            if (this.cantDoAction(client)) throw new RemoteException();
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
             final ReentrantLock lock = this.lock(roomId);
             lock.lock();
             try {
+                if (this.cantDoAction(client)) return;
                 final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
                 final List<SudokuClient> players = room.second();
                 players.removeIf(player -> RMIUtils.comparePlayers(player, client));
@@ -149,16 +150,28 @@ public interface SudokuServer extends Serializable, Remote {
 
         @Override
         public byte[][] solution(final SudokuClient client) throws RemoteException {
-            if (this.cantDoAction(client)) throw new RemoteException();
-            final Grid grid = this.rooms.get(client.roomId()).first();
-            return grid.solutionArray();
+            final int roomId = client.roomId();
+            final ReentrantLock lock = this.lock(roomId);
+            lock.lock();
+            try {
+                if (this.cantDoAction(client)) return new byte[0][];
+                return this.rooms.get(roomId).first().solutionArray();
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
         public byte[][] grid(final SudokuClient client) throws RemoteException {
-            if (this.cantDoAction(client)) throw new RemoteException();
-            final Grid grid = this.rooms.get(client.roomId()).first();
-            return grid.cellsArray();
+            final int roomId = client.roomId();
+            final ReentrantLock lock = this.lock(roomId);
+            lock.lock();
+            try {
+                if (this.cantDoAction(client)) return new byte[0][];
+                return this.rooms.get(roomId).first().cellsArray();
+            } finally {
+                lock.unlock();
+            }
         }
 
         private List<SudokuClient> takeAllWithout(final SudokuClient client) throws RemoteException {
@@ -171,12 +184,12 @@ public interface SudokuServer extends Serializable, Remote {
 
         @Override
         public void focusGainedCell(final SudokuClient client, final Coordinate coordinate) throws RemoteException {
-            if (this.cantDoAction(client)) throw new RemoteException();
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
             final ReentrantLock lock = this.lock(roomId);
             lock.lock();
             try {
+                if (this.cantDoAction(client)) return;
                 final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
                 withoutCaller.forEach(player ->
                         this.notifyOrRemove(player, roomId, p -> p.invokeOnFocusGained(clientDatas, coordinate)));
@@ -187,12 +200,12 @@ public interface SudokuServer extends Serializable, Remote {
 
         @Override
         public void focusLostCell(final SudokuClient client, final Coordinate coordinate) throws RemoteException {
-            if (this.cantDoAction(client)) throw new RemoteException();
             final ClientDatas clientDatas = client.datas();
             final int roomId = clientDatas.roomId();
             final ReentrantLock lock = this.lock(roomId);
             lock.lock();
             try {
+                if (this.cantDoAction(client)) return;
                 final List<SudokuClient> withoutCaller = this.takeAllWithout(client);
                 withoutCaller.forEach(player ->
                         this.notifyOrRemove(player, roomId, p -> p.invokeOnFocusLost(clientDatas, coordinate)));
@@ -203,11 +216,11 @@ public interface SudokuServer extends Serializable, Remote {
 
         @Override
         public void updateCell(final SudokuClient client, final Coordinate coordinate, final int value) throws RemoteException {
-            if (this.cantDoAction(client)) throw new RemoteException();
             final int roomId = client.roomId();
             final ReentrantLock lock = this.lock(roomId);
             lock.lock();
             try {
+                if (this.cantDoAction(client)) return;
                 final Pair<Grid, List<SudokuClient>> room = this.rooms.get(roomId);
                 room.first().saveValue(coordinate, value);
                 room.second().forEach(player ->
