@@ -67,13 +67,50 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                 () -> this.ui.showError(ERROR_DISCOVERY));
     }
 
+    private void activeCallback(final RabbitMQDiscovery discovery, final RabbitMQConnector connector) {
+        connector.activeCallbackReceiveMessage(discovery, this.player, () -> this.grid,
+                this.ui::joinPlayer,
+                this.ui::leavePlayer,
+                (name, coordinate, value) -> {
+                    if (value == this.grid.emptyValue()) this.grid.undo();
+                    else this.grid.saveValue(coordinate, value);
+                    this.ui.writeValueWithoutCheck(coordinate, value);
+                    this.ui.showInfo(this.infoMove(name, coordinate, value));
+                    this.checkWin();
+                }, (newSchema, newDifficulty, solution, cells) -> {
+                    this.grid = FactoryGrid.grid(FactoryGrid.settings(newSchema, newDifficulty));
+                    this.grid.loadSolution(solution);
+                    this.grid.loadCells(cells);
+                    this.player.computeRoomID().ifPresent(id ->
+                            this.player.name().ifPresent(name ->
+                                    this.ui.buildRoom(computeOnlyNumberId(id), name,
+                                            FactoryGrid.settings(newSchema, newDifficulty))));
+                    this.player.room().ifPresent(roomName -> {
+                        final List<Pair<String, Color>> playersColors = discovery.queueNamesFromExchange(roomName).stream()
+                                .filter(queueName -> !Topics.extractPlayerNameFrom(queueName).equals(this.player.name().orElse("")))
+                                .map(queueName -> Pair.of(
+                                        Topics.extractPlayerNameFrom(queueName),
+                                        GenerateColor.from(Topics.extractCountQueueFrom(queueName))))
+                                .toList();
+                        this.ui.appendPlayers(playersColors);
+                    });
+                    this.ui.buildGrid(this.grid);
+                    this.ui.showGridPage();
+                },
+                (name, color, coordinate) -> this.ui.focusGainedCell(coordinate, color),
+                (name, coordinate) -> this.ui.focusLostCell(coordinate));
+    }
+
     private void createRoom(final String playerName, final Settings.Schema schema, final Settings.Difficulty difficulty) {
         this.callRabbitMQ((discovery, connector) -> {
             this.grid = FactoryGrid.grid(FactoryGrid.settings(schema, difficulty));
             final String countRoom = discovery.countExchangesWithoutDefault() + 1 + "";
             this.player.computeToCreateRoom(countRoom, "1", playerName);
             connector.createRoomAndJoin(this.player);
-            this.player.computeRoomID().ifPresent(id -> this.ui.buildRoom(computeOnlyNumberId(id), playerName, this.grid.settings()));
+            
+            this.activeCallback(discovery, connector);
+            this.player.computeRoomID().ifPresent(id ->
+                    this.ui.buildRoom(computeOnlyNumberId(id), playerName, this.grid.settings()));
             this.ui.buildGrid(this.grid);
             this.ui.showGridPage();
         });
@@ -85,6 +122,8 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             final String countQueues = discovery.countExchangeBinds(roomName) + 1 + "";
             this.player.computeToJoinRoom(roomID, countQueues, playerName);
             connector.joinRoom(discovery, this.player);
+            
+            this.activeCallback(discovery, connector);
             connector.sendGridRequest(discovery, this.player);
         });
     }
@@ -105,41 +144,9 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                         final Settings.Schema schema, final Settings.Difficulty difficulty) {
         this.callRabbitMQ((discovery, connector) ->
                 playerName.ifPresentOrElse(
-                        myName -> {
-                            room.ifPresentOrElse(
-                                    roomID -> this.joinRoom(roomID, myName),
-                                    () -> this.createRoom(myName, schema, difficulty));
-                            connector.activeCallbackReceiveMessage(discovery, this.player, this.grid,
-                                    this.ui::joinPlayer,
-                                    this.ui::leavePlayer,
-                                    (name, coordinate, value) -> {
-                                        if (value == this.grid.emptyValue()) this.grid.undo();
-                                        else this.grid.saveValue(coordinate, value);
-                                        this.ui.writeValueWithoutCheck(coordinate, value);
-                                        this.ui.showInfo(this.infoMove(name, coordinate, value));
-                                        this.checkWin();
-                                    }, (newSchema, newDifficulty, solution, cells) -> {
-                                        this.grid = FactoryGrid.grid(FactoryGrid.settings(newSchema, newDifficulty));
-                                        this.grid.loadSolution(solution);
-                                        this.grid.loadCells(cells);
-                                        this.player.computeRoomID().ifPresent(id ->
-                                                this.player.name().ifPresent(name ->
-                                                        this.ui.buildRoom(computeOnlyNumberId(id), name,
-                                                                FactoryGrid.settings(newSchema, newDifficulty))));
-
-                                        this.player.room().ifPresent(roomName -> {
-                                            final List<Pair<String, Color>> playersColors = discovery.queueNamesFromExchange(roomName).stream()
-                                                    .filter(queueName -> !Topics.extractPlayerNameFrom(queueName).equals(this.player.name().orElse("")))
-                                                    .map(queueName -> Pair.of(Topics.extractPlayerNameFrom(queueName), GenerateColor.from(Topics.extractCountQueueFrom(queueName))))
-                                                    .toList();
-                                            this.ui.appendPlayers(playersColors);
-                                        });
-                                        this.ui.buildGrid(this.grid);
-                                        this.ui.showGridPage();
-                                    },
-                                    (name, color, coordinate) -> this.ui.focusGainedCell(coordinate, color),
-                                    (name, coordinate) -> this.ui.focusLostCell(coordinate));
-                        },
+                        myName -> room.ifPresentOrElse(
+                                roomID -> this.joinRoom(roomID, myName),
+                                () -> this.createRoom(myName, schema, difficulty)),
                         () -> this.ui.showError(INFO_PLAYER)
                 ));
     }

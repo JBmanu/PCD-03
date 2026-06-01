@@ -285,7 +285,7 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
 
         this.connector.sendGridRequest(this.discovery, player2);
-        this.connector.activeCallbackReceiveMessage(this.discovery, this.player1, grid,
+        this.connector.activeCallbackReceiveMessage(this.discovery, this.player1, () -> grid,
                 IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID,
                 IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
 
@@ -309,7 +309,7 @@ public class RabbitMQConnectorTest {
         final RabbitMQConnector connector2 = this.createOtherConnector();
         this.createRoomWithTwoPlayer(player2);
 
-        this.connector.activeCallbackReceiveMessage(this.discovery, this.player1, grid,
+        this.connector.activeCallbackReceiveMessage(this.discovery, this.player1, () -> grid,
                 IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID,
                 IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
         connector2.activeCallbackReceiveMessage(this.discovery, player2, null,

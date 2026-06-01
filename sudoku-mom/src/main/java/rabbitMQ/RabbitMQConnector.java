@@ -8,6 +8,7 @@ import grid.Grid;
 import model.Player;
 import utils.GameConsumers.*;
 import utils.Messages;
+import utils.Topics;
 
 import javax.net.ssl.SSLContext;
 import java.awt.*;
@@ -19,6 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 import static utils.Messages.JSON_PROPERTIES;
 import static utils.Messages.TYPE_MESSAGE_KEY;
@@ -35,30 +37,19 @@ public interface RabbitMQConnector {
     }
 
     void createRoom(Player player);
-
     void deleteRoom(Player player);
-
     void deleteQueue(RabbitMQDiscovery discovery, Player player);
-
     void createRoomAndJoin(Player player);
-
     void joinRoom(RabbitMQDiscovery discovery, Player player);
-
     void leaveRoom(RabbitMQDiscovery discovery, Player player);
-
     void sendGridRequest(RabbitMQDiscovery discovery, Player player);
-
     void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
-
     void sendFocusGained(RabbitMQDiscovery discovery, Player player, Coordinate coordinate);
-
     void sendFocusLost(RabbitMQDiscovery discovery, Player player, Coordinate coordinate);
-
-    void activeCallbackReceiveMessage(RabbitMQDiscovery discovery, Player player, Grid grid,
+    void activeCallbackReceiveMessage(RabbitMQDiscovery discovery, Player player, Supplier<Grid> gridSupplier,
                                       JoinPlayer joinPlayer, LeavePlayer leavePlayer,
                                       PlayerMove moveAction, CreationGrid initGrid,
                                       FocusGained focusGained, FocusLost focusLost);
-
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
         private static final String URI = "amqps://bexxolvf:QArxTTpT8a3bnUzuyVHGvajfavrdAIt7@kangaroo.rmq.cloudamqp.com/bexxolvf";
@@ -121,7 +112,7 @@ public interface RabbitMQConnector {
             player.callActionOnData((room, queue, _) -> {
                 try {
                     this.channel.queueDeclare(queue, true, false, true, null);
-                    this.channel.queueBind(queue, room, ""); // ← routing key vuoto per fanout
+                    this.channel.queueBind(queue, room, "");
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -183,7 +174,8 @@ public interface RabbitMQConnector {
         }
 
         @Override
-        public void activeCallbackReceiveMessage(final RabbitMQDiscovery discovery, final Player player, final Grid grid,
+        public void activeCallbackReceiveMessage(final RabbitMQDiscovery discovery, final Player player,
+                                                 final Supplier<Grid> gridSupplier,
                                                  final JoinPlayer joinPlayer, final LeavePlayer leavePlayer,
                                                  final PlayerMove moveAction, final CreationGrid initGrid,
                                                  final FocusGained focusGained, final FocusLost focusLost) {
@@ -193,34 +185,44 @@ public interface RabbitMQConnector {
                         try {
                             final Map<String, Object> message = Messages.ToReceive.createMessage(delivery);
                             switch (message.get(TYPE_MESSAGE_KEY).toString()) {
-                                case Messages.TYPE_GRID_REQUEST ->
-                                        Messages.ToReceive.acceptGridRequest(delivery, playerName ->
-                                                this.sendMessage(room, Messages.ToSend.grid(grid, playerName)));
+                                case Messages.TYPE_GRID_REQUEST -> {
+                                    final Grid currentGrid = gridSupplier.get();
+                                    if (currentGrid != null) {
+                                        final int myCount = Topics.extractCountQueueFrom(
+                                                player.queue().orElse(""));
+                                        final int minCount = discovery.queueNamesFromExchange(room).stream()
+                                                .mapToInt(Topics::extractCountQueueFrom)
+                                                .min()
+                                                .orElse(myCount);
+                                        if (myCount == minCount) {
+                                            Messages.ToReceive.acceptGridRequest(delivery, playerName ->
+                                                    this.sendMessage(room, Messages.ToSend.grid(currentGrid, playerName)));
+                                        }
+                                    }
+                                }
                                 case Messages.TYPE_JOIN_PLAYER ->
-                                        Messages.ToReceive.acceptJoinPlayer(delivery, joinPlayer);
+                                        Messages.ToReceive.acceptJoinPlayer(delivery, name, joinPlayer);
                                 case Messages.TYPE_LEAVE_PLAYER ->
-                                        Messages.ToReceive.acceptLeavePlayer(delivery, leavePlayer);
-                                case Messages.TYPE_GRID -> Messages.ToReceive.acceptGrid(delivery, name, initGrid);
-                                case Messages.TYPE_MOVE -> Messages.ToReceive.acceptMove(delivery, moveAction);
+                                        Messages.ToReceive.acceptLeavePlayer(delivery, name, leavePlayer);
+                                case Messages.TYPE_GRID ->
+                                        Messages.ToReceive.acceptGrid(delivery, name, initGrid);
+                                case Messages.TYPE_MOVE ->
+                                        Messages.ToReceive.acceptMove(delivery, name, moveAction);
                                 case Messages.TYPE_FOCUS_GAINED ->
-                                        Messages.ToReceive.acceptFocusGained(delivery, focusGained);
+                                        Messages.ToReceive.acceptFocusGained(delivery, name, focusGained);
                                 case Messages.TYPE_FOCUS_LOST ->
-                                        Messages.ToReceive.acceptFocusLost(delivery, focusLost);
+                                        Messages.ToReceive.acceptFocusLost(delivery, name, focusLost);
                             }
                             this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                         } catch (final IOException e) {
                             this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                             throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
                         }
-                    }, _ -> {
-                        // quando succede un errore come crash o giocatore non più raggiungibile
-                        this.sendMessage(room, Messages.ToSend.leavePlayer(name));
-                    });
+                    }, _ -> this.sendMessage(room, Messages.ToSend.leavePlayer(name)));
                 } catch (final IOException e) {
                     throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
                 }
             });
         }
-
     }
 }

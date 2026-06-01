@@ -16,9 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public final class Messages {
-    // TYPE KEYS
     public static final String TYPE_MESSAGE_KEY = "key";
-    // TYPE VALUES
     public static final String TYPE_GRID_REQUEST = "grid";
     public static final String TYPE_JOIN_PLAYER = "join";
     public static final String TYPE_LEAVE_PLAYER = "leave";
@@ -26,8 +24,7 @@ public final class Messages {
     public static final String TYPE_MOVE = "move";
     public static final String TYPE_FOCUS_GAINED = "focusGained";
     public static final String TYPE_FOCUS_LOST = "focusLost";
-    
-    // KEYS
+
     public static final String ROW_KEY = "row";
     public static final String GRID_KEY = "grid";
     public static final String COL_KEY = "column";
@@ -35,7 +32,6 @@ public final class Messages {
     public static final String COLOR_KEY = "color";
     public static final String SCHEME_KEY = "scheme";
     public static final String DIFFICULTY_KEY = "difficulty";
-
     public static final String PLAYER_KEY = "player";
     public static final String COORDINATE_KEY = "coordinate";
     public static final String GRID_SOLUTION_KEY = "solution";
@@ -68,14 +64,11 @@ public final class Messages {
         }
 
         public static String move(final String playerName, final Coordinate coordinate, final int value) {
-            return GSON.toJson(
-                    Map.of(
-                            TYPE_MESSAGE_KEY, TYPE_MOVE,
-                            PLAYER_KEY, playerName,
-                            COORDINATE_KEY, Map.of(ROW_KEY, coordinate.row(), COL_KEY, coordinate.col()),
-                            VALUE_KEY, value
-                    )
-            );
+            return GSON.toJson(Map.of(
+                    TYPE_MESSAGE_KEY, TYPE_MOVE,
+                    PLAYER_KEY, playerName,
+                    COORDINATE_KEY, Map.of(ROW_KEY, coordinate.row(), COL_KEY, coordinate.col()),
+                    VALUE_KEY, value));
         }
 
         public static String focusGained(final String playerName, final Coordinate coordinate, final Color color) {
@@ -94,14 +87,12 @@ public final class Messages {
         }
 
         public static String grid(final Grid grid, final String requesterName) {
-            final byte[][] solution = grid.solutionArray();
-            final byte[][] gridArray = grid.cellsArray();
             return GSON.toJson(Map.of(
                     TYPE_MESSAGE_KEY, TYPE_GRID,
                     SCHEME_KEY, grid.settings().schema().code(),
                     DIFFICULTY_KEY, grid.settings().difficulty().code(),
-                    GRID_SOLUTION_KEY, solution,
-                    GRID_KEY, gridArray,
+                    GRID_SOLUTION_KEY, grid.solutionArray(),
+                    GRID_KEY, grid.cellsArray(),
                     PLAYER_KEY, requesterName));
         }
     }
@@ -116,16 +107,14 @@ public final class Messages {
         public static void acceptGridRequest(final Delivery delivery, final GridRequest request) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
-            final String infoRequest = (String) data.get(TYPE_MESSAGE_KEY);
-            if (!GRID_KEY.equals(infoRequest)) {
-                throw new RuntimeException("Received unexpected request: " + infoRequest);
-            }
             request.accept(playerName);
         }
-        
-        public static void acceptJoinPlayer(final Delivery delivery, final GameConsumers.JoinPlayer joinPlayer) {
+
+        public static void acceptJoinPlayer(final Delivery delivery, final String myName,
+                                            final GameConsumers.JoinPlayer joinPlayer) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
+            if (playerName.equals(myName)) return;
             final Map<String, Object> colorMap = (Map<String, Object>) data.get(COLOR_KEY);
             final int r = (int) ((double) colorMap.get("r"));
             final int g = (int) ((double) colorMap.get("g"));
@@ -133,15 +122,19 @@ public final class Messages {
             joinPlayer.accept(playerName, new Color(r, g, b));
         }
 
-        public static void acceptLeavePlayer(final Delivery delivery, final GameConsumers.LeavePlayer leavePlayer) {
+        public static void acceptLeavePlayer(final Delivery delivery, final String myName,
+                                             final GameConsumers.LeavePlayer leavePlayer) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
+            if (playerName.equals(myName)) return;
             leavePlayer.accept(playerName);
         }
 
-        public static void acceptMove(final Delivery delivery, final PlayerMove action) {
+        public static void acceptMove(final Delivery delivery, final String myName,
+                                      final PlayerMove action) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
+            if (playerName.equals(myName)) return;
             final Map<String, Object> coordinate = (Map<String, Object>) data.get(COORDINATE_KEY);
             final int row = (int) ((double) coordinate.get(ROW_KEY));
             final int column = (int) ((double) coordinate.get(COL_KEY));
@@ -149,10 +142,11 @@ public final class Messages {
             action.accept(playerName, FactoryGrid.coordinate(row, column), value);
         }
 
-        public static void acceptGrid(final Delivery delivery, final String myName, final CreationGrid initGrid) {
+        public static void acceptGrid(final Delivery delivery, final String myName,
+                                      final CreationGrid initGrid) {
             final Map<String, Object> data = createMessage(delivery);
             final String requesterName = (String) data.get(PLAYER_KEY);
-            if (!requesterName.equals(myName)) return; // ← ignora se non sei il richiedente
+            if (!requesterName.equals(myName)) return;
             final Settings.Schema schema = Settings.Schema.valueOf(((String) data.get(SCHEME_KEY)));
             final Settings.Difficulty difficulty = Settings.Difficulty.valueOf((String) data.get(DIFFICULTY_KEY));
             final byte[][] gridArray = GSON.fromJson(data.get(GRID_KEY).toString(), byte[][].class);
@@ -160,9 +154,11 @@ public final class Messages {
             initGrid.accept(schema, difficulty, solutionArray, gridArray);
         }
 
-        public static void acceptFocusGained(final Delivery delivery, final GameConsumers.FocusGained action) {
+        public static void acceptFocusGained(final Delivery delivery, final String myName,
+                                             final GameConsumers.FocusGained action) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
+            if (playerName.equals(myName)) return;
             final Map<String, Object> coordinate = (Map<String, Object>) data.get(COORDINATE_KEY);
             final Map<String, Object> colorMap = (Map<String, Object>) data.get(COLOR_KEY);
             final int row = (int) ((double) coordinate.get(ROW_KEY));
@@ -173,9 +169,11 @@ public final class Messages {
             action.accept(playerName, new Color(r, g, b), FactoryGrid.coordinate(row, col));
         }
 
-        public static void acceptFocusLost(final Delivery delivery, final GameConsumers.FocusLost action) {
+        public static void acceptFocusLost(final Delivery delivery, final String myName,
+                                           final GameConsumers.FocusLost action) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
+            if (playerName.equals(myName)) return;
             final Map<String, Object> coordinate = (Map<String, Object>) data.get(COORDINATE_KEY);
             final int row = (int) ((double) coordinate.get(ROW_KEY));
             final int col = (int) ((double) coordinate.get(COL_KEY));
