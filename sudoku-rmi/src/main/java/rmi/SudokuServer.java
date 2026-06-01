@@ -4,6 +4,7 @@ import grid.Coordinate;
 import grid.FactoryGrid;
 import grid.Grid;
 import grid.Settings;
+import ui.color.GenerateColor;
 import utils.Pair;
 import utils.RMITypes.ThrowingConsumers;
 import utils.RMIUtils;
@@ -85,7 +86,7 @@ public interface SudokuServer extends Serializable, Remote {
         @Override
         public synchronized boolean createRoom(final SudokuClient client, final Settings settings) throws RemoteException {
             client.setRoomId(this.currentId);
-            client.setColor(RMIUtils.generateColor(this.currentId + 1));
+            client.setColor(GenerateColor.from(this.currentId + 1));
             final Grid grid = FactoryGrid.grid(settings);
             client.invokeOnEnter(grid.solutionArray(), grid.cellsArray());
             this.roomLocks.put(this.currentId, new ReentrantLock());
@@ -110,7 +111,7 @@ public interface SudokuServer extends Serializable, Remote {
                 final List<SudokuClient> players = this.rooms.get(roomId).second();
                 final Grid grid = this.rooms.get(roomId).first();
 
-                client.setColor(RMIUtils.generateColor(roomId + players.size() + 1));
+                client.setColor(GenerateColor.from(roomId + players.size() + 1));
                 final ClientDatas clientDatasWithColor = client.datas();
 
                 for (final SudokuClient player : players)

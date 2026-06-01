@@ -11,6 +11,7 @@ import utils.GameConsumers.CreationGrid;
 import utils.GameConsumers.GridRequest;
 import utils.GameConsumers.PlayerMove;
 
+import java.awt.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
@@ -23,12 +24,15 @@ public final class Messages {
     public static final String TYPE_LEAVE_PLAYER = "leave";
     public static final String TYPE_GRID = "gridData";
     public static final String TYPE_MOVE = "move";
-
+    public static final String TYPE_FOCUS_GAINED = "focusGained";
+    public static final String TYPE_FOCUS_LOST = "focusLost";
+    
     // KEYS
     public static final String ROW_KEY = "row";
     public static final String GRID_KEY = "grid";
     public static final String COL_KEY = "column";
     public static final String VALUE_KEY = "value";
+    public static final String COLOR_KEY = "color";
     public static final String SCHEME_KEY = "scheme";
     public static final String DIFFICULTY_KEY = "difficulty";
 
@@ -71,6 +75,21 @@ public final class Messages {
                             VALUE_KEY, value
                     )
             );
+        }
+
+        public static String focusGained(final String playerName, final Coordinate coordinate, final Color color) {
+            return GSON.toJson(Map.of(
+                    TYPE_MESSAGE_KEY, TYPE_FOCUS_GAINED,
+                    PLAYER_KEY, playerName,
+                    COORDINATE_KEY, Map.of(ROW_KEY, coordinate.row(), COL_KEY, coordinate.col()),
+                    COLOR_KEY, Map.of("r", color.getRed(), "g", color.getGreen(), "b", color.getBlue())));
+        }
+
+        public static String focusLost(final String playerName, final Coordinate coordinate) {
+            return GSON.toJson(Map.of(
+                    TYPE_MESSAGE_KEY, TYPE_FOCUS_LOST,
+                    PLAYER_KEY, playerName,
+                    COORDINATE_KEY, Map.of(ROW_KEY, coordinate.row(), COL_KEY, coordinate.col())));
         }
 
         public static String grid(final Grid grid) {
@@ -132,7 +151,27 @@ public final class Messages {
             final byte[][] solutionArray = GSON.fromJson(data.get(GRID_SOLUTION_KEY).toString(), byte[][].class);
             initGrid.accept(schema, difficulty, solutionArray, gridArray);
         }
+
+        public static void acceptFocusGained(final Delivery delivery, final GameConsumers.FocusGained action) {
+            final Map<String, Object> data = createMessage(delivery);
+            final String playerName = (String) data.get(PLAYER_KEY);
+            final Map<String, Object> coordinate = (Map<String, Object>) data.get(COORDINATE_KEY);
+            final Map<String, Object> colorMap = (Map<String, Object>) data.get(COLOR_KEY);
+            final int row = (int) ((double) coordinate.get(ROW_KEY));
+            final int col = (int) ((double) coordinate.get(COL_KEY));
+            final int r = (int) ((double) colorMap.get("r"));
+            final int g = (int) ((double) colorMap.get("g"));
+            final int b = (int) ((double) colorMap.get("b"));
+            action.accept(playerName, new Color(r, g, b), FactoryGrid.coordinate(row, col));
+        }
+
+        public static void acceptFocusLost(final Delivery delivery, final GameConsumers.FocusLost action) {
+            final Map<String, Object> data = createMessage(delivery);
+            final String playerName = (String) data.get(PLAYER_KEY);
+            final Map<String, Object> coordinate = (Map<String, Object>) data.get(COORDINATE_KEY);
+            final int row = (int) ((double) coordinate.get(ROW_KEY));
+            final int col = (int) ((double) coordinate.get(COL_KEY));
+            action.accept(playerName, FactoryGrid.coordinate(row, col));
+        }
     }
-
-
 }

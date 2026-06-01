@@ -6,12 +6,10 @@ import com.rabbitmq.client.ConnectionFactory;
 import grid.Coordinate;
 import grid.Grid;
 import model.Player;
-import utils.GameConsumers.CreationGrid;
-import utils.GameConsumers.JoinPlayer;
-import utils.GameConsumers.LeavePlayer;
-import utils.GameConsumers.PlayerMove;
+import utils.GameConsumers.*;
 import utils.Messages;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -52,13 +50,17 @@ public interface RabbitMQConnector {
 
     void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
 
+    void sendFocusGained(RabbitMQDiscovery discovery, Player player, Coordinate coordinate);
+
+    void sendFocusLost(RabbitMQDiscovery discovery, Player player, Coordinate coordinate);
+
     void activeCallbackReceiveMessage(Player player, Grid grid,
                                       JoinPlayer joinPlayer, LeavePlayer leavePlayer,
-                                      PlayerMove moveAction, CreationGrid initGrid);
-
+                                      PlayerMove moveAction, CreationGrid initGrid,
+                                      FocusGained focusGained, FocusLost focusLost);
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
-        private static final String URI = "amqps://ixwhhfhm:e3571xZg6tQrNR5EEpEH2vwBeMSysHD3@kangaroo.rmq.cloudamqp.com/ixwhhfhm";
+        private static final String URI = "amqps://bexxolvf:QArxTTpT8a3bnUzuyVHGvajfavrdAIt7@kangaroo.rmq.cloudamqp.com/bexxolvf";
         private static final String EXCHANGE_TYPE = "direct";
 
         private final Channel channel;
@@ -66,6 +68,9 @@ public interface RabbitMQConnector {
         public RabbitMQConnectorImpl() throws URISyntaxException, NoSuchAlgorithmException,
                 KeyManagementException, IOException, TimeoutException {
             final ConnectionFactory connectionFactory = new ConnectionFactory();
+            final SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
+            sslContext.init(null, null, null);
+            connectionFactory.useSslProtocol(sslContext);
             connectionFactory.setUri(URI);
             final Connection connection = connectionFactory.newConnection();
             this.channel = connection.createChannel();
@@ -180,9 +185,30 @@ public interface RabbitMQConnector {
         }
 
         @Override
+        public void sendFocusGained(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate) {
+            player.callActionOnData((room, _, name) -> {
+                player.color().ifPresent(color -> {
+                    final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
+                    routingKeys.forEach(routingKey ->
+                            this.sendMessage(room, routingKey, Messages.ToSend.focusGained(name, coordinate, color)));
+                });
+            });
+        }
+
+        @Override
+        public void sendFocusLost(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate) {
+            player.callActionOnData((room, _, name) -> {
+                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
+                routingKeys.forEach(routingKey ->
+                        this.sendMessage(room, routingKey, Messages.ToSend.focusLost(name, coordinate)));
+            });
+        }
+
+        @Override
         public void activeCallbackReceiveMessage(final Player player, final Grid grid,
                                                  final JoinPlayer joinPlayer, final LeavePlayer leavePlayer,
-                                                 final PlayerMove moveAction, final CreationGrid initGrid) {
+                                                 final PlayerMove moveAction, final CreationGrid initGrid,
+                                                 final FocusGained focusGained, final FocusLost focusLost) {
             player.callActionOnData((room, queue, _) -> {
                 try {
                     this.channel.basicConsume(queue, false, (_, delivery) -> {
@@ -199,6 +225,10 @@ public interface RabbitMQConnector {
                                         Messages.ToReceive.acceptLeavePlayer(delivery, leavePlayer);
                                 case Messages.TYPE_GRID -> Messages.ToReceive.acceptGrid(delivery, initGrid);
                                 case Messages.TYPE_MOVE -> Messages.ToReceive.acceptMove(delivery, moveAction);
+                                case Messages.TYPE_FOCUS_GAINED ->
+                                        Messages.ToReceive.acceptFocusGained(delivery, focusGained);
+                                case Messages.TYPE_FOCUS_LOST ->
+                                        Messages.ToReceive.acceptFocusLost(delivery, focusLost);
                             }
                             this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                         } catch (final IOException e) {

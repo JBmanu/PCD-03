@@ -27,14 +27,12 @@ public class RabbitMQConnectorTest {
     private static final String COUNT_QUEUE = "1";
     private static final String PLAYER_1_NAME = "manu";
 
-    private static final GameConsumers.JoinPlayer IDENTITY_JOIN_PLAYER = _ -> {
-    };
-    private static final GameConsumers.LeavePlayer IDENTITY_LEAVE_PLAYER = _ -> {
-    };
-    private static final GameConsumers.PlayerMove IDENTITY_PLAYER_MOVE = (_, _, _) -> {
-    };
-    private static final GameConsumers.CreationGrid IDENTITY_CREATION_GRID = (_, _, _, _) -> {
-    };
+    private static final GameConsumers.JoinPlayer IDENTITY_JOIN_PLAYER = _ -> {};
+    private static final GameConsumers.LeavePlayer IDENTITY_LEAVE_PLAYER = _ -> {};
+    private static final GameConsumers.PlayerMove IDENTITY_PLAYER_MOVE = (_, _, _) -> {};
+    private static final GameConsumers.CreationGrid IDENTITY_CREATION_GRID = (_, _, _, _) -> {};
+    private static final GameConsumers.FocusGained IDENTITY_FOCUS_GAINED = (_, _, _) -> {};
+    private static final GameConsumers.FocusLost IDENTITY_FOCUS_LOST = (_, _) -> {};
 
     private RabbitMQDiscovery discovery;
     private RabbitMQConnector connector;
@@ -128,7 +126,8 @@ public class RabbitMQConnectorTest {
 
         this.connector.activeCallbackReceiveMessage(this.player1, null, IDENTITY_JOIN_PLAYER,
                 playerName -> assertEquals(leavePlayerName, playerName),
-                IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID);
+                IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID,
+                IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
 
         this.connector.deleteQueue(this.discovery, player2);
     }
@@ -173,7 +172,8 @@ public class RabbitMQConnectorTest {
 
         this.connector.activeCallbackReceiveMessage(player2, null, name ->
                         assertEquals(this.player1.name(), Optional.of(name)),
-                IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID);
+                IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID,
+                IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
 
         this.connector.deleteQueue(this.discovery, player2);
     }
@@ -235,7 +235,8 @@ public class RabbitMQConnectorTest {
                     assertEquals(this.player1.name(), Optional.of(player));
                     assertEquals(coordinate, position);
                     assertEquals(cellValue, value);
-                }, IDENTITY_CREATION_GRID);
+                }, IDENTITY_CREATION_GRID,
+                IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
 
         connector2.activeCallbackReceiveMessage(player2, null,
                 IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER,
@@ -243,15 +244,14 @@ public class RabbitMQConnectorTest {
                     assertEquals(this.player1.name(), Optional.of(player));
                     assertEquals(coordinate, position);
                     assertEquals(cellValue, value);
-                }, IDENTITY_CREATION_GRID);
-
+                }, IDENTITY_CREATION_GRID,
+                IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
 
         this.connector.sendMove(this.discovery, this.player1, coordinate, cellValue);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(0) > 0);
         assertEquals(1, player2.queue().map(this.discovery::countMessageOnQueue).orElse(0));
-
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> player2.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
@@ -283,7 +283,8 @@ public class RabbitMQConnectorTest {
 
         this.connector.sendGridRequest(this.discovery, player2);
         this.connector.activeCallbackReceiveMessage(this.player1, grid,
-                IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID);
+                IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID,
+                IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
 
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> this.player1.queue().map(this.discovery::countMessageOnQueue).orElse(1) == 0);
@@ -306,7 +307,8 @@ public class RabbitMQConnectorTest {
         this.createRoomWithTwoPlayer(player2);
 
         this.connector.activeCallbackReceiveMessage(this.player1, grid,
-                IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID);
+                IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID,
+                IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
         connector2.activeCallbackReceiveMessage(player2, null,
                 IDENTITY_JOIN_PLAYER, IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE,
                 (_, _, solution, cells) -> {
@@ -314,7 +316,8 @@ public class RabbitMQConnectorTest {
                     assertNotNull(solution);
                     assertTrue(GridUtils.compareArrays(grid.solutionArray(), solution));
                     assertTrue(GridUtils.compareArrays(grid.cellsArray(), cells));
-                });
+                },
+                IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
 
         connector2.sendGridRequest(this.discovery, player2);
 
@@ -325,6 +328,4 @@ public class RabbitMQConnectorTest {
 
         this.connector.deleteQueue(this.discovery, player2);
     }
-
-
 }

@@ -50,10 +50,12 @@ public interface RabbitMQDiscovery {
 
     class RabbitMQDiscoveryImpl implements RabbitMQDiscovery {
         private static final String HOST = "kangaroo.rmq.cloudamqp.com";
-        private static final String USERNAME = "ixwhhfhm";
-        private static final String PASSWORD = "e3571xZg6tQrNR5EEpEH2vwBeMSysHD3";
+        private static final String USERNAME = "bexxolvf";
+        private static final String PASSWORD = "QArxTTpT8a3bnUzuyVHGvajfavrdAIt7";
         private static final String URL = "https://" + HOST + "/api/";
-        
+
+        // amqps://bexxolvf:QArxTTpT8a3bnUzuyVHGvajfavrdAIt7@kangaroo.rmq.cloudamqp.com/bexxolvf
+      
         private final Client client;
 
         public RabbitMQDiscoveryImpl() throws MalformedURLException, URISyntaxException {

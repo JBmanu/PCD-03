@@ -127,7 +127,9 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                                         this.grid.loadCells(cells);
                                         this.ui.buildGrid(this.grid);
                                         this.ui.showGridPage();
-                                    });
+                                    },
+                                    (name, color, coordinate) -> this.ui.focusGainedCell(coordinate, color),
+                                    (name, coordinate) -> this.ui.focusLostCell(coordinate));
                         },
                         () -> this.ui.showError(INFO_PLAYER)
                 ));
@@ -147,10 +149,9 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     @Override
     public void onUndo() {
-        this.grid.peekUndo().ifPresent(coordinate -> {
-            this.callRabbitMQ((discovery, connector) ->
-                    connector.sendMove(discovery, this.player, coordinate, this.grid.emptyValue()));
-        });
+        this.grid.peekUndo().ifPresent(coordinate ->
+                this.callRabbitMQ((discovery, connector) ->
+                        connector.sendMove(discovery, this.player, coordinate, this.grid.emptyValue())));
     }
 
     @Override
@@ -172,11 +173,13 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     @Override
     public void onFocusGainedCell(final SNumberCell cell) {
-        // TODO    
+        this.callRabbitMQ((discovery, connector) ->
+                connector.sendFocusGained(discovery, this.player, cell.coordinate()));
     }
 
     @Override
     public void onFocusLostCell(final SNumberCell cell) {
-        // TODO
+        this.callRabbitMQ((discovery, connector) ->
+                connector.sendFocusLost(discovery, this.player, cell.coordinate()));
     }
 }
