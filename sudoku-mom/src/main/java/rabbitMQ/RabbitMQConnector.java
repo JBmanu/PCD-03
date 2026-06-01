@@ -37,15 +37,25 @@ public interface RabbitMQConnector {
     }
 
     void createRoom(Player player);
+
     void deleteRoom(Player player);
+
     void deleteQueue(RabbitMQDiscovery discovery, Player player);
+
     void createRoomAndJoin(Player player);
+
     void joinRoom(RabbitMQDiscovery discovery, Player player);
+
     void leaveRoom(RabbitMQDiscovery discovery, Player player);
+
     void sendGridRequest(RabbitMQDiscovery discovery, Player player);
+
     void sendMove(RabbitMQDiscovery discovery, Player player, Coordinate coordinate, int value);
+
     void sendFocusGained(RabbitMQDiscovery discovery, Player player, Coordinate coordinate);
+
     void sendFocusLost(RabbitMQDiscovery discovery, Player player, Coordinate coordinate);
+
     void activeCallbackReceiveMessage(RabbitMQDiscovery discovery, Player player, Supplier<Grid> gridSupplier,
                                       JoinPlayer joinPlayer, LeavePlayer leavePlayer,
                                       PlayerMove moveAction, CreationGrid initGrid,
@@ -139,9 +149,16 @@ public interface RabbitMQConnector {
         public void leaveRoom(final RabbitMQDiscovery discovery, final Player player) {
             player.callActionOnData((room, queue, name) -> {
                 try {
-                    this.channel.queueUnbind(queue, room, "");
-                    this.sendMessage(room, Messages.ToSend.leavePlayer(name));
-                    if (discovery.countExchangeBinds(room) == 0) this.channel.exchangeDelete(room);
+                    this.channel.queueUnbind(queue, room, "");   // ← stacca dall'exchange
+                    this.sendMessage(room, Messages.ToSend.leavePlayer(name)); // ← notifica gli altri
+                    this.channel.queueDelete(queue);              // ← elimina la queue
+                    if (discovery.countExchangeBinds(room) == 0) {
+                        try {
+                            this.channel.exchangeDelete(room);
+                        } catch (final IOException e) {
+                            System.out.println("Exchange already deleted: " + room);
+                        }
+                    }
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -204,10 +221,8 @@ public interface RabbitMQConnector {
                                         Messages.ToReceive.acceptJoinPlayer(delivery, name, joinPlayer);
                                 case Messages.TYPE_LEAVE_PLAYER ->
                                         Messages.ToReceive.acceptLeavePlayer(delivery, name, leavePlayer);
-                                case Messages.TYPE_GRID ->
-                                        Messages.ToReceive.acceptGrid(delivery, name, initGrid);
-                                case Messages.TYPE_MOVE ->
-                                        Messages.ToReceive.acceptMove(delivery, name, moveAction);
+                                case Messages.TYPE_GRID -> Messages.ToReceive.acceptGrid(delivery, name, initGrid);
+                                case Messages.TYPE_MOVE -> Messages.ToReceive.acceptMove(delivery, name, moveAction);
                                 case Messages.TYPE_FOCUS_GAINED ->
                                         Messages.ToReceive.acceptFocusGained(delivery, name, focusGained);
                                 case Messages.TYPE_FOCUS_LOST ->
@@ -218,7 +233,15 @@ public interface RabbitMQConnector {
                             this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                             throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
                         }
-                    }, _ -> this.sendMessage(room, Messages.ToSend.leavePlayer(name)));
+                    }, _ -> {
+                        this.sendMessage(room, Messages.ToSend.leavePlayer(name));
+                        try {
+                            if (discovery.countExchangeBinds(room) == 0)
+                                this.channel.exchangeDelete(room);
+                        } catch (final IOException e) {
+                            System.out.println("Exchange already deleted: " + room);
+                        }
+                    });
                 } catch (final IOException e) {
                     throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);
                 }

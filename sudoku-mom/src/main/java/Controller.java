@@ -56,6 +56,10 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             if (this.discovery.isEmpty()) this.ui.showInfo("Connection ERROR");
         } while (this.connector.isEmpty());
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+                this.callRabbitMQ((discovery, connector) ->
+                        connector.leaveRoom(discovery, this.player))));
+
         this.ui.showInfo("Connected to RabbitMQ server");
     }
 
@@ -107,7 +111,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             final String countRoom = discovery.countExchangesWithoutDefault() + 1 + "";
             this.player.computeToCreateRoom(countRoom, "1", playerName);
             connector.createRoomAndJoin(this.player);
-            
+
             this.activeCallback(discovery, connector);
             this.player.computeRoomID().ifPresent(id ->
                     this.ui.buildRoom(computeOnlyNumberId(id), playerName, this.grid.settings()));
@@ -122,7 +126,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             final String countQueues = discovery.countExchangeBinds(roomName) + 1 + "";
             this.player.computeToJoinRoom(roomID, countQueues, playerName);
             connector.joinRoom(discovery, this.player);
-            
+
             this.activeCallback(discovery, connector);
             connector.sendGridRequest(discovery, this.player);
         });
@@ -153,8 +157,8 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
 
     @Override
     public void onExit() {
+        this.callRabbitMQ((discovery, connector) -> connector.leaveRoom(discovery, this.player));
         this.ui.close();
-        this.callRabbitMQ((discovery, connector) -> connector.deleteQueue(discovery, this.player));
         System.exit(0);
     }
 
