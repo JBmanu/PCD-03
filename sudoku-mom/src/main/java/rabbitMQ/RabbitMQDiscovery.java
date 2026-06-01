@@ -4,6 +4,7 @@ import com.rabbitmq.http.client.Client;
 import com.rabbitmq.http.client.ClientParameters;
 import com.rabbitmq.http.client.domain.BindingInfo;
 import com.rabbitmq.http.client.domain.QueueInfo;
+import utils.Topics;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -35,6 +36,8 @@ public interface RabbitMQDiscovery {
 
     int countQueuesWithName(String name);
 
+    boolean isPlayerWithMinCount(String roomName, String queue);
+
     int countQueuesThatContains(String subString);
 
     int countExchangeBinds(String roomName);
@@ -55,7 +58,7 @@ public interface RabbitMQDiscovery {
         private static final String USERNAME = "bexxolvf";
         private static final String PASSWORD = "QArxTTpT8a3bnUzuyVHGvajfavrdAIt7";
         private static final String URL = "https://" + HOST + "/api/";
-      
+
         private final Client client;
 
         public RabbitMQDiscoveryImpl() throws MalformedURLException, URISyntaxException {
@@ -102,6 +105,16 @@ public interface RabbitMQDiscovery {
         }
 
         @Override
+        public boolean isPlayerWithMinCount(final String roomName, final String queue) {
+            final int myCount = Topics.extractCountQueueFrom(queue);
+            final int minCount = this.queueNamesFromExchange(roomName).stream()
+                    .mapToInt(Topics::extractCountQueueFrom)
+                    .min()
+                    .orElse(myCount);
+            return myCount == minCount;
+        }
+
+        @Override
         public int countQueuesThatContains(final String subString) {
             return (int) this.client.getQueues().stream()
                     .filter(queue -> queue.getName().contains(subString))
@@ -142,7 +155,7 @@ public interface RabbitMQDiscovery {
                     .map(BindingInfo::getDestination)
                     .toList();
         }
-        
+
         @Override
         public int countMessageOnQueue(final String queueName) {
             return this.client.getQueues(USERNAME).stream()

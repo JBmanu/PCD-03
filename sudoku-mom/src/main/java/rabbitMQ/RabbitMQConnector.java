@@ -204,17 +204,9 @@ public interface RabbitMQConnector {
                             switch (message.get(TYPE_MESSAGE_KEY).toString()) {
                                 case Messages.TYPE_GRID_REQUEST -> {
                                     final Grid currentGrid = gridSupplier.get();
-                                    if (currentGrid != null) {
-                                        final int myCount = Topics.extractCountQueueFrom(
-                                                player.queue().orElse(""));
-                                        final int minCount = discovery.queueNamesFromExchange(room).stream()
-                                                .mapToInt(Topics::extractCountQueueFrom)
-                                                .min()
-                                                .orElse(myCount);
-                                        if (myCount == minCount) {
-                                            Messages.ToReceive.acceptGridRequest(delivery, playerName ->
-                                                    this.sendMessage(room, Messages.ToSend.grid(currentGrid, playerName)));
-                                        }
+                                    if (currentGrid != null && discovery.isPlayerWithMinCount(room, player.queue().orElse(""))) {
+                                        Messages.ToReceive.acceptGridRequest(delivery, playerName ->
+                                                this.sendMessage(room, Messages.ToSend.grid(currentGrid, playerName)));
                                     }
                                 }
                                 case Messages.TYPE_JOIN_PLAYER ->
