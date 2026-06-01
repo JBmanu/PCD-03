@@ -64,17 +64,11 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
         }
     }
 
-    public void buildRoom(final String roomId) {
-        this.infoRoom.setText(ROOM_LABEL + roomId);
-        this.playerArea.setText("");
-        this.appendColored(SELF, Color.black);
-    }
-
     public void buildRoom(final String roomId, final String playerName, final Settings settings) {
-        this.infoRoom.setText("<html><center>ROOM ID: " + roomId + "<br>" +
+        this.infoRoom.setText("<html><center>" + ROOM_LABEL + ": " + roomId + "<br>" +
                 settings.difficulty() + "(" + settings.schema() + ") </center></html>");
         this.playerArea.setText("");
-        this.appendColored("Io (" + playerName + ")", Color.black);
+        this.appendColored(SELF + " (" + playerName + ")", Color.black);
     }
 
     public void joinPlayer(final String playerName, final Color color) {

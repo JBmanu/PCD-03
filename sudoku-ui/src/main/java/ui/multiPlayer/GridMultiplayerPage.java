@@ -94,10 +94,6 @@ public class GridMultiplayerPage extends JPanel implements ColorComponent, GridP
         });
     }
 
-    public void buildRoom(final String roomId) {
-        this.gameInfoPanel.buildRoom(roomId);
-    }
-
     public void buildRoom(final String roomId, final String playerName, final Settings settings) {
         this.gameInfoPanel.buildRoom(roomId, playerName, settings);
     }

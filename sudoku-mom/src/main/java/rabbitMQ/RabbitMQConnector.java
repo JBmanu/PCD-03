@@ -130,11 +130,12 @@ public interface RabbitMQConnector {
         @Override
         public void joinRoom(final RabbitMQDiscovery discovery, final Player player) {
             this.onlyJoinRoom(player);
-            player.callActionOnData((room, _, name) -> {
-                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
-                routingKeys.forEach(routingKey ->
-                        this.sendMessage(room, routingKey, Messages.ToSend.joinPlayer(name)));
-            });
+            player.callActionOnData((room, _, name) ->
+                    player.color().ifPresent(color -> {
+                        final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
+                        routingKeys.forEach(routingKey ->
+                                this.sendMessage(room, routingKey, Messages.ToSend.joinPlayer(name, color)));
+                    }));
         }
 
         @Override
@@ -186,13 +187,12 @@ public interface RabbitMQConnector {
 
         @Override
         public void sendFocusGained(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate) {
-            player.callActionOnData((room, _, name) -> {
-                player.color().ifPresent(color -> {
-                    final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
-                    routingKeys.forEach(routingKey ->
-                            this.sendMessage(room, routingKey, Messages.ToSend.focusGained(name, coordinate, color)));
-                });
-            });
+            player.callActionOnData((room, _, name) ->
+                    player.color().ifPresent(color -> {
+                        final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
+                        routingKeys.forEach(routingKey ->
+                                this.sendMessage(room, routingKey, Messages.ToSend.focusGained(name, coordinate, color)));
+                    }));
         }
 
         @Override

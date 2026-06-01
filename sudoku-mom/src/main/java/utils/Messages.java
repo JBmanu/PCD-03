@@ -48,10 +48,11 @@ public final class Messages {
 
     public static final class ToSend {
 
-        public static String joinPlayer(final String playerName) {
+        public static String joinPlayer(final String playerName, final Color color) {
             return GSON.toJson(Map.of(
                     TYPE_MESSAGE_KEY, TYPE_JOIN_PLAYER,
-                    PLAYER_KEY, playerName));
+                    PLAYER_KEY, playerName,
+                    COLOR_KEY, Map.of("r", color.getRed(), "g", color.getGreen(), "b", color.getBlue())));
         }
 
         public static String leavePlayer(final String playerName) {
@@ -120,11 +121,15 @@ public final class Messages {
             }
             request.accept(playerName);
         }
-
+        
         public static void acceptJoinPlayer(final Delivery delivery, final GameConsumers.JoinPlayer joinPlayer) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
-            joinPlayer.accept(playerName);
+            final Map<String, Object> colorMap = (Map<String, Object>) data.get(COLOR_KEY);
+            final int r = (int) ((double) colorMap.get("r"));
+            final int g = (int) ((double) colorMap.get("g"));
+            final int b = (int) ((double) colorMap.get("b"));
+            joinPlayer.accept(playerName, new Color(r, g, b));
         }
 
         public static void acceptLeavePlayer(final Delivery delivery, final GameConsumers.LeavePlayer leavePlayer) {

@@ -11,9 +11,9 @@ public final class GameConsumers {
     @FunctionalInterface
     public interface PlayerData extends Consumers.TriConsumer<String, String, String> {
     }
-    
+
     @FunctionalInterface
-    public interface JoinPlayer extends Consumers.Consumer<String> {
+    public interface JoinPlayer extends Consumers.BiConsumer<String, Color> {
     }
 
     @FunctionalInterface

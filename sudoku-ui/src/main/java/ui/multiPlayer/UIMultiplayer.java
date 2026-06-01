@@ -25,7 +25,6 @@ public interface UIMultiplayer extends ColorComponent, InfoPanel {
     
     void buildGrid(Grid grid);
 
-    void buildRoom(String roomId);
     void buildRoom(String roomId, String playerName, Settings settings);
 
     void joinPlayer(String newPlayerName, Color color);

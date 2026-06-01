@@ -43,4 +43,22 @@ public final class Topics {
         return String.join(DIVISOR,
                 List.of(DOMAIN, ROOM, roomId.replaceAll(ROOM, "")));
     }
+
+    public static String computeOnlyNumberId(final String roomIdExchange) {
+        return roomIdExchange.replace(ROOM, "");
+    }
+
+    public static int extractCountQueueFrom(final String queueName) {
+        final String[] parts = queueName.split("\\" + DIVISOR);
+        for (int i = 0; i < parts.length; i++) {
+            if (parts[i].equals(QUEUE) && i + 1 < parts.length) {
+                return Integer.parseInt(parts[i + 1]);
+            }
+        }
+        return 1;
+    }
+
+    public static String extractPlayerNameFrom(final String queueName) {
+        return queueName.substring(queueName.lastIndexOf(DIVISOR) + 1);
+    }
 }

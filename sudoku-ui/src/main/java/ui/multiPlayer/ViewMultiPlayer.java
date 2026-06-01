@@ -98,11 +98,6 @@ public class ViewMultiPlayer extends JFrame implements UIMultiplayer, MenuPageLi
     }
 
     @Override
-    public void buildRoom(final String roomId) {
-        this.gridPage.buildRoom(roomId);
-    }
-
-    @Override
     public void buildRoom(final String roomId, final String playerName, final Settings settings) {
         this.gridPage.buildRoom(roomId, playerName, settings);
     }

@@ -5,6 +5,7 @@ import grid.Settings;
 import model.Player;
 import rabbitMQ.RabbitMQConnector;
 import rabbitMQ.RabbitMQDiscovery;
+import ui.color.GenerateColor;
 import ui.components.SNumberCell;
 import ui.multiPlayer.GameMultiplayerListener;
 import ui.multiPlayer.UIMultiplayer;
@@ -16,6 +17,8 @@ import utils.Topics;
 import java.awt.*;
 import java.util.List;
 import java.util.Optional;
+
+import static utils.Topics.computeOnlyNumberId;
 
 public class Controller implements GameMultiplayerListener.PlayerListener {
     public static final String ERROR_DISCOVERY = "Discovery not available.";
@@ -70,7 +73,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             final String countRoom = discovery.countExchangesWithoutDefault() + 1 + "";
             this.player.computeToCreateRoom(countRoom, "1", playerName);
             connector.createRoomAndJoin(this.player);
-            this.player.computeRoomID().ifPresent(this.ui::buildRoom);
+            this.player.computeRoomID().ifPresent(id -> this.ui.buildRoom(computeOnlyNumberId(id), playerName, this.grid.settings()));
             this.ui.buildGrid(this.grid);
             this.ui.showGridPage();
         });
@@ -81,12 +84,6 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
             final String roomName = Topics.computeRoomNameFrom(roomID);
             final String countQueues = discovery.countExchangeBinds(roomName) + 1 + "";
             this.player.computeToJoinRoom(roomID, countQueues, playerName);
-            this.player.computeRoomID().ifPresent(this.ui::buildRoom);
-
-            final List<Pair<String, Color>> playersColors =
-                    discovery.routingKeysFromBindsExchange(roomName).stream()
-                            .map(player -> Pair.of(player, Color.black)).toList();
-            this.ui.appendPlayers(playersColors);
             connector.joinRoom(discovery, this.player);
             connector.sendGridRequest(discovery, this.player);
         });
@@ -113,7 +110,7 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                                     roomID -> this.joinRoom(roomID, myName),
                                     () -> this.createRoom(myName, schema, difficulty));
                             connector.activeCallbackReceiveMessage(this.player, this.grid,
-                                    newPlayerName -> this.ui.joinPlayer(newPlayerName, Color.black),
+                                    this.ui::joinPlayer,
                                     this.ui::leavePlayer,
                                     (name, coordinate, value) -> {
                                         if (value == this.grid.emptyValue()) this.grid.undo();
@@ -125,6 +122,19 @@ public class Controller implements GameMultiplayerListener.PlayerListener {
                                         this.grid = FactoryGrid.grid(FactoryGrid.settings(newSchema, newDifficulty));
                                         this.grid.loadSolution(solution);
                                         this.grid.loadCells(cells);
+                                        this.player.computeRoomID().ifPresent(id ->
+                                                this.ui.buildRoom(computeOnlyNumberId(id), myName, this.grid.settings()));
+
+                                        this.callRabbitMQ((discovery, _) ->
+                                                this.player.room().ifPresent(roomName -> {
+                                                    final List<Pair<String, Color>> playersColors = discovery.queueNamesFromExchange(roomName).stream()
+                                                            .filter(queueName -> !Topics.extractPlayerNameFrom(queueName).equals(this.player.name().orElse("")))
+                                                            .map(queueName -> Pair.of(
+                                                                    Topics.extractPlayerNameFrom(queueName),
+                                                                    GenerateColor.from(Topics.extractCountQueueFrom(queueName))))
+                                                            .toList();
+                                                    this.ui.appendPlayers(playersColors);
+                                                }));
                                         this.ui.buildGrid(this.grid);
                                         this.ui.showGridPage();
                                     },

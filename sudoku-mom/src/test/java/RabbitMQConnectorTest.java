@@ -27,7 +27,7 @@ public class RabbitMQConnectorTest {
     private static final String COUNT_QUEUE = "1";
     private static final String PLAYER_1_NAME = "manu";
 
-    private static final GameConsumers.JoinPlayer IDENTITY_JOIN_PLAYER = _ -> {};
+    private static final GameConsumers.JoinPlayer IDENTITY_JOIN_PLAYER = (_, _) -> {};
     private static final GameConsumers.LeavePlayer IDENTITY_LEAVE_PLAYER = _ -> {};
     private static final GameConsumers.PlayerMove IDENTITY_PLAYER_MOVE = (_, _, _) -> {};
     private static final GameConsumers.CreationGrid IDENTITY_CREATION_GRID = (_, _, _, _) -> {};
@@ -170,8 +170,11 @@ public class RabbitMQConnectorTest {
         final Player player2 = this.computeNewPlayer("2", player2Name);
         this.createRoomWithTwoPlayer(player2);
 
-        this.connector.activeCallbackReceiveMessage(player2, null, name ->
-                        assertEquals(this.player1.name(), Optional.of(name)),
+        this.connector.activeCallbackReceiveMessage(player2, null,
+                (name, color) -> {
+                    assertEquals(this.player1.name(), Optional.of(name));
+                    assertNotNull(color);
+                },
                 IDENTITY_LEAVE_PLAYER, IDENTITY_PLAYER_MOVE, IDENTITY_CREATION_GRID,
                 IDENTITY_FOCUS_GAINED, IDENTITY_FOCUS_LOST);
 
