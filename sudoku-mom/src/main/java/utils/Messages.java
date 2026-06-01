@@ -93,7 +93,7 @@ public final class Messages {
                     COORDINATE_KEY, Map.of(ROW_KEY, coordinate.row(), COL_KEY, coordinate.col())));
         }
 
-        public static String grid(final Grid grid) {
+        public static String grid(final Grid grid, final String requesterName) {
             final byte[][] solution = grid.solutionArray();
             final byte[][] gridArray = grid.cellsArray();
             return GSON.toJson(Map.of(
@@ -101,7 +101,8 @@ public final class Messages {
                     SCHEME_KEY, grid.settings().schema().code(),
                     DIFFICULTY_KEY, grid.settings().difficulty().code(),
                     GRID_SOLUTION_KEY, solution,
-                    GRID_KEY, gridArray));
+                    GRID_KEY, gridArray,
+                    PLAYER_KEY, requesterName));
         }
     }
 
@@ -148,8 +149,10 @@ public final class Messages {
             action.accept(playerName, FactoryGrid.coordinate(row, column), value);
         }
 
-        public static void acceptGrid(final Delivery delivery, final CreationGrid initGrid) {
+        public static void acceptGrid(final Delivery delivery, final String myName, final CreationGrid initGrid) {
             final Map<String, Object> data = createMessage(delivery);
+            final String requesterName = (String) data.get(PLAYER_KEY);
+            if (!requesterName.equals(myName)) return; // ← ignora se non sei il richiedente
             final Settings.Schema schema = Settings.Schema.valueOf(((String) data.get(SCHEME_KEY)));
             final Settings.Difficulty difficulty = Settings.Difficulty.valueOf((String) data.get(DIFFICULTY_KEY));
             final byte[][] gridArray = GSON.fromJson(data.get(GRID_KEY).toString(), byte[][].class);

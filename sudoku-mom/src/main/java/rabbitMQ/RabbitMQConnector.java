@@ -10,12 +10,12 @@ import utils.GameConsumers.*;
 import utils.Messages;
 
 import javax.net.ssl.SSLContext;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
@@ -59,14 +59,10 @@ public interface RabbitMQConnector {
                                       PlayerMove moveAction, CreationGrid initGrid,
                                       FocusGained focusGained, FocusLost focusLost);
 
-//    void activeCallbackReceiveMessage(Player player, Grid grid,
-//                                      JoinPlayer joinPlayer, LeavePlayer leavePlayer,
-//                                      PlayerMove moveAction, CreationGrid initGrid,
-//                                      FocusGained focusGained, FocusLost focusLost);
 
     class RabbitMQConnectorImpl implements RabbitMQConnector {
         private static final String URI = "amqps://bexxolvf:QArxTTpT8a3bnUzuyVHGvajfavrdAIt7@kangaroo.rmq.cloudamqp.com/bexxolvf";
-        private static final String EXCHANGE_TYPE = "direct";
+        private static final String EXCHANGE_TYPE = "fanout";
 
         private final Channel channel;
 
@@ -122,36 +118,38 @@ public interface RabbitMQConnector {
         }
 
         private void onlyJoinRoom(final Player player) {
-            player.callActionOnData((room, queue, name) -> {
+            player.callActionOnData((room, queue, _) -> {
                 try {
                     this.channel.queueDeclare(queue, true, false, true, null);
-                    this.channel.queueBind(queue, room, name);
+                    this.channel.queueBind(queue, room, ""); // ← routing key vuoto per fanout
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
                 }
             });
         }
 
+        private void sendMessage(final String room, final String message) {
+            try {
+                final byte[] body = message.getBytes(StandardCharsets.UTF_8);
+                this.channel.basicPublish(room, "", JSON_PROPERTIES, body);
+            } catch (final IOException e) {
+                throw new RuntimeException("Failed to send message: " + e.getMessage(), e);
+            }
+        }
+
         @Override
         public void joinRoom(final RabbitMQDiscovery discovery, final Player player) {
             this.onlyJoinRoom(player);
             player.callActionOnData((room, _, name) ->
-                    player.color().ifPresent(color -> {
-                        final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
-                        routingKeys.forEach(routingKey ->
-                                this.sendMessage(room, routingKey, Messages.ToSend.joinPlayer(name, color)));
-                    }));
+                    this.sendMessage(room, Messages.ToSend.joinPlayer(name, player.color().orElse(Color.black))));
         }
 
         @Override
         public void leaveRoom(final RabbitMQDiscovery discovery, final Player player) {
             player.callActionOnData((room, queue, name) -> {
                 try {
-                    this.channel.queueUnbind(queue, room, name);
-                    discovery.routingKeysFromBindsExchange(room, name)
-                            .forEach(routingKey ->
-                                    this.sendMessage(room, routingKey, Messages.ToSend.leavePlayer(name)));
-
+                    this.channel.queueUnbind(queue, room, "");
+                    this.sendMessage(room, Messages.ToSend.leavePlayer(name));
                     if (discovery.countExchangeBinds(room) == 0) this.channel.exchangeDelete(room);
                 } catch (final IOException e) {
                     throw new RuntimeException(e);
@@ -159,53 +157,29 @@ public interface RabbitMQConnector {
             });
         }
 
-        private void sendMessage(final String room, final String routingKey, final String message) {
-            try {
-                final byte[] body = message.getBytes(StandardCharsets.UTF_8);
-                this.channel.basicPublish(room, routingKey, JSON_PROPERTIES, body);
-            } catch (final IOException e) {
-                throw new RuntimeException("Failed to send message: " + e.getMessage(), e);
-            }
-        }
-
         @Override
         public void sendGridRequest(final RabbitMQDiscovery discovery, final Player player) {
-            player.callActionOnData((room, _, name) -> {
-                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
-                routingKeys.stream().findFirst().ifPresent(routingKey ->
-                        this.sendMessage(room, routingKey, Messages.ToSend.gridRequest(name)));
-            });
+            player.callActionOnData((room, _, name) ->
+                    this.sendMessage(room, Messages.ToSend.gridRequest(name)));
         }
 
         @Override
-        public void sendMove(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate,
-                             final int value) {
-            player.callActionOnData((room, _, name) -> {
-                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room);
-                routingKeys.forEach(routingKey -> {
-                    final String message = Messages.ToSend.move(name, coordinate, value);
-                    this.sendMessage(room, routingKey, message);
-                });
-            });
+        public void sendMove(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate, final int value) {
+            player.callActionOnData((room, _, name) ->
+                    this.sendMessage(room, Messages.ToSend.move(name, coordinate, value)));
         }
 
         @Override
         public void sendFocusGained(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate) {
             player.callActionOnData((room, _, name) ->
-                    player.color().ifPresent(color -> {
-                        final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
-                        routingKeys.forEach(routingKey ->
-                                this.sendMessage(room, routingKey, Messages.ToSend.focusGained(name, coordinate, color)));
-                    }));
+                    player.color().ifPresent(color ->
+                            this.sendMessage(room, Messages.ToSend.focusGained(name, coordinate, color))));
         }
 
         @Override
         public void sendFocusLost(final RabbitMQDiscovery discovery, final Player player, final Coordinate coordinate) {
-            player.callActionOnData((room, _, name) -> {
-                final List<String> routingKeys = discovery.routingKeysFromBindsExchange(room, name);
-                routingKeys.forEach(routingKey ->
-                        this.sendMessage(room, routingKey, Messages.ToSend.focusLost(name, coordinate)));
-            });
+            player.callActionOnData((room, _, name) ->
+                    this.sendMessage(room, Messages.ToSend.focusLost(name, coordinate)));
         }
 
         @Override
@@ -221,12 +195,12 @@ public interface RabbitMQConnector {
                             switch (message.get(TYPE_MESSAGE_KEY).toString()) {
                                 case Messages.TYPE_GRID_REQUEST ->
                                         Messages.ToReceive.acceptGridRequest(delivery, playerName ->
-                                                this.sendMessage(room, playerName, Messages.ToSend.grid(grid)));
+                                                this.sendMessage(room, Messages.ToSend.grid(grid, playerName)));
                                 case Messages.TYPE_JOIN_PLAYER ->
                                         Messages.ToReceive.acceptJoinPlayer(delivery, joinPlayer);
                                 case Messages.TYPE_LEAVE_PLAYER ->
                                         Messages.ToReceive.acceptLeavePlayer(delivery, leavePlayer);
-                                case Messages.TYPE_GRID -> Messages.ToReceive.acceptGrid(delivery, initGrid);
+                                case Messages.TYPE_GRID -> Messages.ToReceive.acceptGrid(delivery, name, initGrid);
                                 case Messages.TYPE_MOVE -> Messages.ToReceive.acceptMove(delivery, moveAction);
                                 case Messages.TYPE_FOCUS_GAINED ->
                                         Messages.ToReceive.acceptFocusGained(delivery, focusGained);
@@ -238,11 +212,9 @@ public interface RabbitMQConnector {
                             this.channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                             throw new RuntimeException("Failed to acknowledge message: " + e.getMessage(), e);
                         }
-                    }, consumerTag -> {
+                    }, _ -> {
                         // quando succede un errore come crash o giocatore non più raggiungibile
-                        discovery.routingKeysFromBindsExchange(room, name)
-                                .forEach(routingKey ->
-                                        this.sendMessage(room, routingKey, Messages.ToSend.leavePlayer(name)));
+                        this.sendMessage(room, Messages.ToSend.leavePlayer(name));
                     });
                 } catch (final IOException e) {
                     throw new RuntimeException("Failed to consume messages from queue: " + e.getMessage(), e);

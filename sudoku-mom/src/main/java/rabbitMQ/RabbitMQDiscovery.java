@@ -55,8 +55,6 @@ public interface RabbitMQDiscovery {
         private static final String USERNAME = "bexxolvf";
         private static final String PASSWORD = "QArxTTpT8a3bnUzuyVHGvajfavrdAIt7";
         private static final String URL = "https://" + HOST + "/api/";
-
-        // amqps://bexxolvf:QArxTTpT8a3bnUzuyVHGvajfavrdAIt7@kangaroo.rmq.cloudamqp.com/bexxolvf
       
         private final Client client;
 
