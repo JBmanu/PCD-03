@@ -36,19 +36,15 @@ public interface RabbitMQDiscovery {
 
     int countQueuesWithName(String name);
 
-    boolean isPlayerWithMinCount(String roomName, String queue);
-
     int countQueuesThatContains(String subString);
 
     int countExchangeBinds(String roomName);
 
     int countQueueBinds(String queueName);
 
-    List<String> routingKeysFromBindsExchange(String roomName);
-
-    List<String> routingKeysFromBindsExchange(String roomName, String withoutQueue);
-
     List<String> queueNamesFromExchange(String roomName);
+
+    boolean isPlayerWithMinCount(String roomName, String queue);
 
     int countMessageOnQueue(String queueName);
 
@@ -105,16 +101,6 @@ public interface RabbitMQDiscovery {
         }
 
         @Override
-        public boolean isPlayerWithMinCount(final String roomName, final String queue) {
-            final int myCount = Topics.extractCountQueueFrom(queue);
-            final int minCount = this.queueNamesFromExchange(roomName).stream()
-                    .mapToInt(Topics::extractCountQueueFrom)
-                    .min()
-                    .orElse(myCount);
-            return myCount == minCount;
-        }
-
-        @Override
         public int countQueuesThatContains(final String subString) {
             return (int) this.client.getQueues().stream()
                     .filter(queue -> queue.getName().contains(subString))
@@ -136,24 +122,20 @@ public interface RabbitMQDiscovery {
         }
 
         @Override
-        public List<String> routingKeysFromBindsExchange(final String roomName) {
-            return this.client.getBindingsBySource(USERNAME, roomName).stream()
-                    .map(BindingInfo::getRoutingKey)
-                    .toList();
-        }
-
-        @Override
-        public List<String> routingKeysFromBindsExchange(final String roomName, final String withoutQueue) {
-            return this.routingKeysFromBindsExchange(roomName).stream()
-                    .filter(routingKey -> !routingKey.equals(withoutQueue))
-                    .toList();
-        }
-
-        @Override
         public List<String> queueNamesFromExchange(final String roomName) {
             return this.client.getBindingsBySource(USERNAME, roomName).stream()
                     .map(BindingInfo::getDestination)
                     .toList();
+        }
+
+        @Override
+        public boolean isPlayerWithMinCount(final String roomName, final String queue) {
+            final int myCount = Topics.extractCountQueueFrom(queue);
+            final int minCount = this.queueNamesFromExchange(roomName).stream()
+                    .mapToInt(Topics::extractCountQueueFrom)
+                    .min()
+                    .orElse(myCount);
+            return myCount == minCount;
         }
 
         @Override
@@ -164,7 +146,5 @@ public interface RabbitMQDiscovery {
                     .map(QueueInfo::getMessagesReady)
                     .orElse(0L).intValue();
         }
-
-
     }
 }
