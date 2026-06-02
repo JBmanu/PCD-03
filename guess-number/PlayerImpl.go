@@ -33,7 +33,7 @@ func NewPlayerFrom(myApp fyne.App, oracle Oracle, number int) []Player {
 	for i := 0; i < number; i++ {
 		var playerImpl PlayerImpl
 		playerImpl.name = fmt.Sprintf("p%d", i)
-		playerImpl.WeakUpChannel = make(chan WakeUpMessage, 1) // ← buffered: non blocca StartGame
+		playerImpl.WeakUpChannel = make(chan WakeUpMessage, 1)
 		playerImpl.AnswerChannel = make(chan AnswerMessage)
 		playerImpl.ui = NewPlayerUI(myApp, Player(playerImpl), oracle)
 		players = append(players, Player(playerImpl))

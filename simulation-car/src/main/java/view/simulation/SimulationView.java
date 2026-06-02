@@ -14,6 +14,7 @@ import java.awt.*;
 public class SimulationView extends JFrame implements ViewSimulationListener {
     private final InspectorPanelView inspectorPanelView;
     private final RoadPanelView roadPanelView;
+    private final BorderLayout layoutManager;
     private final JPanel glassPane;
     private final SimulationManager simulationManager;
 
@@ -23,10 +24,12 @@ public class SimulationView extends JFrame implements ViewSimulationListener {
         this.setSize(ViewUtils.GUI_WIDTH, ViewUtils.GUI_HEIGHT);
         this.inspectorPanelView = new InspectorPanelView(simulationManager);
         this.roadPanelView = new RoadPanelView(ViewUtils.ROAD_WIDTH, ViewUtils.ROAD_HEIGHT);
+        this.layoutManager = new BorderLayout();
         this.glassPane = new JPanel();
 
         this.setupGlassPane();
-        this.setLayout(new BorderLayout());
+        this.setLayout(this.layoutManager);
+
         this.glassPane.add(this.inspectorPanelView, BorderLayout.NORTH);
         this.add(BorderLayout.CENTER, this.roadPanelView);
 
@@ -43,7 +46,7 @@ public class SimulationView extends JFrame implements ViewSimulationListener {
     }
 
     public void setupCommandsSimulation(final ActorRef<SimulationActor.Command> simulation) {
-        // non serve più passare ActorRef — ci pensa SimulationManager
+        this.inspectorPanelView.setupSimulation(simulation);
     }
 
     public void onIdle() {
@@ -79,7 +82,6 @@ public class SimulationView extends JFrame implements ViewSimulationListener {
     public void notifyEnd(final InspectorSimulation simulation) {
         SwingUtilities.invokeLater(() -> {
             this.inspectorPanelView.updateInspector(simulation);
-            this.inspectorPanelView.onEnded();
             this.simulationManager.onSimulationEnded();
         });
     }

@@ -17,7 +17,7 @@ public class StartStopView extends JPanel {
     private final JButton pauseResumeButton;
     private final JButton stopButton;
     private final SimulationManager manager;
-    private StepperView stepperView; // ← riferimento a StepperView per leggere i passi
+    private StepperView stepperView;
 
     public StartStopView(final SimulationManager manager) {
         this.manager = manager;
