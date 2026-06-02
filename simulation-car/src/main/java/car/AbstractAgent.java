@@ -1,14 +1,11 @@
 package car;
 
-import akka.actor.typed.ActorRef;
-import akka.actor.typed.ActorSystem;
 import road.AbstractEnvironment;
 import simulation.engineseq.Action;
 import simulation.engineseq.Percept;
-import actors.CarActor;
 
 /**
- * Base  class for defining types of agents taking part to the simulation
+ * Base class for defining types of agents taking part to the simulation
  */
 public abstract class AbstractAgent {
 
@@ -37,7 +34,7 @@ public abstract class AbstractAgent {
      * This method is called at each step of the simulation
      */
     abstract public void step(int dt);
-    
+
     abstract public void act();
 
     public abstract void setTimeDt(final int dt);
@@ -56,10 +53,5 @@ public abstract class AbstractAgent {
 
     public void doAction(final Action action) {
         this.env.doAction(this.myId, action);
-    }
-
-
-    public ActorRef<CarActor.Command> actor() {
-        return ActorSystem.apply(CarActor.apply(this), this.myId);
     }
 }

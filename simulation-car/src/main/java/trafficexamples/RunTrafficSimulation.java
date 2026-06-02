@@ -5,7 +5,7 @@ import simulation.SimulationManager;
 /**
  * Main class to create and run a simulation
  */
-public class RunTrafficSimulation {
+public final class RunTrafficSimulation {
 
     public static void main(final String[] args) {
 

@@ -37,6 +37,10 @@ object SimulationActor:
           case Start(totalStep: Int) =>
             simulation.setup()
             simulation.start(totalStep)
+            // created for each agent an actor
+            simulation.agents().forEach: agent =>
+              val actorRef = context.spawn(CarActor.apply(agent), agent.getId)
+              simulation.addActor(actorRef)
             simulation.actors().forEach(_ ! Init(context.self, simulation))
             Behaviors.same
 
@@ -82,4 +86,3 @@ object SimulationActor:
                   context.self ! Stop
 
             Behaviors.same
-
