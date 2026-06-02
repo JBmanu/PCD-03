@@ -134,7 +134,6 @@ public final class Messages {
                                       final PlayerMove action) {
             final Map<String, Object> data = createMessage(delivery);
             final String playerName = (String) data.get(PLAYER_KEY);
-            if (playerName.equals(myName)) return;
             final Map<String, Object> coordinate = (Map<String, Object>) data.get(COORDINATE_KEY);
             final int row = (int) ((double) coordinate.get(ROW_KEY));
             final int column = (int) ((double) coordinate.get(COL_KEY));
