@@ -22,7 +22,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
     public static final String SELF = "You";
     private final JLabel infoRoom;
     private final JLabel infoLabel;
-    private final JTextPane playerArea;  // ← JTextPane
+    private final JTextPane playerArea; 
 
     public GameInfoPanel() {
         super(new BorderLayout());
@@ -30,7 +30,7 @@ public class GameInfoPanel extends JPanel implements ColorComponent, InfoPanel {
 
         this.infoRoom = new JLabel();
         this.infoLabel = new JLabel();
-        this.playerArea = new JTextPane();  // ← JTextPane
+        this.playerArea = new JTextPane();
         final JScrollPane scrollPane = new JScrollPane(this.playerArea);
 
         this.infoRoom.setFont(StyleUtils.CELL_FONT);

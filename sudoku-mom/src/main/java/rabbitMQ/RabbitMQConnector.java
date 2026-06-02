@@ -149,9 +149,9 @@ public interface RabbitMQConnector {
         public void leaveRoom(final RabbitMQDiscovery discovery, final Player player) {
             player.callActionOnData((room, queue, name) -> {
                 try {
-                    this.channel.queueUnbind(queue, room, "");   // ← stacca dall'exchange
-                    this.sendMessage(room, Messages.ToSend.leavePlayer(name)); // ← notifica gli altri
-                    this.channel.queueDelete(queue);              // ← elimina la queue
+                    this.channel.queueUnbind(queue, room, "");
+                    this.sendMessage(room, Messages.ToSend.leavePlayer(name));
+                    this.channel.queueDelete(queue);
                     if (discovery.countExchangeBinds(room) == 0) {
                         try {
                             this.channel.exchangeDelete(room);

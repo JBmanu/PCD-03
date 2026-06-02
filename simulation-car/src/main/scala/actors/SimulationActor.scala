@@ -8,7 +8,6 @@ import simulation.AbstractSimulation
 
 import scala.concurrent.duration.DurationLong
 
-
 object SimulationActor:
 
   sealed trait Command

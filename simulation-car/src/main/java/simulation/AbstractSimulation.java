@@ -59,13 +59,19 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     private void setupModelListener() {
         this.addModelListener(this.roadStatistics);
     }
+    
+    public void reset() {
+        this.agents.clear();
+        this.actors.clear();
+        this.counterActors = 0;
+        this.engine = Engine.empty();
+    }
 
     @Override
     public AbstractEnvironment environment() {
         return this.env;
     }
 
-    
     public List<AbstractAgent> agents() {
         return this.agents;
     }
@@ -74,7 +80,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     public List<ActorRef<CarActor.Command>> actors() {
         return this.actors;
     }
-    
+
     public void addActor(final ActorRef<CarActor.Command> actor) {
         this.actors.add(actor);
     }
@@ -144,8 +150,7 @@ public abstract class AbstractSimulation implements InspectorSimulation {
     protected void setupEnvironment(final AbstractEnvironment env) {
         this.env = env;
     }
-
-    // ← salva solo l'agente, l'attore viene creato dopo in SimulationActor
+    
     protected void addAgent(final AbstractAgent agent) {
         this.agents.add(agent);
     }

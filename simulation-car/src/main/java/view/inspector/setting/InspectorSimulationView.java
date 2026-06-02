@@ -29,6 +29,7 @@ public class InspectorSimulationView extends JPanel {
             final SimulationType selectedOption = (SimulationType) cb.getSelectedItem();
             if (selectedOption == null) return;
             simulationManager.changeSimulation(selectedOption);
+//            SwingUtilities.invokeLater(() -> cb.setSelectedIndex(-1));
         });
     }
 }

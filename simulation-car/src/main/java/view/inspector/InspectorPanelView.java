@@ -25,7 +25,6 @@ public class InspectorPanelView extends JPanel {
         this.roadStatisticView = new RoadStatisticView();
         this.simulationView = new InspectorSimulationView(simulationManager);
 
-        // ← collega StepperView a StartStopView
         this.startStopView.setStepperView(this.stepperView);
 
         this.setLayout(new BorderLayout());
