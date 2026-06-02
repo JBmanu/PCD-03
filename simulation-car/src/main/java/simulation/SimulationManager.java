@@ -21,7 +21,7 @@ public class SimulationManager {
         this.simulationCounter = 0;
         this.actorSystem = null;
         this.view = new SimulationView(this);
-        this.initSimulation(this.simulationType);
+        this.view.onIdle();
     }
 
     public SimulationType simulationType() {
@@ -32,16 +32,23 @@ public class SimulationManager {
         return this.state;
     }
 
-    public void initSimulation(final SimulationType simulationType) {
+    public void changeSimulation(final SimulationType simulationType) {
         if (this.actorSystem != null) {
             this.actorSystem.tell(SimulationActor.Stop$.MODULE$);
+            this.actorSystem = null;
         }
-
         this.simulationType = simulationType;
         this.state = State.IDLE;
-        this.simulationCounter++;
+        this.view.onIdle();
+    }
 
-        final AbstractSimulation simulation = simulationType.getSimulation();
+    public void start(final int steps) {
+        if (this.state != State.IDLE) return;
+
+        this.simulationCounter++;
+        this.state = State.RUNNING;
+
+        final AbstractSimulation simulation = this.simulationType.getSimulation();
         simulation.addViewListener(this.view);
 
         this.actorSystem = ActorSystem.apply(
@@ -49,12 +56,6 @@ public class SimulationManager {
                 "Simulation-" + this.simulationCounter);
 
         this.view.setupCommandsSimulation(this.actorSystem);
-        this.view.onIdle();
-    }
-
-    public void start(final int steps) {
-        if (this.state != State.IDLE) return;
-        this.state = State.RUNNING;
         this.actorSystem.tell(new SimulationActor.Start(steps));
         this.view.onRunning();
     }
@@ -76,16 +77,14 @@ public class SimulationManager {
     public void stop() {
         if (this.actorSystem != null) {
             this.actorSystem.tell(SimulationActor.Stop$.MODULE$);
+            this.actorSystem = null;
         }
         this.state = State.ENDED;
         this.view.onEnded();
     }
-    
-    public void onSimulationEnded() {
-        this.initSimulation(this.simulationType);
-    }
 
-    public void changeSimulation(final SimulationType simulationType) {
-        this.initSimulation(simulationType);
+    public void onSimulationEnded() {
+        this.state = State.IDLE;
+        this.view.onIdle();
     }
 }

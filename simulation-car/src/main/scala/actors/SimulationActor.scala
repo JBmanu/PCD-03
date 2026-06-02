@@ -31,19 +31,23 @@ object SimulationActor:
   def apply(simulation: AbstractSimulation): Behavior[Command] =
     Behaviors.setup: context =>
       Behaviors.withTimers: timers =>
+        var started = false
+
         Behaviors.receiveMessage:
 
           case Start(totalStep: Int) =>
-            simulation.setup()
-            simulation.start(totalStep)
-            // created for each agent an actor
-            simulation.agents().forEach: agent =>
-              val actorRef = context.spawn(CarActor.apply(agent), agent.getId)
-              simulation.addActor(actorRef)
-            simulation.actors().forEach(_ ! Init(context.self, simulation))
+            if !started then
+              started = true
+              simulation.setup()
+              simulation.start(totalStep)
+              // created for each agent an actor
+              simulation.agents().forEach: agent =>
+                val actorRef = context.spawn(CarActor.apply(agent), agent.getId())
+                simulation.addActor(actorRef)
+              simulation.actors().forEach(_ ! Init(context.self, simulation))
             Behaviors.same
 
-          case Stop => simulation.end(); Behaviors.same
+          case Stop => simulation.end(); Behaviors.stopped
 
           case Pause => simulation.pause(); Behaviors.same
 
