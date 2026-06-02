@@ -1,24 +1,27 @@
 package trafficexamples;
 
-public class RunTrafficSimulationMassiveTest {
+import actors.SimulationActor;
+import akka.actor.typed.ActorRef;
+import akka.actor.typed.ActorSystem;
 
-	public static void main(final String[] args) {
+public final class RunTrafficSimulationMassiveTest {
 
-		final int numCars = 5000;
-		final int nSteps = 100;
-		
-		final var simulation = new TrafficSimulationSingleRoadMassiveNumberOfCars(numCars);
-		simulation.setup();
-		
-		log("Running the simulation: " + numCars + " cars, for " + nSteps + " steps ...");
+    public static void main(final String[] args) {
+        final int numCars = 5000;
+        final int nSteps = 100;
 
-		simulation.start(nSteps);
-        // ora non va più dato che è fatto con gli attori
-        // fai funzione per adattare
-//		simulation.play();
-	}
-	
-	private static void log(final String msg) {
-		System.out.println("[ SIMULATION ] " + msg);
-	}
+        final var simulation = new TrafficSimulationSingleRoadMassiveNumberOfCars(numCars);
+        simulation.setup();
+
+        log("Running the simulation: " + numCars + " cars, for " + nSteps + " steps ...");
+
+        final ActorRef<SimulationActor.Command> actorSystem =
+                ActorSystem.apply(SimulationActor.apply(simulation), "MassiveSimulation");
+
+        actorSystem.tell(new SimulationActor.Start(nSteps));
+    }
+
+    private static void log(final String msg) {
+        System.out.println("[ SIMULATION ] " + msg);
+    }
 }
