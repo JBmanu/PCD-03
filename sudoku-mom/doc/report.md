@@ -294,6 +294,11 @@ che codifica tutte le informazioni necessarie senza stato centralizzato.
 
 ## 6. Risultati e considerazioni
 
+<div style="display: flex; gap: 2%; justify-content: center; ">
+    <img src="./menu.png" style="width: 30%;">
+    <img src="./players.png" style="width: 66%;">
+</div>
+
 ### Vantaggi dell'approccio MOM
 
 - **Disaccoppiamento totale**: i client non si conoscono tra loro e non dipendono da nessun
@@ -317,5 +322,3 @@ che codifica tutte le informazioni necessarie senza stato centralizzato.
 
 - **Dipendenza dal broker**: RabbitMQ è un single point of failure. Se il broker va giù,
   nessun client può comunicare, anche se sono sulla stessa rete locale.
-
-<!-- TODO: inserire screenshot dell'app (home, griglia in gioco, più giocatori) -->

@@ -295,10 +295,9 @@ public record ClientDatas(int roomId, String name, Color color) implements Seria
 ### 5.4 Interfaccia grafica
 
 <div style="display: flex; gap: 2%; justify-content: center; ">
-    <img src="menu.png" style="width: 28%;">
-    <img src="players.png" style="width: 70%;">
+    <img src="./menu.png" style="width: 30%;">
+    <img src="./players.png" style="width: 66%;">
 </div>
-
 
 La GUI usa `JTextPane` con `StyledDocument` per mostrare i messaggi di gioco con il
 colore specifico di ogni giocatore. Il colore viene assegnato dal server al join
