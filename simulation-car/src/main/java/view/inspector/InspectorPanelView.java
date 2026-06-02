@@ -3,7 +3,7 @@ package view.inspector;
 import akka.actor.typed.ActorRef;
 import simulation.InspectorSimulation;
 import simulation.SimulationManager;
-import view.*;
+import view.ViewUtils;
 import view.inspector.setting.InspectorSimulationView;
 import view.inspector.setting.StartStopView;
 import actors.SimulationActor;
@@ -11,24 +11,24 @@ import actors.SimulationActor;
 import javax.swing.*;
 import java.awt.*;
 
-
 public class InspectorPanelView extends JPanel {
     private final StartStopView startStopView;
     private final StepperView stepperView;
     private final TimeStatisticsView timeStatisticsView;
     private final RoadStatisticView roadStatisticView;
     private final InspectorSimulationView simulationView;
-    private final BorderLayout layoutManager;
 
     public InspectorPanelView(final SimulationManager simulationManager) {
-        this.startStopView = new StartStopView();
-        this.stepperView = new StepperView();
+        this.startStopView = new StartStopView(simulationManager);
+        this.stepperView = new StepperView(simulationManager);
         this.timeStatisticsView = new TimeStatisticsView();
         this.roadStatisticView = new RoadStatisticView();
         this.simulationView = new InspectorSimulationView(simulationManager);
 
-        this.layoutManager = new BorderLayout();
-        this.setLayout(this.layoutManager);
+        // ← collega StepperView a StartStopView
+        this.startStopView.setStepperView(this.stepperView);
+
+        this.setLayout(new BorderLayout());
         this.setBackground(ViewUtils.GUI_BACKGROUND_COLOR);
         this.setupGraphics();
     }
@@ -40,6 +40,7 @@ public class InspectorPanelView extends JPanel {
         centerPanel.add(this.stepperView);
 
         this.add(centerPanel, BorderLayout.NORTH);
+
         final JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         rightPanel.setOpaque(false);
         rightPanel.add(this.simulationView);
@@ -47,21 +48,17 @@ public class InspectorPanelView extends JPanel {
 
         final FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT);
         final JPanel westPanel = new JPanel(flowLayout);
-        final int hgap = 15;
+        flowLayout.setHgap(15);
         westPanel.setOpaque(false);
-        flowLayout.setHgap(hgap);
         westPanel.add(this.timeStatisticsView);
         westPanel.add(this.roadStatisticView);
         this.add(westPanel, BorderLayout.WEST);
 
         this.setOpaque(false);
-
-        this.startStopView.addListener(this.simulationView);
-        this.startStopView.addListener(this.stepperView);
     }
 
     public void setupSimulation(final ActorRef<SimulationActor.Command> simulation) {
-        this.startStopView.setupSimulation(simulation);
+        // non serve più — ci pensa SimulationManager
     }
 
     public void updateInspector(final InspectorSimulation simulation) {
@@ -70,8 +67,21 @@ public class InspectorPanelView extends JPanel {
         this.roadStatisticView.updateStatistics(simulation.roadStatistics());
     }
 
-    public void endUpdateInspector(final InspectorSimulation simulation) {
-        this.timeStatisticsView.endUpdateStatistics(simulation.engine());
-        this.startStopView.onEndSimulation();
+    public void onIdle() {
+        this.startStopView.onIdle();
+        this.stepperView.onIdle();
+    }
+
+    public void onRunning() {
+        this.startStopView.onRunning();
+        this.stepperView.onRunning();
+    }
+
+    public void onPaused() {
+        this.startStopView.onPaused();
+    }
+
+    public void onEnded() {
+        this.startStopView.onEnded();
     }
 }

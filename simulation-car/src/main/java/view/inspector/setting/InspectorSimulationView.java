@@ -1,15 +1,13 @@
 package view.inspector.setting;
 
-import akka.actor.typed.ActorRef;
 import simulation.SimulationManager;
 import simulation.SimulationType;
 import view.ViewUtils;
-import actors.SimulationActor;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class InspectorSimulationView extends JPanel implements StartStopViewListener {
+public class InspectorSimulationView extends JPanel {
     private final DefaultComboBoxModel<SimulationType> comboBoxModel;
     private final JComboBox<SimulationType> comboBox;
 
@@ -27,26 +25,10 @@ public class InspectorSimulationView extends JPanel implements StartStopViewList
 
         this.comboBox.setSelectedItem(simulationManager.simulationType());
         this.comboBox.addActionListener(e -> {
-            final JComboBox<SimulationType> comboBox = (JComboBox<SimulationType>) e.getSource();
-            final SimulationType selectedOption = (SimulationType) comboBox.getSelectedItem();
+            final JComboBox<SimulationType> cb = (JComboBox<SimulationType>) e.getSource();
+            final SimulationType selectedOption = (SimulationType) cb.getSelectedItem();
             if (selectedOption == null) return;
-            System.out.println("Opzione selezionata: " + selectedOption);
-            simulationManager.initSimulation(selectedOption);
+            simulationManager.changeSimulation(selectedOption);
         });
-    }
-
-    @Override
-    public boolean conditionToStart(final ActorRef<SimulationActor.Command> simulation) {
-        return true;
-    }
-
-    @Override
-    public void onStart(final ActorRef<SimulationActor.Command> simulation) {
-
-    }
-
-    @Override
-    public void reset(final ActorRef<SimulationActor.Command> simulation) {
-
     }
 }

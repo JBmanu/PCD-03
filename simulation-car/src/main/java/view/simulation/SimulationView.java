@@ -46,10 +46,25 @@ public class SimulationView extends JFrame implements ViewSimulationListener {
     public void setupCommandsSimulation(final ActorRef<SimulationActor.Command> simulation) {
         this.inspectorPanelView.setupSimulation(simulation);
     }
+    
+    public void onIdle() {
+        SwingUtilities.invokeLater(this.inspectorPanelView::onIdle);
+    }
+
+    public void onRunning() {
+        SwingUtilities.invokeLater(this.inspectorPanelView::onRunning);
+    }
+
+    public void onPaused() {
+        SwingUtilities.invokeLater(this.inspectorPanelView::onPaused);
+    }
+
+    public void onEnded() {
+        SwingUtilities.invokeLater(this.inspectorPanelView::onEnded);
+    }
 
     @Override
     public void notifyInit(final int t, final InspectorSimulation simulation) {
-        
     }
 
     @Override
@@ -64,9 +79,8 @@ public class SimulationView extends JFrame implements ViewSimulationListener {
     @Override
     public void notifyEnd(final InspectorSimulation simulation) {
         SwingUtilities.invokeLater(() -> {
-            this.inspectorPanelView.endUpdateInspector(simulation);
+            this.inspectorPanelView.updateInspector(simulation);
+            this.inspectorPanelView.onEnded();
         });
     }
-
-
 }

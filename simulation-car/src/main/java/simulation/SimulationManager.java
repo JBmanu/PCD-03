@@ -6,11 +6,20 @@ import view.simulation.SimulationView;
 import actors.SimulationActor;
 
 public class SimulationManager {
+
+    public enum State { IDLE, RUNNING, PAUSED, ENDED }
+
+    private State state;
     private SimulationType simulationType;
+    private ActorRef<SimulationActor.Command> actorSystem;
     private final SimulationView view;
+    private int simulationCounter;
 
     public SimulationManager() {
+        this.state = State.IDLE;
         this.simulationType = SimulationType.SINGLE_ROAD;
+        this.simulationCounter = 0;
+        this.actorSystem = null;
         this.view = new SimulationView(this);
         this.initSimulation(this.simulationType);
     }
@@ -18,18 +27,62 @@ public class SimulationManager {
     public SimulationType simulationType() {
         return this.simulationType;
     }
-    
-    public void initSimulation(final SimulationType simulationType) {
-        this.simulationType = simulationType;
-        final AbstractSimulation simulation = simulationType.getSimulation();
-        simulation.addViewListener(this.view);
-        
-        // inizializzazione degli attori
-        final ActorRef<SimulationActor.Command> actorSystem =
-                ActorSystem.apply(SimulationActor.apply(simulation), "Simulation");
 
-        this.view.setupCommandsSimulation(actorSystem);
+    public State state() {
+        return this.state;
     }
 
+    public void initSimulation(final SimulationType simulationType) {
+        if (this.actorSystem != null) {
+            this.actorSystem.tell(SimulationActor.Stop$.MODULE$);
+        }
 
+        this.simulationType = simulationType;
+        this.state = State.IDLE;
+        this.simulationCounter++;
+
+        final AbstractSimulation simulation = simulationType.getSimulation();
+        simulation.addViewListener(this.view);
+
+        // ← nome univoco per evitare conflitti Akka
+        this.actorSystem = ActorSystem.apply(
+                SimulationActor.apply(simulation),
+                "Simulation-" + this.simulationCounter);
+
+        this.view.setupCommandsSimulation(this.actorSystem);
+        this.view.onIdle();
+    }
+
+    public void start(final int steps) {
+        if (this.state != State.IDLE) return;
+        this.state = State.RUNNING;
+        this.actorSystem.tell(new SimulationActor.Start(steps));
+        this.view.onRunning();
+    }
+
+    public void pause() {
+        if (this.state != State.RUNNING) return;
+        this.state = State.PAUSED;
+        this.actorSystem.tell(SimulationActor.Pause$.MODULE$);
+        this.view.onPaused();
+    }
+
+    public void resume() {
+        if (this.state != State.PAUSED) return;
+        this.state = State.RUNNING;
+        this.actorSystem.tell(SimulationActor.Resume$.MODULE$);
+        this.view.onRunning();
+    }
+
+    public void stop() {
+        if (this.actorSystem != null) {
+            this.actorSystem.tell(SimulationActor.Stop$.MODULE$);
+        }
+        this.state = State.ENDED;
+        this.view.onEnded();
+    }
+
+    public void changeSimulation(final SimulationType simulationType) {
+        this.initSimulation(simulationType);
+    }
 }
