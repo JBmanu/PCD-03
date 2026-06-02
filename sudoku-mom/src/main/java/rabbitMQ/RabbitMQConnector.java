@@ -159,8 +159,8 @@ public interface RabbitMQConnector {
                             System.out.println("Exchange already deleted: " + room);
                         }
                     }
-                } catch (final IOException e) {
-                    throw new RuntimeException(e);
+                } catch (final Exception e) {
+//                    throw new RuntimeException(e);
                 }
             });
         }
