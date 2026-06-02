@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync/atomic"
+)
 
 // Constant value of Answer
 const (
@@ -21,11 +24,12 @@ type OracleImpl struct {
 	secretNumber   int
 	MaxRandomValue int
 	TryChannel     chan TryMessage
+	closed         int32
 }
 
 // NewOracle Create a new OracleImpl
 func NewOracle(maxValue int) OracleImpl {
-	return OracleImpl{ComputeRandomNumber(maxValue), maxValue, make(chan TryMessage)}
+	return OracleImpl{ComputeRandomNumber(maxValue), maxValue, make(chan TryMessage), 0}
 }
 
 func (oracle OracleImpl) SecretNumber() int {
@@ -39,11 +43,10 @@ func (oracle OracleImpl) StartGame(players []Player) {
 }
 
 func (oracle OracleImpl) SendTry(player Player, number int) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("[Closed Channel]", r)
-		}
-	}()
+	if atomic.LoadInt32(&oracle.closed) == 1 {
+		fmt.Println("[Closed Channel] ignoring try from", player.Name())
+		return
+	}
 	oracle.TryChannel <- TryMessage{player, number}
 }
 
@@ -66,6 +69,7 @@ func (oracle OracleImpl) ReceiveTries(startPlayers []Player) {
 		if answer == Winner {
 			losers := RemovePlayerFromList(startPlayers, message.Player)
 			Foreach(losers, func(loser Player) { loser.SendLoserPlayers(message, Loser) })
+			atomic.StoreInt32(&oracle.closed, 1)
 			close(oracle.TryChannel)
 		} else {
 			if countPlayerThatTried == len(startPlayers) {
