@@ -74,9 +74,10 @@ stateDiagram-v2
     IDLE --> RUNNING : start(steps)\nnuovo ActorSystem
     RUNNING --> PAUSED : pause()
     PAUSED --> RUNNING : resume()
-    RUNNING --> IDLE : simulazione terminata\nnaturalmente
+    RUNNING --> IDLE : simulazione terminata\nnaturalmente (onSimulationEnded)
     RUNNING --> ENDED : stop()
     PAUSED --> ENDED : stop()
+    ENDED --> IDLE : pronto per\nnuova simulazione
 ```
 
 Ad ogni `start()` viene creato un nuovo `ActorSystem` con nome univoco (`Simulation-N`), garantendo
@@ -140,13 +141,23 @@ contatore a ogni risposta ricevuta e procede alla fase successiva solo quando `c
 
 ```mermaid
 stateDiagram-v2
+    direction TB
     [*] --> Created
-    Created --> Running : Start(steps)\nsetup + spawn CarActor
-    Running --> Running : NextStep / EndInit\nEndSenseDecide / EndAct
+    Created --> Initializing : Start(steps)
+    Initializing --> Running : EndInitCar × N
+
+    state Running {
+        direction LR
+        SenseDecide --> Act : EndStepSenseDecideCar × N
+        Act --> SenseDecide : EndStepActCar × N\nhasMoreSteps
+    }
+
     Running --> Paused : Pause
-    Paused --> Running : Resume → NextStep
-    Running --> Stopped : Stop\nBehaviors.stopped
-    Paused --> Stopped : Stop\nBehaviors.stopped
+    Paused --> Running : Resume
+    Running --> Stopped : EndStepActCar × N\n!hasMoreSteps
+    Running --> Stopped : Stop
+    Paused --> Stopped : Stop
+    Stopped --> [*]
 ```
 
 Il flag `started` in `SimulationActor` impedisce la doppia elaborazione del messaggio `Start` nel caso
@@ -158,7 +169,7 @@ in cui arrivi più di una volta sullo stesso attore.
 
 ### 4.1 Messaggi degli attori
 
-```scala
+```scala 3
 // SimulationActor — messaggi accettati
 object SimulationActor:
     sealed trait Command
@@ -187,7 +198,7 @@ object CarActor:
 `Engine` gestisce il tempo e gli step della simulazione secondo il **paradigma funzionale**: ogni operazione
 restituisce una nuova istanza immutabile, eliminando lo stato condiviso mutabile.
 
-```scala
+```scala 3
 trait Engine extends Scheduler, Stepper:
     val isInPause: Boolean
     def start(): Engine
