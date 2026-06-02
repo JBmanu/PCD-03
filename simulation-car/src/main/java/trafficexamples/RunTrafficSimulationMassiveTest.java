@@ -11,7 +11,6 @@ public final class RunTrafficSimulationMassiveTest {
         final int nSteps = 100;
 
         final var simulation = new TrafficSimulationSingleRoadMassiveNumberOfCars(numCars);
-        simulation.setup();
 
         log("Running the simulation: " + numCars + " cars, for " + nSteps + " steps ...");
 
