@@ -229,7 +229,10 @@ flowchart LR
 
 ### 4.4 Interfaccia grafica
 
-<!-- TODO: inserire screenshot dell'app -->
+<div style="display: flex; gap: 2%; justify-content: center; ">
+    <img src="./simSimple.png" style="width: 48%;">
+    <img src="./simCrossTraffic.png" style="width: 48%;">
+</div>
 
 La GUI (Java Swing) espone i controlli Start, Pause/Resume, Stop e un campo per il numero di step.
 `SimulationView` implementa `ViewSimulationListener` e riceve notifiche da `AbstractSimulation`

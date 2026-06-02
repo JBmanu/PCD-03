@@ -156,8 +156,8 @@ In sintensi si è esplorato il framework akka, lavorando con lo scambio di messa
 In sintesi, è stato esplorato il framework Akka, lavorando con lo scambio di messaggi asincroni per sincronizzare le varie automobili tra loro e con la simulazione. Per riutilizzare interamente il progetto del precedente assignment sono state create classi in Scala che definiscono separatamente i comportamenti dei diversi attori, incapsulando la logica della simulazione e delle automobili. Questo incapsulamento permette di scalare il comportamento degli attori utilizzando anche un linguaggio diverso, senza perdere efficienza e mantenendo una chiara separazione dei concetti. Infine sono stati testati diversi environment, da una semplice strada rettilinea fino ad arrivare a scenari più complessi con incroci regolati da semafori.
 
 <div style="display: flex; gap: 2%; justify-content: center; ">
-    <img src="img/simulation/simSimple.png" style="width: 48%;">
-    <img src="img/simulation/simCrossTraffic.png" style="width: 48%;">
+    <img src="../simulation-car/doc/simSimple.png" style="width: 48%;">
+    <img src="../simulation-car/doc/simCrossTraffic.png" style="width: 48%;">
 </div>
 
 ---
@@ -412,7 +412,7 @@ public interface SudokuClient extends Serializable, Remote {
 ## Part 3 – Guess The Number
 
 <div style="display: flex; gap: 2%; justify-content: center;">
-    <img src="img/guess-number/menu.png" style="width: 30%;">
+    <img src="../sudoku-rmi/doc/menu.png" style="width: 30%;">
     <img src="img/guess-number/playersUI.png" style="width: 68%;">
 </div>
 
@@ -525,6 +525,6 @@ type MenuUI struct {
 Il linguaggio Go consente di concentrarsi maggiormente sull’aspetto concorrente del progetto, separando in modo chiaro i comportamenti concorrenti da quelli sequenziali. Grazie all’utilizzo dei channel, è possibile sincronizzare in maniera efficiente e trasparente le azioni delle diverse entità, semplificando la gestione dei turni e migliorando la leggibilità e la manutenzione del codice. L’applicazione è stata inizialmente realizzata con un’interfaccia da console; successivamente, per rendere l’esperienza più coinvolgente per l’utente, sono state create interfacce grafiche (GUI) che permettono di partecipare attivamente al gioco come giocatore. Questo approccio facilita la scalabilità del sistema, consentendo di aggiungere nuovi giocatori o estendere le funzionalità senza modifiche invasive, pur mantenendo chiara la separazione dei concetti.
 
 <div style="display: flex; gap: 2%; justify-content: center;">
-    <img src="img/guess-number/endGameUI.png" style="width: 70%;">
+    <img src="../sudoku-rmi/doc/endGameUI.png" style="width: 70%;">
     <img src="img/guess-number/console.png" style="width: 20%;">
 </div>
