@@ -9,6 +9,8 @@ import (
 func main() {
 	myApp := app.New()
 
+	//si avevo iniziato già farla ma tutto dentro un unico file, partiamo a farlo uno per uni invece ade
+
 	NewMenuUI(myApp, func(maxValue int, numberPlayers int) {
 
 		// create entities
