@@ -24,7 +24,7 @@ Un **Oracolo** estrae un numero pseudocasuale in `[0, MAX]` e `N` giocatori tent
 
 
 | Requisito | Descrizione                                      |
-| --------- | ------------------------------------------------ |
+|-----------|--------------------------------------------------|
 | **R1**    | N giocatori concorrenti                          |
 | **R2**    | Ordine non deterministico per turno              |
 | **R3**    | Un solo tentativo per giocatore per turno        |
@@ -32,6 +32,9 @@ Un **Oracolo** estrae un numero pseudocasuale in `[0, MAX]` e `N` giocatori tent
 | **R5**    | Terminazione pulita senza panic su canali chiusi |
 
 ---
+</br></br></br></br></br></br></br>
+</br></br></br></br></br></br></br>
+</br></br></br></br></br>
 
 ## 2. Architettura proposta
 
@@ -41,17 +44,17 @@ Il sistema usa due entità — **Oracle** e **Player** — che comunicano solo t
 
 ```mermaid
 graph TD
-    MAIN(["[main]<br/>Main"])
-    ORACLE(["[goroutine]<br/>Oracle"])
-    P0(["[goroutine]<br/>Player 0"])
-    P1(["[goroutine]<br/>Player 1"])
-    PN(["[goroutine]<br/>Player N"])
+MAIN(["[main]<br/>Main"])
+ORACLE(["[goroutine]<br/>Oracle"])
+P0(["[goroutine]<br/>Player 0"])
+P1(["[goroutine]<br/>Player 1"])
+PN(["[goroutine]<br/>Player N"])
 
-    MAIN -->|"go ReceiveTries"| ORACLE
-    MAIN -->|"go ReceiveWeakUp<br/>go ReceiveAnswer"| P0
-    MAIN -->|"go ReceiveWeakUp<br/>go ReceiveAnswer"| P1
-    MAIN -->|"go ReceiveWeakUp<br/>go ReceiveAnswer"| PN
-    MAIN -->|"StartGame"| ORACLE
+MAIN -->|"go ReceiveTries"| ORACLE
+MAIN -->|"go ReceiveWeakUp<br/>go ReceiveAnswer"| P0
+MAIN -->|"go ReceiveWeakUp<br/>go ReceiveAnswer"| P1
+MAIN -->|"go ReceiveWeakUp<br/>go ReceiveAnswer"| PN
+MAIN -->|"StartGame"| ORACLE
 ```
 
 ### 2.2 Comunicazione tramite canali
@@ -75,7 +78,6 @@ graph LR
     ORACLE -->|"AnswerChannel"| P1
     ORACLE -->|"AnswerChannel"| PN
 ```
-
 ### 2.3 Ciclo di un turno
 
 ```mermaid
@@ -107,7 +109,6 @@ sequenceDiagram
         O->>O: StartGame → nuovo turno
     end
 ```
-
 ---
 
 ## 3. Gestione della concorrenza
@@ -127,7 +128,6 @@ if countPlayerThatTried == len(startPlayers) {
     oracle.StartGame(startPlayers)
 }
 ```
-
 ### 3.2 Terminazione pulita (R5)
 
 Alla vittoria l'Oracolo chiude `TryChannel`, ma altre goroutine potrebbero ancora inviare su di esso causando un panic.
@@ -142,7 +142,6 @@ flowchart LR
     F --> G["close TryChannel"]
     G --> H["ReceiveTries termina"]
 ```
-
 È fondamentale usare **pointer receiver** (`*OracleImpl`): con value receiver, `StoreInt32` agirebbe su una copia locale
 e il flag non sarebbe mai visibile alle altre goroutine.
 
@@ -155,7 +154,6 @@ flowchart LR
     B --> D["ReceiveWeakUp termina"]
     C --> E["ReceiveAnswer termina"]
 ```
-
 ---
 
 ## 4. Sviluppo
@@ -181,7 +179,6 @@ type Player interface {
     ReceiveAnswer()
 }
 ```
-
 ### 4.2 Strutture dati
 
 ```go
@@ -199,7 +196,6 @@ type PlayerImpl struct {
     AnswerChannel chan AnswerMessage
 }
 ```
-
 ### 4.3 Interfaccia grafica
 
 <div style="display: flex; gap: 2%; justify-content: center; ">
