@@ -136,7 +136,7 @@ sequenceDiagram
 Poiché il server notifica tutti i client **dentro il lock**, è impossibile che due client
 vedano le mosse in ordine diverso: il lock serializza sia la modifica che le notifiche.
 
-### 3.2 cantDoAction dentro il lock (TOCTOU)
+### 3.2 cantDoAction dentro il lock
 
 La verifica delle precondizioni (es. casella già occupata, giocatore non autorizzato)
 avviene **dentro il lock** per evitare race condition di tipo check-and-act:

@@ -22,35 +22,35 @@ Un **Oracolo** estrae un numero pseudocasuale in `[0, MAX]` e `N` giocatori tent
 - Altrimenti: hint (troppo grande / troppo piccolo) e nuovo turno.
 - Ogni giocatore può disattivare il bot e giocare manualmente.
 
-| Requisito | Descrizione |
-|-----------|-------------|
-| **R1** | N giocatori concorrenti |
-| **R2** | Ordine non deterministico per turno |
-| **R3** | Un solo tentativo per giocatore per turno |
-| **R4** | L'Oracolo scandisce i turni |
-| **R5** | Terminazione pulita senza panic su canali chiusi |
+
+| Requisito | Descrizione                                      |
+| --------- | ------------------------------------------------ |
+| **R1**    | N giocatori concorrenti                          |
+| **R2**    | Ordine non deterministico per turno              |
+| **R3**    | Un solo tentativo per giocatore per turno        |
+| **R4**    | L'Oracolo scandisce i turni                      |
+| **R5**    | Terminazione pulita senza panic su canali chiusi |
 
 ---
 
 ## 2. Architettura proposta
 
-Il sistema usa due entità — **Oracle** e **Player** — che comunicano solo tramite **channel** Go, senza lock o mutex,
-seguendo il principio _"Do not communicate by sharing memory; share memory by communicating"_.
+Il sistema usa due entità — **Oracle** e **Player** — che comunicano solo tramite **channel** Go, senza lock o mutex, seguendo il principio _"Do not communicate by sharing memory; share memory by communicating"_.
 
 ### 2.1 Architettura delle goroutine
 
 ```mermaid
 graph TD
-    MAIN(["[main]\nMain"])
-    ORACLE(["[goroutine]\nOracle"])
-    P0(["[goroutine]\nPlayer 0"])
-    P1(["[goroutine]\nPlayer 1"])
-    PN(["[goroutine]\nPlayer N"])
+    MAIN(["[main]<br/>Main"])
+    ORACLE(["[goroutine]<br/>Oracle"])
+    P0(["[goroutine]<br/>Player 0"])
+    P1(["[goroutine]<br/>Player 1"])
+    PN(["[goroutine]<br/>Player N"])
 
     MAIN -->|"go ReceiveTries"| ORACLE
-    MAIN -->|"go ReceiveWeakUp\ngo ReceiveAnswer"| P0
-    MAIN -->|"go ReceiveWeakUp\ngo ReceiveAnswer"| P1
-    MAIN -->|"go ReceiveWeakUp\ngo ReceiveAnswer"| PN
+    MAIN -->|"go ReceiveWeakUp<br/>go ReceiveAnswer"| P0
+    MAIN -->|"go ReceiveWeakUp<br/>go ReceiveAnswer"| P1
+    MAIN -->|"go ReceiveWeakUp<br/>go ReceiveAnswer"| PN
     MAIN -->|"StartGame"| ORACLE
 ```
 
@@ -58,10 +58,10 @@ graph TD
 
 ```mermaid
 graph LR
-    ORACLE(["[goroutine]\nOracle"])
-    P0(["[goroutine]\nPlayer 0"])
-    P1(["[goroutine]\nPlayer 1"])
-    PN(["[goroutine]\nPlayer N"])
+    ORACLE(["[goroutine]<br/>Oracle"])
+    P0(["[goroutine]<br/>Player 0"])
+    P1(["[goroutine]<br/>Player 1"])
+    PN(["[goroutine]<br/>Player N"])
 
     ORACLE -->|"WeakUpChannel buffered(1)"| P0
     ORACLE -->|"WeakUpChannel buffered(1)"| P1
@@ -150,7 +150,7 @@ Alla ricezione di `Winner` / `Loser`, il Player chiude i propri canali terminand
 
 ```mermaid
 flowchart LR
-    A["ReceiveAnswer:\nWinner o Loser"] --> B["close WeakUpChannel"]
+    A["ReceiveAnswer:<br/>Winner o Loser"] --> B["close WeakUpChannel"]
     A --> C["close AnswerChannel"]
     B --> D["ReceiveWeakUp termina"]
     C --> E["ReceiveAnswer termina"]
