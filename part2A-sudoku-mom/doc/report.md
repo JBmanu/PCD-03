@@ -40,12 +40,7 @@ La comunicazione avviene tramite **RabbitMQ** (ospitato su CloudAMQP), che funge
 ### 2.1 Componenti RabbitMQ
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
-  look: neo
----
+
 erDiagram
     PLAYER ||--|| QUEUE : "possiede"
     QUEUE }o--|| EXCHANGE : "bound to (fanout)"
@@ -68,12 +63,7 @@ erDiagram
 ### 2.2 Architettura della stanza
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
-  look: neo
----
+
 graph TD
     subgraph "RabbitMQ (CloudAMQP)"
         EX(["[Exchange fanout]<br/>sudoku.room.N"])
@@ -120,12 +110,7 @@ Poiché l'exchange è fanout, un messaggio pubblicato da Player A arriva anche n
 La consistenza happened-before è garantita dalla natura FIFO del canale RabbitMQ: un exchange fanout consegna i messaggi alle code **nell'ordine in cui sono stati pubblicati**. Poiché tutti i client leggono dalla propria coda in ordine, se e1 è pubblicato prima di e2, tutti i client ricevono e applicano e1 prima di e2.
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
-  look: neo
----
+
 sequenceDiagram
     participant PA as Player A
     participant RMQ as RabbitMQ Exchange
@@ -146,12 +131,7 @@ Ogni client, incluso il mittente, applica la modifica **solo alla ricezione** da
 ### 3.2 Sincronizzazione griglia al join (R5)
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
-  look: neo
----
+
 sequenceDiagram
     participant NP as New Player
     participant RMQ as RabbitMQ
@@ -175,12 +155,7 @@ Solo il giocatore con il **countQueue minore** (`isPlayerWithMinCount`) risponde
 ### 4.1 Join e leave volontario (R1, R4)
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
-  look: neo
----
+
 sequenceDiagram
     participant P as Player
     participant RMQ as RabbitMQ
@@ -206,12 +181,7 @@ sequenceDiagram
 Il flag `autoDelete: true` sulla queue fa sì che RabbitMQ la elimini automaticamente quando il consumatore si disconnette. La **cancellation callback** registrata sul consumer intercetta questo evento e pubblica un messaggio di `leave` per notificare gli altri giocatori:
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
-  look: neo
----
+
 flowchart LR
     A["Player crasha<br/>(connessione persa)"] --> B["RabbitMQ elimina<br/>queue autoDelete"]
     B --> C["Cancellation callback<br/>scatta sul consumer"]
@@ -237,12 +207,7 @@ Poiché il fanout recapita i messaggi anche al mittente, ogni tipo di messaggio 
 La mossa è il caso più critico: **non applicare self-filter** è la scelta che garantisce la consistenza. Se il mittente applicasse la modifica localmente prima dell'invio, potrebbe osservare uno stato diverso dagli altri in caso di mosse concorrenti. Applicandola solo alla ricezione dal broker, tutti i client — incluso il mittente — vedono le mosse nello stesso ordine FIFO:
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
-  look: neo
----
+
 sequenceDiagram
     participant PA as Player A (mittente)
     participant RMQ as RabbitMQ Exchange

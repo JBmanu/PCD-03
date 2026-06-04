@@ -40,11 +40,7 @@ Il sistema usa due entità — **Oracle** e **Player** — che comunicano solo t
 ### 2.1 Architettura delle goroutine
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 graph TD
 MAIN(["[main]<br/>Main"])
 ORACLE(["[goroutine]<br/>Oracle"])
@@ -62,11 +58,7 @@ MAIN -->|"StartGame"| ORACLE
 ### 2.2 Comunicazione tramite canali
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 graph LR
     ORACLE(["[goroutine]<br/>Oracle"])
     P0(["[goroutine]<br/>Player 0"])
@@ -85,11 +77,7 @@ graph LR
 ### 2.3 Ciclo di un turno
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 sequenceDiagram
     participant O as Oracle
     participant P0 as Player 0
@@ -144,11 +132,7 @@ if countPlayerThatTried == len(startPlayers) {
 Alla vittoria l'Oracolo chiude `TryChannel`, ma altre goroutine potrebbero ancora inviare su di esso causando un panic. La soluzione è un **flag atomico** controllato prima di ogni send:
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 flowchart LR
     A["SendTry chiamata"] --> B{"closed == 1?"}
     B -->|"sì"| C["return — nessun panic"]
@@ -163,11 +147,7 @@ flowchart LR
 Alla ricezione di `Winner` / `Loser`, il Player chiude i propri canali terminando le sue goroutine:
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 flowchart LR
     A["ReceiveAnswer:<br/>Winner o Loser"] --> B["close WeakUpChannel"]
     A --> C["close AnswerChannel"]

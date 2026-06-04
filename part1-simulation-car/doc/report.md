@@ -41,11 +41,7 @@ Lo step successivo può iniziare solo quando **tutte** le automobili hanno compl
 ### 2.1 Attori del sistema
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 graph LR
     SM(["[Java]<br/>SimulationManager"])
     SA(["[Akka Actor]<br/>SimulationActor"])
@@ -67,11 +63,7 @@ graph LR
 ### 2.2 Ciclo di vita di SimulationManager
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 stateDiagram
   direction LR
   [*] --> IDLE
@@ -93,11 +85,7 @@ Ad ogni `start()` viene creato un nuovo `ActorSystem` con nome univoco (`Simulat
 ### 3.1 Fase di inizializzazione
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 sequenceDiagram
     participant SM as SimulationManager
     participant SA as SimulationActor
@@ -156,11 +144,7 @@ sequenceDiagram
 ### 3.3 Comportamento di SimulationActor (DFA)
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 stateDiagram-v2
     direction TB
     [*] --> Created
@@ -235,11 +219,7 @@ trait Engine extends Scheduler, Stepper:
 ### 4.3 Gestione riavvio (R5)
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 flowchart LR
     A["Utente preme Start"] --> B["SimulationManager<br/>crea nuovo ActorSystem<br/>Simulation-N"]
     B --> C["Nuova AbstractSimulation<br/>agents e actors vuoti"]

@@ -42,11 +42,7 @@ L'architettura è **centralizzata**: un `SudokuServer` remoto gestisce tutte le 
 ### 2.1 Componenti del sistema
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 graph LR
   REG(["[RMI Registry]<br/>Registry"])
   SRV(["[Remote Object]<br/>SudokuServer"])
@@ -68,11 +64,7 @@ graph LR
 ### 2.2 Struttura di una stanza
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 erDiagram
 	direction LR
 	SUDOKU_SERVER {
@@ -128,11 +120,7 @@ La consistenza è garantita da un `ReentrantLock` per ogni stanza: tutte le oper
 Questo serializza gli aggiornamenti, garantendo happened-before per tutti i client.
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 sequenceDiagram
     participant CA as Client A
     participant SRV as SudokuServer
@@ -159,11 +147,7 @@ Poiché il server notifica tutti i client **dentro il lock**, è impossibile che
 La verifica delle precondizioni (es. casella già occupata, giocatore non autorizzato) avviene **dentro il lock** per evitare race condition di tipo check-and-act:
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 flowchart LR
   A["Client chiama<br/>updateCell"] --> B["lock.lock()"]
   B --> C{"cantDoAction?<br/>es. casella occupata"}
@@ -180,11 +164,7 @@ Se `cantDoAction` fosse verificato fuori dal lock, un altro thread potrebbe modi
 
 ### 4.1 Create, Join e leave volontario (R1, R4)
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 sequenceDiagram
   participant C as Client
   participant SRV as SudokuServer
@@ -201,11 +181,7 @@ sequenceDiagram
 
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 sequenceDiagram
   participant C as Client
   participant SRV as SudokuServer
@@ -220,11 +196,7 @@ sequenceDiagram
 
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 sequenceDiagram
   participant C as Client
   participant SRV as SudokuServer
@@ -242,11 +214,7 @@ Quando il server tenta una callback su un client crashato, RMI lancia una `Remot
 Il metodo `notifyOrRemove` intercetta questa eccezione e rimuove il client dalla stanza, notificando gli altri giocatori:
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 flowchart LR
   A["Server esegue callback<br/>su tutti i client"] --> B["client.invokeOnMove(...)"]
   B --> C{"RemoteException?"}
@@ -275,11 +243,7 @@ private void notifyOrRemove(final List<SudokuClient> clients,
 Per gestire i casi di errore al join (stanza non trovata, nome già in uso) è stato definito un enum `JoinResult` che permette messaggi di errore precisi all'utente:
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
----
+
 flowchart LR
   A["joinRoom(client)"] --> B{"stanza<br/>esiste?"}
   B -->|" no "| C["JoinResult.ROOM_NOT_FOUND"]
