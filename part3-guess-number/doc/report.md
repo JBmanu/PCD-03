@@ -222,8 +222,8 @@ type PlayerImpl struct {
 ### 4.3 Interfaccia grafica
 
 <div style="display: flex; gap: 2%; justify-content: center; ">
-    <img src="local-img:a0zwqg1y" style="width: 28%;">
-    <img src="local-img:hgio6k7j" style="width: 70%;">
+    <img src="./menu.png" style="width: 28%;">
+    <img src="./players.png" style="width: 70%;">
 </div>
 
 La GUI è realizzata con **Fyne**. Ogni Player ha una finestra con label di stato, campo numero, bottone Try e checkbox bot. Tutte le modifiche UI avvengono tramite `fyne.Do(fun)` (`SafelyUICall`), obbligatorio per rispettare il thread model di Fyne.
