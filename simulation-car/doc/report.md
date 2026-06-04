@@ -1,4 +1,4 @@
-# Report Part 1 – Cars Simulation (Akka)
+# Report – Cars Simulation (Akka)
 
 ---
 
@@ -14,12 +14,9 @@
 
 ## 1. Analisi del problema
 
-Il progetto riprende la simulazione agent-based di traffico dell'Assignment 1 e la riscrive adottando il
-**paradigma ad attori** tramite il framework **Akka** (Scala). Ogni automobile diventa un attore autonomo che
-gestisce il proprio stato e comunica esclusivamente tramite scambio di messaggi asincroni.
+Il progetto riprende la simulazione agent-based di traffico dell'Assignment 1 e la riscrive adottando il **paradigma ad attori** tramite il framework **Akka** (Scala). Ogni automobile diventa un attore autonomo che gestisce il proprio stato e comunica esclusivamente tramite scambio di messaggi asincroni.
 
-La simulazione procede a passi discreti di durata Δt. A ogni step le automobili eseguono le tre fasi
-del proprio comportamento:
+La simulazione procede a passi discreti di durata Δt. A ogni step le automobili eseguono le tre fasi del proprio comportamento:
 
 - **Sense** — lettura delle percezioni dall'ambiente (auto vicine, semafori)
 - **Decide** — scelta dell'azione in base allo stato corrente e alle percezioni
@@ -30,13 +27,14 @@ Lo step successivo può iniziare solo quando **tutte** le automobili hanno compl
 
 ### Requisiti chiave
 
-| Requisito | Descrizione |
-|-----------|-------------|
-| **R1** | Ogni automobile esegue Sense/Decide/Act in modo concorrente |
-| **R2** | Lo step N+1 inizia solo dopo che tutte le auto hanno completato lo step N |
-| **R3** | La simulazione supporta Start, Pause, Resume e Stop dalla GUI |
-| **R4** | È possibile specificare il numero totale di step da eseguire |
-| **R5** | Riavvio della simulazione senza conflitti tra ActorSystem |
+
+| Requisito | Descrizione                                                               |
+|-----------|---------------------------------------------------------------------------|
+| **R1**    | Ogni automobile esegue Sense/Decide/Act in modo concorrente               |
+| **R2**    | Lo step N+1 inizia solo dopo che tutte le auto hanno completato lo step N |
+| **R3**    | La simulazione supporta Start, Pause, Resume e Stop dalla GUI             |
+| **R4**    | È possibile specificare il numero totale di step da eseguire              |
+| **R5**    | Riavvio della simulazione senza conflitti tra ActorSystem                 |
 
 ---
 
@@ -46,19 +44,19 @@ Lo step successivo può iniziare solo quando **tutte** le automobili hanno compl
 
 ```mermaid
 graph TD
-    SM(["[Java]\nSimulationManager"])
-    SA(["[Akka Actor]\nSimulationActor"])
-    CA0(["[Akka Actor]\nCarActor 0"])
-    CA1(["[Akka Actor]\nCarActor 1"])
-    CAN(["[Akka Actor]\nCarActor N"])
+    SM(["[Java]<br/>SimulationManager"])
+    SA(["[Akka Actor]<br/>SimulationActor"])
+    CA0(["[Akka Actor]<br/>CarActor 0"])
+    CA1(["[Akka Actor]<br/>CarActor 1"])
+    CAN(["[Akka Actor]<br/>CarActor N"])
 
-    SM -->|"Start / Stop\nPause / Resume"| SA
-    SA -->|"Init / StepSenseDecide\nStepAct"| CA0
-    SA -->|"Init / StepSenseDecide\nStepAct"| CA1
-    SA -->|"Init / StepSenseDecide\nStepAct"| CAN
-    CA0 -->|"EndInitCar\nEndStepSenseDecideCar\nEndStepActCar"| SA
-    CA1 -->|"EndInitCar\nEndStepSenseDecideCar\nEndStepActCar"| SA
-    CAN -->|"EndInitCar\nEndStepSenseDecideCar\nEndStepActCar"| SA
+    SM -->|"Start / Stop<br/>Pause / Resume"| SA
+    SA -->|"Init / StepSenseDecide<br/>StepAct"| CA0
+    SA -->|"Init / StepSenseDecide<br/>StepAct"| CA1
+    SA -->|"Init / StepSenseDecide<br/>StepAct"| CAN
+    CA0 -->|"EndInitCar<br/>EndStepSenseDecideCar<br/>EndStepActCar"| SA
+    CA1 -->|"EndInitCar<br/>EndStepSenseDecideCar<br/>EndStepActCar"| SA
+    CAN -->|"EndInitCar<br/>EndStepSenseDecideCar<br/>EndStepActCar"| SA
 ```
 
 - **SimulationManager** (Java) — gestisce il ciclo di vita dell'ActorSystem e i comandi della GUI.
@@ -71,13 +69,13 @@ graph TD
 ```mermaid
 stateDiagram-v2
     [*] --> IDLE
-    IDLE --> RUNNING : start(steps)\nnuovo ActorSystem
+    IDLE --> RUNNING : start(steps)<br/>nuovo ActorSystem
     RUNNING --> PAUSED : pause()
     PAUSED --> RUNNING : resume()
-    RUNNING --> IDLE : simulazione terminata\nnaturalmente (onSimulationEnded)
+    RUNNING --> IDLE : simulazione terminata<br/>naturalmente (onSimulationEnded)
     RUNNING --> ENDED : stop()
     PAUSED --> ENDED : stop()
-    ENDED --> IDLE : pronto per\nnuova simulazione
+    ENDED --> IDLE : pronto per<br/>nuova simulazione
 ```
 
 Ad ogni `start()` viene creato un nuovo `ActorSystem` con nome univoco (`Simulation-N`), garantendo
@@ -149,12 +147,12 @@ stateDiagram-v2
     state Running {
         direction LR
         SenseDecide --> Act : EndStepSenseDecideCar × N
-        Act --> SenseDecide : EndStepActCar × N\nhasMoreSteps
+        Act --> SenseDecide : EndStepActCar × N<br/>hasMoreSteps
     }
 
     Running --> Paused : Pause
     Paused --> Running : Resume
-    Running --> Stopped : EndStepActCar × N\n!hasMoreSteps
+    Running --> Stopped : EndStepActCar × N<br/>!hasMoreSteps
     Running --> Stopped : Stop
     Paused --> Stopped : Stop
     Stopped --> [*]
@@ -169,7 +167,7 @@ in cui arrivi più di una volta sullo stesso attore.
 
 ### 4.1 Messaggi degli attori
 
-```scala 3
+```scala
 // SimulationActor — messaggi accettati
 object SimulationActor:
     sealed trait Command
@@ -198,7 +196,7 @@ object CarActor:
 `Engine` gestisce il tempo e gli step della simulazione secondo il **paradigma funzionale**: ogni operazione
 restituisce una nuova istanza immutabile, eliminando lo stato condiviso mutabile.
 
-```scala 3
+```scala
 trait Engine extends Scheduler, Stepper:
     val isInPause: Boolean
     def start(): Engine
@@ -218,9 +216,9 @@ sincronizzare la simulazione con il tempo reale (analogo al frame rate nei video
 
 ```mermaid
 flowchart LR
-    A["Utente preme Start"] --> B["SimulationManager\ncrea nuovo ActorSystem\nSimulation-N"]
-    B --> C["Nuova AbstractSimulation\nagents e actors vuoti"]
-    C --> D["ActorSystem.apply\nSimulationActor.apply(simulation)"]
+    A["Utente preme Start"] --> B["SimulationManager<br/>crea nuovo ActorSystem<br/>Simulation-N"]
+    B --> C["Nuova AbstractSimulation<br/>agents e actors vuoti"]
+    C --> D["ActorSystem.apply<br/>SimulationActor.apply(simulation)"]
     D --> E["tell Start(steps)"]
 ```
 
