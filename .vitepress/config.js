@@ -24,10 +24,10 @@ export default withMermaid(
                 {
                     text: 'Report',
                     items: [
-                        {text: 'Part1', link: `${reportSimulationCar}/report`},
-                        {text: 'Part2A', link: `${reportSudokuMOM}/report`},
-                        {text: 'Part2B', link: `${reportSudokuJavaRMI}/report`},
-                        {text: 'Part3', link: `${reportGuessNumber}/report`},
+                        {text: 'Part1-SimulationCar', link: `${reportSimulationCar}/report`},
+                        {text: 'Part2A-SudokuMOM', link: `${reportSudokuMOM}/report`},
+                        {text: 'Part2B-SudokuJavaRMI', link: `${reportSudokuJavaRMI}/report`},
+                        {text: 'Part3-GuessNumber', link: `${reportGuessNumber}/report`},
                     ]
                 }
             ],
