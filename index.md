@@ -12,3 +12,10 @@ hero:
       text: Reports
       link: /part1-simulation-car/doc/report.md
 ---
+
+### PCD - Assignment 3
+Sviluppo di 4 progetti:
+- Simulation Car
+- Sudoku MOM
+- Sudoku JavaRMI
+- Guess Number

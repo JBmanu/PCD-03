@@ -113,12 +113,6 @@ Il pattern **counter** è il meccanismo di sincronizzazione centrale: `Simulatio
 
 
 ```mermaid
----
-config:
-  theme: default
-  layout: dagre
-  look: neo
----
 sequenceDiagram
     participant SA as SimulationActor
     participant CA as CarActor × N
