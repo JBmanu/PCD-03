@@ -1,10 +1,10 @@
 import {defineConfig} from 'vitepress'
 import {withMermaid} from "vitepress-plugin-mermaid";
 
-let reportSimulationCar = './part1-simulation-car/doc'
-let reportSudokuMOM = './part2A-sudoku-mom/doc'
-let reportSudokuJavaRMI = './part2B-sudoku-rmi/doc'
-let reportGuessNumber = './part3-guess-number/doc'
+let reportSimulationCar = '/part1-simulation-car/doc'
+let reportSudokuMOM = '/part2A-sudoku-mom/doc'
+let reportSudokuJavaRMI = '/part2B-sudoku-rmi/doc'
+let reportGuessNumber = '/part3-guess-number/doc'
 
 // https://vitepress.dev/reference/site-config
 
