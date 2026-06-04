@@ -13,8 +13,7 @@ hero:
       link: /part1-simulation-car/doc/report.md
 ---
 
-### PCD - Assignment 3
-Sviluppo di 4 progetti:
+### PCD - Assignment 3 - progetti
 - Simulation Car
 - Sudoku MOM
 - Sudoku JavaRMI
