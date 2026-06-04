@@ -1,6 +1,4 @@
-# Report Part 2A – Sudoku MOM (RabbitMQ)
-
----
+# Report – Sudoku MOM (RabbitMQ)
 
 ## Indice
 
@@ -15,25 +13,22 @@
 
 ## 1. Analisi del problema
 
-Si vuole realizzare una versione distribuita cooperativa del Sudoku in cui più giocatori in rete
-collaborano sulla stessa griglia. Il sistema deve:
+Si vuole realizzare una versione distribuita cooperativa del Sudoku in cui più giocatori in rete collaborano sulla stessa griglia. Il sistema deve:
 
 - Permettere la **creazione dinamica** di nuove griglie e la **partecipazione** a partite già avviate.
-- Garantire che ogni giocatore veda in modo **consistente** lo stato della griglia e le caselle
-  selezionate dagli altri: dati due eventi e1 ed e2, se e1 happened-before e2 per un giocatore,
-  allora e1 happened-before e2 per qualsiasi altro giocatore.
-- Supportare l'**uscita dinamica** di qualsiasi giocatore, incluso chi ha creato la partita,
-  anche a causa di **crash**.
+- Garantire che ogni giocatore veda in modo **consistente** lo stato della griglia e le caselle selezionate dagli altri: dati due eventi e1 ed e2, se e1 happened-before e2 per un giocatore, allora e1 happened-before e2 per qualsiasi altro giocatore.
+- Supportare l'**uscita dinamica** di qualsiasi giocatore, incluso chi ha creato la partita, anche a causa di **crash**.
 
 ### Requisiti chiave
 
-| Requisito | Descrizione |
-|-----------|-------------|
-| **R1** | Creazione e join dinamico di stanze di gioco |
-| **R2** | Consistenza happened-before sugli eventi di modifica griglia |
-| **R3** | Visibilità delle selezioni correnti degli altri giocatori |
-| **R4** | Uscita/crash di qualsiasi giocatore senza bloccare la partita |
-| **R5** | Sincronizzazione della griglia al join di un nuovo giocatore |
+
+| Requisito | Descrizione                                                   |
+|-----------|---------------------------------------------------------------|
+| **R1**    | Creazione e join dinamico di stanze di gioco                  |
+| **R2**    | Consistenza happened-before sugli eventi di modifica griglia  |
+| **R3**    | Visibilità delle selezioni correnti degli altri giocatori     |
+| **R4**    | Uscita/crash di qualsiasi giocatore senza bloccare la partita |
+| **R5**    | Sincronizzazione della griglia al join di un nuovo giocatore  |
 
 ---
 
@@ -45,6 +40,12 @@ La comunicazione avviene tramite **RabbitMQ** (ospitato su CloudAMQP), che funge
 ### 2.1 Componenti RabbitMQ
 
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+  look: neo
+---
 erDiagram
     PLAYER ||--|| QUEUE : "possiede"
     QUEUE }o--|| EXCHANGE : "bound to (fanout)"
@@ -61,61 +62,70 @@ erDiagram
     }
 ```
 
-- **Exchange** (fanout): uno per stanza, identificato dall'ID della partita. Ogni messaggio
-  pubblicato viene inoltrato a **tutte** le code legate all'exchange.
-- **Queue**: una per giocatore, con nome che codifica `roomId`, `countQueue` (indice progressivo)
-  e `playerName`. Il flag `autoDelete: true` permette di rilevare i crash.
+- **Exchange** (fanout): uno per stanza, identificato dall'ID della partita. Ogni messaggio pubblicato viene inoltrato a **tutte** le code legate all'exchange.
+- **Queue**: una per giocatore, con nome che codifica `roomId`, `countQueue` (indice progressivo) e `playerName`. Il flag `autoDelete: true` permette di rilevare i crash.
 
 ### 2.2 Architettura della stanza
 
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+  look: neo
+---
 graph TD
     subgraph "RabbitMQ (CloudAMQP)"
-        EX(["[Exchange fanout]\nsudoku.room.N"])
-        Q0(["[Queue autoDelete]\nroom.N.queue.0.player.A"])
-        Q1(["[Queue autoDelete]\nroom.N.queue.1.player.B"])
-        QN(["[Queue autoDelete]\nroom.N.queue.M.player.X"])
+        EX(["[Exchange fanout]<br/>sudoku.room.N"])
+        Q0(["[Queue autoDelete]<br/>room.N.queue.0.player.A"])
+        Q1(["[Queue autoDelete]<br/>room.N.queue.1.player.B"])
+        QN(["[Queue autoDelete]<br/>room.N.queue.M.player.X"])
         EX --> Q0
         EX --> Q1
         EX --> QN
     end
 
-    PA(["[Client]\nPlayer A"]) -->|"pubblica"| EX
-    PB(["[Client]\nPlayer B"]) -->|"pubblica"| EX
-    PX(["[Client]\nPlayer X"]) -->|"pubblica"| EX
+    PA(["[Client]<br/>Player A"]) -->|"pubblica"| EX
+    PB(["[Client]<br/>Player B"]) -->|"pubblica"| EX
+    PX(["[Client]<br/>Player X"]) -->|"pubblica"| EX
     Q0 -->|"consuma"| PA
     Q1 -->|"consuma"| PB
     QN -->|"consuma"| PX
 ```
 
 Ogni client è sia **produttore** (pubblica sull'exchange) che **consumatore** (legge dalla propria queue).
-Poiché l'exchange è fanout, un messaggio pubblicato da Player A arriva anche nella sua stessa queue:
-ogni client applica la modifica **solo alla ricezione**, garantendo consistenza globale.
+Poiché l'exchange è fanout, un messaggio pubblicato da Player A arriva anche nella sua stessa queue: ogni client applica la modifica **solo alla ricezione**, garantendo consistenza globale.
 
 ### 2.3 Tipi di messaggio
 
-| Messaggio | Direzione | Scopo |
-|-----------|-----------|-------|
-| `join` | broadcast | Notifica ingresso nuovo giocatore |
-| `leave` | broadcast | Notifica uscita volontaria |
-| `gridRequest` | broadcast | Richiesta griglia al join |
-| `gridData` | broadcast | Risposta con griglia corrente |
-| `move` | broadcast | Inserimento/modifica di una casella |
-| `focusGained` | broadcast | Selezione di una casella |
-| `focusLost` | broadcast | Deselezione di una casella |
+
+| Messaggio     | Direzione | Scopo                               |
+|---------------|-----------|-------------------------------------|
+| `join`        | broadcast | Notifica ingresso nuovo giocatore   |
+| `leave`       | broadcast | Notifica uscita volontaria          |
+| `gridRequest` | broadcast | Richiesta griglia al join           |
+| `gridData`    | broadcast | Risposta con griglia corrente       |
+| `move`        | broadcast | Inserimento/modifica di una casella |
+| `focusGained` | broadcast | Selezione di una casella            |
+| `focusLost`   | broadcast | Deselezione di una casella          |
 
 ---
+
+<hr class="print-page-break">
 
 ## 3. Consistenza e sincronizzazione
 
 ### 3.1 Happened-before tramite FIFO (R2)
 
-La consistenza happened-before è garantita dalla natura FIFO del canale RabbitMQ: un exchange
-fanout consegna i messaggi alle code **nell'ordine in cui sono stati pubblicati**. Poiché tutti i
-client leggono dalla propria coda in ordine, se e1 è pubblicato prima di e2, tutti i client
-ricevono e applicano e1 prima di e2.
+La consistenza happened-before è garantita dalla natura FIFO del canale RabbitMQ: un exchange fanout consegna i messaggi alle code **nell'ordine in cui sono stati pubblicati**. Poiché tutti i client leggono dalla propria coda in ordine, se e1 è pubblicato prima di e2, tutti i client ricevono e applicano e1 prima di e2.
 
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+  look: neo
+---
 sequenceDiagram
     participant PA as Player A
     participant RMQ as RabbitMQ Exchange
@@ -131,12 +141,17 @@ sequenceDiagram
     Note over QB,QA: tutti vedono e1 prima di e2 ✓
 ```
 
-Ogni client, incluso il mittente, applica la modifica **solo alla ricezione** dal broker — mai
-direttamente. Questo elimina race condition locali e garantisce che tutti partano dallo stesso stato.
+Ogni client, incluso il mittente, applica la modifica **solo alla ricezione** dal broker — mai direttamente. Questo elimina race condition locali e garantisce che tutti partano dallo stesso stato.
 
 ### 3.2 Sincronizzazione griglia al join (R5)
 
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+  look: neo
+---
 sequenceDiagram
     participant NP as New Player
     participant RMQ as RabbitMQ
@@ -151,9 +166,7 @@ sequenceDiagram
     NP->>NP: inizializza griglia e mostra UI
 ```
 
-Solo il giocatore con il **countQueue minore** (`isPlayerWithMinCount`) risponde alla `gridRequest`,
-evitando risposte duplicate. Poiché il countQueue è codificato nel nome della queue, è ricavabile
-tramite la Management API di RabbitMQ (`RabbitMQDiscovery`).
+Solo il giocatore con il **countQueue minore** (`isPlayerWithMinCount`) risponde alla `gridRequest`, evitando risposte duplicate. Poiché il countQueue è codificato nel nome della queue, è ricavabile tramite la Management API di RabbitMQ (`RabbitMQDiscovery`).
 
 ---
 
@@ -162,6 +175,12 @@ tramite la Management API di RabbitMQ (`RabbitMQDiscovery`).
 ### 4.1 Join e leave volontario (R1, R4)
 
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+  look: neo
+---
 sequenceDiagram
     participant P as Player
     participant RMQ as RabbitMQ
@@ -178,43 +197,52 @@ sequenceDiagram
     P->>RMQ: exchangeDelete (se ultimo)
 ```
 
+
+<hr class="print-page-break">
+
+
 ### 4.2 Crash detection (R4)
 
-Il flag `autoDelete: true` sulla queue fa sì che RabbitMQ la elimini automaticamente quando
-il consumatore si disconnette. La **cancellation callback** registrata sul consumer intercetta
-questo evento e pubblica un messaggio di `leave` per notificare gli altri giocatori:
+Il flag `autoDelete: true` sulla queue fa sì che RabbitMQ la elimini automaticamente quando il consumatore si disconnette. La **cancellation callback** registrata sul consumer intercetta questo evento e pubblica un messaggio di `leave` per notificare gli altri giocatori:
 
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+  look: neo
+---
 flowchart LR
-    A["Player crasha\n(connessione persa)"] --> B["RabbitMQ elimina\nqueue autoDelete"]
-    B --> C["Cancellation callback\nscatta sul consumer"]
-    C --> D["pubblica leavePlayer\nsull'exchange"]
-    D --> E["Altri giocatori\nricevono leave\ne aggiornano UI"]
+    A["Player crasha<br/>(connessione persa)"] --> B["RabbitMQ elimina<br/>queue autoDelete"]
+    B --> C["Cancellation callback<br/>scatta sul consumer"]
+    C --> D["pubblica leavePlayer<br/>sull'exchange"]
+    D --> E["Altri giocatori<br/>ricevono leave<br/>e aggiornano UI"]
 ```
 
-Uno `ShutdownHook` JVM garantisce l'invio del `leave` anche in caso di chiusura forzata
-del processo.
+Uno `ShutdownHook` JVM garantisce l'invio del `leave` anche in caso di chiusura forzata del processo.
 
 ### 4.3 Self-filtering
 
-Poiché il fanout recapita i messaggi anche al mittente, ogni tipo di messaggio ha una strategia
-di filtering differente:
+Poiché il fanout recapita i messaggi anche al mittente, ogni tipo di messaggio ha una strategia di filtering differente:
 
-| Messaggio | Strategia | Motivazione |
-|-----------|-----------|-------------|
-| `move` | **Nessun filter** — il mittente consuma il proprio messaggio | Garantisce happened-before: la modifica è applicata solo alla ricezione dal broker, mai prima |
-| `focusGained` / `focusLost` | Self-filter — il mittente ignora il proprio | Il player non deve aggiornare la propria selezione nella propria UI |
-| `join` / `leave` | Self-filter — il mittente ignora il proprio | Il player non deve aggiungersi/rimuoversi dalla propria lista giocatori |
-| `gridData` | Inverse filter — solo il richiedente processa | La risposta contiene il nome del richiedente; gli altri ignorano |
-| `gridRequest` | Filter per `isPlayerWithMinCount` | Solo un giocatore risponde, evitando risposte duplicate |
 
-La mossa è il caso più critico: **non applicare self-filter** è la scelta che garantisce la
-consistenza. Se il mittente applicasse la modifica localmente prima dell'invio, potrebbe
-osservare uno stato diverso dagli altri in caso di mosse concorrenti. Applicandola solo
-alla ricezione dal broker, tutti i client — incluso il mittente — vedono le mosse
-nello stesso ordine FIFO:
+| Messaggio                   | Strategia                                                    | Motivazione                                                                                   |
+|-----------------------------|--------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `move`                      | **Nessun filter** — il mittente consuma il proprio messaggio | Garantisce happened-before: la modifica è applicata solo alla ricezione dal broker, mai prima |
+| `focusGained` / `focusLost` | Self-filter — il mittente ignora il proprio                  | Il player non deve aggiornare la propria selezione nella propria UI                           |
+| `join` / `leave`            | Self-filter — il mittente ignora il proprio                  | Il player non deve aggiungersi/rimuoversi dalla propria lista giocatori                       |
+| `gridData`                  | Inverse filter — solo il richiedente processa                | La risposta contiene il nome del richiedente; gli altri ignorano                              |
+| `gridRequest`               | Filter per`isPlayerWithMinCount`                             | Solo un giocatore risponde, evitando risposte duplicate                                       |
+
+La mossa è il caso più critico: **non applicare self-filter** è la scelta che garantisce la consistenza. Se il mittente applicasse la modifica localmente prima dell'invio, potrebbe osservare uno stato diverso dagli altri in caso di mosse concorrenti. Applicandola solo alla ricezione dal broker, tutti i client — incluso il mittente — vedono le mosse nello stesso ordine FIFO:
 
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+  look: neo
+---
 sequenceDiagram
     participant PA as Player A (mittente)
     participant RMQ as RabbitMQ Exchange
@@ -266,8 +294,7 @@ public interface RabbitMQDiscovery {
 }
 ```
 
-`isPlayerWithMinCount` è il metodo chiave per selezionare chi risponde alla `gridRequest`:
-restituisce `true` solo per il giocatore con il countQueue più basso tra quelli connessi.
+`isPlayerWithMinCount` è il metodo chiave per selezionare chi risponde alla `gridRequest`: restituisce `true` solo per il giocatore con il countQueue più basso tra quelli connessi.
 
 ### 5.3 Player
 
@@ -281,8 +308,7 @@ public interface Player {
 }
 ```
 
-Il nome della queue segue il pattern `sudoku.room.{roomId}.queue.{countQueue}.player.{name}`,
-che codifica tutte le informazioni necessarie senza stato centralizzato.
+Il nome della queue segue il pattern `sudoku.room.{roomId}.queue.{countQueue}.player.{name}`, che codifica tutte le informazioni necessarie senza stato centralizzato.
 
 > **Nota — `NumberFilter` e consistenza UI:** la UI non mostra il numero digitato nella cella
 > finché il messaggio non torna dal broker. Il `NumberFilter` intercetta l'input dell'utente,
@@ -301,24 +327,12 @@ che codifica tutte le informazioni necessarie senza stato centralizzato.
 
 ### Vantaggi dell'approccio MOM
 
-- **Disaccoppiamento totale**: i client non si conoscono tra loro e non dipendono da nessun
-  server applicativo. RabbitMQ è l'unico punto di contatto, rendendo il sistema resiliente
-  all'uscita di qualsiasi giocatore, incluso chi ha creato la stanza.
-
-- **Consistenza garantita dall'infrastruttura**: la garanzia FIFO del broker è sufficiente
-  a implementare happened-before senza algoritmi distribuiti aggiuntivi (no vector clock,
-  no consensus). La complessità di sincronizzazione è delegata a RabbitMQ.
-
-- **Scalabilità**: aggiungere un nuovo giocatore richiede solo la creazione di una nuova
-  queue e il bind all'exchange esistente. Nessuna modifica agli altri client.
-
-- **Crash detection nativa**: `autoDelete` + cancellation callback eliminano la necessità
-  di heartbeat espliciti — RabbitMQ gestisce la disconnessione automaticamente.
+- **Disaccoppiamento totale**: i client non si conoscono tra loro e non dipendono da nessun server applicativo. RabbitMQ è l'unico punto di contatto, rendendo il sistema resiliente all'uscita di qualsiasi giocatore, incluso chi ha creato la stanza.
+- **Consistenza garantita dall'infrastruttura**: la garanzia FIFO del broker è sufficiente a implementare happened-before senza algoritmi distribuiti aggiuntivi (no vector clock, no consensus). La complessità di sincronizzazione è delegata a RabbitMQ.
+- **Scalabilità**: aggiungere un nuovo giocatore richiede solo la creazione di una nuova queue e il bind all'exchange esistente. Nessuna modifica agli altri client.
+- **Crash detection nativa**: `autoDelete` + cancellation callback eliminano la necessità di heartbeat espliciti — RabbitMQ gestisce la disconnessione automaticamente.
 
 ### Svantaggi dell'approccio MOM
 
-- **Latenza del round-trip**: ogni mossa richiede un round-trip verso il broker prima di
-  essere visibile nella UI. In condizioni di rete lenta questo è percepibile dall'utente.
-
-- **Dipendenza dal broker**: RabbitMQ è un single point of failure. Se il broker va giù,
-  nessun client può comunicare, anche se sono sulla stessa rete locale.
+- **Latenza del round-trip**: ogni mossa richiede un round-trip verso il broker prima di essere visibile nella UI. In condizioni di rete lenta questo è percepibile dall'utente.
+- **Dipendenza dal broker**: RabbitMQ è un single point of failure. Se il broker va giù, nessun client può comunicare, anche se sono sulla stessa rete locale.
