@@ -42,7 +42,7 @@ object SimulationActor:
               simulation.start(totalStep)
               // created for each agent an actor
               simulation.agents().forEach: agent =>
-                val actorRef = context.spawn(CarActor.apply(agent), agent.getId())
+                val actorRef = context.spawn(CarActor.apply(agent), agent.getId)
                 simulation.addActor(actorRef)
               simulation.actors().forEach(_ ! Init(context.self, simulation))
             Behaviors.same

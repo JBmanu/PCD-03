@@ -1,7 +1,5 @@
 # Report – Cars Simulation (Akka)
 
----
-
 ## Indice
 
 1. [Analisi del problema](#1-analisi-del-problema)
@@ -43,43 +41,50 @@ Lo step successivo può iniziare solo quando **tutte** le automobili hanno compl
 ### 2.1 Attori del sistema
 
 ```mermaid
-graph TD
+---
+config:
+  theme: default
+  layout: dagre
+---
+graph LR
     SM(["[Java]<br/>SimulationManager"])
     SA(["[Akka Actor]<br/>SimulationActor"])
     CA0(["[Akka Actor]<br/>CarActor 0"])
-    CA1(["[Akka Actor]<br/>CarActor 1"])
     CAN(["[Akka Actor]<br/>CarActor N"])
 
     SM -->|"Start / Stop<br/>Pause / Resume"| SA
-    SA -->|"Init / StepSenseDecide<br/>StepAct"| CA0
-    SA -->|"Init / StepSenseDecide<br/>StepAct"| CA1
-    SA -->|"Init / StepSenseDecide<br/>StepAct"| CAN
     CA0 -->|"EndInitCar<br/>EndStepSenseDecideCar<br/>EndStepActCar"| SA
-    CA1 -->|"EndInitCar<br/>EndStepSenseDecideCar<br/>EndStepActCar"| SA
+    SA -->|"Init<br/>StepSenseDecide<br/>StepAct"| CA0
+    SA -->|"Init<br/>StepSenseDecide<br/>StepAct"| CAN
     CAN -->|"EndInitCar<br/>EndStepSenseDecideCar<br/>EndStepActCar"| SA
+
 ```
 
 - **SimulationManager** (Java) — gestisce il ciclo di vita dell'ActorSystem e i comandi della GUI.
-- **SimulationActor** (Scala/Akka) — orchestra tutti gli step: invia messaggi ai CarActor e aspetta
-  le risposte di tutti prima di procedere.
+- **SimulationActor** (Scala/Akka) — orchestra tutti gli step: invia messaggi ai CarActor e aspetta le risposte di tutti prima di procedere.
 - **CarActor** (Scala/Akka) — un attore per ogni automobile; esegue le tre fasi e notifica il completamento.
 
 ### 2.2 Ciclo di vita di SimulationManager
 
 ```mermaid
-stateDiagram-v2
-    [*] --> IDLE
-    IDLE --> RUNNING : start(steps)<br/>nuovo ActorSystem
-    RUNNING --> PAUSED : pause()
-    PAUSED --> RUNNING : resume()
-    RUNNING --> IDLE : simulazione terminata<br/>naturalmente (onSimulationEnded)
-    RUNNING --> ENDED : stop()
-    PAUSED --> ENDED : stop()
-    ENDED --> IDLE : pronto per<br/>nuova simulazione
+---
+config:
+  theme: default
+  layout: dagre
+---
+stateDiagram
+  direction LR
+  [*] --> IDLE
+  IDLE --> RUNNING:start(steps)<br>nuovo ActorSystem
+  RUNNING --> PAUSED:pause()
+  PAUSED --> RUNNING:resume()
+  RUNNING --> IDLE:simulazione terminata<br>naturalmente (onSimulationEnded)
+  RUNNING --> ENDED:stop()
+  PAUSED --> ENDED:stop()
+  ENDED --> IDLE:pronto per<br>nuova simulazione
 ```
 
-Ad ogni `start()` viene creato un nuovo `ActorSystem` con nome univoco (`Simulation-N`), garantendo
-l'assenza di conflitti tra esecuzioni successive.
+Ad ogni `start()` viene creato un nuovo `ActorSystem` con nome univoco (`Simulation-N`), garantendo l'assenza di conflitti tra esecuzioni successive.
 
 ---
 
@@ -88,6 +93,11 @@ l'assenza di conflitti tra esecuzioni successive.
 ### 3.1 Fase di inizializzazione
 
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+---
 sequenceDiagram
     participant SM as SimulationManager
     participant SA as SimulationActor
@@ -109,7 +119,18 @@ sequenceDiagram
 
 ### 3.2 Esecuzione di uno step
 
+Il pattern **counter** è il meccanismo di sincronizzazione centrale: `SimulationActor` incrementa un contatore a ogni risposta ricevuta e procede alla fase successiva solo quando `counter == N`.
+
+<hr class="print-page-break">
+
+
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+  look: neo
+---
 sequenceDiagram
     participant SA as SimulationActor
     participant CA as CarActor × N
@@ -132,12 +153,14 @@ sequenceDiagram
     end
 ```
 
-Il pattern **counter** è il meccanismo di sincronizzazione centrale: `SimulationActor` incrementa un
-contatore a ogni risposta ricevuta e procede alla fase successiva solo quando `counter == N`.
-
 ### 3.3 Comportamento di SimulationActor (DFA)
 
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+---
 stateDiagram-v2
     direction TB
     [*] --> Created
@@ -158,8 +181,7 @@ stateDiagram-v2
     Stopped --> [*]
 ```
 
-Il flag `started` in `SimulationActor` impedisce la doppia elaborazione del messaggio `Start` nel caso
-in cui arrivi più di una volta sullo stesso attore.
+Il flag `started` in `SimulationActor` impedisce la doppia elaborazione del messaggio `Start` nel caso in cui arrivi più di una volta sullo stesso attore.
 
 ---
 
@@ -193,8 +215,7 @@ object CarActor:
 
 ### 4.2 Engine funzionale
 
-`Engine` gestisce il tempo e gli step della simulazione secondo il **paradigma funzionale**: ogni operazione
-restituisce una nuova istanza immutabile, eliminando lo stato condiviso mutabile.
+`Engine` gestisce il tempo e gli step della simulazione secondo il **paradigma funzionale**: ogni operazione restituisce una nuova istanza immutabile, eliminando lo stato condiviso mutabile.
 
 ```scala
 trait Engine extends Scheduler, Stepper:
@@ -209,12 +230,16 @@ trait Engine extends Scheduler, Stepper:
     def computeDelay(): Option[Long]   // per sincronizzazione con tempo reale
 ```
 
-`computeDelay()` restituisce il delay da attendere prima del prossimo step, permettendo di
-sincronizzare la simulazione con il tempo reale (analogo al frame rate nei videogiochi).
+`computeDelay()` restituisce il delay da attendere prima del prossimo step, permettendo di sincronizzare la simulazione con il tempo reale (analogo al frame rate nei videogiochi).
 
 ### 4.3 Gestione riavvio (R5)
 
 ```mermaid
+---
+config:
+  theme: default
+  layout: dagre
+---
 flowchart LR
     A["Utente preme Start"] --> B["SimulationManager<br/>crea nuovo ActorSystem<br/>Simulation-N"]
     B --> C["Nuova AbstractSimulation<br/>agents e actors vuoti"]
@@ -222,8 +247,7 @@ flowchart LR
     D --> E["tell Start(steps)"]
 ```
 
-`SimulationType.getSimulation()` restituisce sempre una **nuova istanza** della simulazione: la lista
-`agents` parte vuota, `setup()` la popola, evitando l'accumulo di agenti tra un'esecuzione e l'altra.
+`SimulationType.getSimulation()` restituisce sempre una **nuova istanza** della simulazione: la lista `agents` parte vuota, `setup()` la popola, evitando l'accumulo di agenti tra un'esecuzione e l'altra.
 
 ### 4.4 Interfaccia grafica
 
@@ -232,29 +256,19 @@ flowchart LR
     <img src="./simCrossTraffic.png" style="width: 48%;">
 </div>
 
-La GUI (Java Swing) espone i controlli Start, Pause/Resume, Stop e un campo per il numero di step.
-`SimulationView` implementa `ViewSimulationListener` e riceve notifiche da `AbstractSimulation`
-(`notifyInit`, `notifyStepDone`, `notifyEnd`). Tutti gli aggiornamenti UI avvengono tramite
-`SwingUtilities.invokeLater` per rispettare il thread model di Swing.
+La GUI (Java Swing) espone i controlli Start, Pause/Resume, Stop e un campo per il numero di step. `SimulationView` implementa `ViewSimulationListener` e riceve notifiche da `AbstractSimulation` (`notifyInit`, `notifyStepDone`, `notifyEnd`). Tutti gli aggiornamenti UI avvengono tramite `SwingUtilities.invokeLater` per rispettare il thread model di Swing.
 
 ---
 
 ## 5. Risultati e considerazioni
 
-Il framework Akka ha permesso di modellare la simulazione in modo naturale: ogni automobile è un
-attore indipendente che esegue le proprie fasi concorrentemente con le altre, senza condivisione di
-stato mutabile.
+Il framework Akka ha permesso di modellare la simulazione in modo naturale: ogni automobile è un attore indipendente che esegue le proprie fasi concorrentemente con le altre, senza condivisione di stato mutabile.
 
 Punti chiave emersi:
 
-- **Pattern counter**: meccanismo semplice ed efficace per implementare la barriera di sincronizzazione
-  tra step senza usare lock o monitor.
-- **SimulationType come factory**: restituire una nuova istanza a ogni chiamata di `getSimulation()`
-  è stato cruciale per evitare l'accumulo di agenti tra esecuzioni successive.
-- **Behaviors.stopped**: terminare l'attore dopo `Stop` impedisce la ricezione di messaggi residui
-  (es. `EndStepActCar` in arrivo tardivo) che potrebbero alterare lo stato post-terminazione.
-- **Engine funzionale**: l'immutabilità dell'Engine elimina race condition sul tempo e sugli step,
-  rendendo il codice più prevedibile e testabile.
+- **Pattern counter**: meccanismo semplice ed efficace per implementare la barriera di sincronizzazione  tra step senza usare lock o monitor.
+- **SimulationType come factory**: restituire una nuova istanza a ogni chiamata di `getSimulation()` è stato cruciale per evitare l'accumulo di agenti tra esecuzioni successive.
+- **Behaviors.stopped**: terminare l'attore dopo `Stop` impedisce la ricezione di messaggi residui (es. `EndStepActCar` in arrivo tardivo) che potrebbero alterare lo stato post terminazione.
+- **Engine funzionale**: l'immutabilità dell'Engine elimina race condition sul tempo e sugli step, rendendo il codice più prevedibile e testabile.
 
-Sono stati testati tutti e tre gli ambienti forniti nell'Assignment 1: singola strada senza semafori,
-singola strada con semaforo, e incrocio con due semafori.
+Sono stati testati tutti e tre gli ambienti forniti nell'Assignment 1: singola strada senza semafori, singola strada con semaforo, e incrocio con due semafori.
